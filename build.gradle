@@ -1,0 +1,53 @@
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.1.2'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
+    }
+}
+
+allprojects {
+    group = 'org.mapsforge'
+    version = 'master-SNAPSHOT'
+    ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
+
+    ext.androidBuildVersionTools = "27.0.3"
+    ext.gdxVersion = "1.9.8"
+    ext.gwtVersion = "2.8.0"
+    ext.slf4jVersion = "1.7.25"
+
+    if (JavaVersion.current().isJava8Compatible()) {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+            logging.captureStandardError LogLevel.INFO
+            logging.captureStandardOutput LogLevel.INFO
+        }
+    }
+}
+
+static def androidCompileSdk() { return 27 }
+
+// Minimum API Level by Support Library
+static def androidMinSdk() { return 14 }
+
+static def androidTargetSdk() { return 22 }
+
+static def versionCode() { return 1 }
+
+def versionName() { return version }
+
+subprojects {
+    repositories {
+        google()
+        maven { url 'https://repo.boundlessgeo.com/main' }
+        jcenter()
+    }
+
+    tasks.withType(JavaCompile) {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
+    }
+}
