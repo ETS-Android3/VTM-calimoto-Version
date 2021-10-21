@@ -1,5 +1,6 @@
 /*
  * Copyright 2013 Hannes Janetzek
+ * Copyright 2021 calimoto GmbH (Luca Osten)
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -25,6 +26,11 @@ import java.io.OutputStream;
  * Thie interface CacheManager defines the operation for the cache.
  */
 public interface ITileCache {
+
+    /**
+     * Close the cache.
+     */
+    public void dispose();
 
     /**
      * @param tile The accessed tile.

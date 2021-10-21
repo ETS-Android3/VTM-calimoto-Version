@@ -22,8 +22,7 @@ import org.oscim.core.Tag;
 import org.oscim.core.Tile;
 import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.source.PbfDecoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,9 +31,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class TileDecoder extends PbfDecoder {
-    static final Logger log = LoggerFactory.getLogger(TileDecoder.class);
+    static final Logger log = new Logger(TileDecoder.class);
 
-    private final static float REF_TILE_SIZE = 4096.0f;
+    private static final float REF_TILE_SIZE = 4096.0f;
 
     private static final int TAG_TILE_TAGS = 1;
     private static final int TAG_TILE_WAYS = 2;

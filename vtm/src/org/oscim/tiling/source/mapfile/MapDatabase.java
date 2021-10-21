@@ -2,9 +2,10 @@
  * Copyright 2010, 2011, 2012 mapsforge.org
  * Copyright 2013, 2014 Hannes Janetzek
  * Copyright 2014-2015 Ludwig M Brinckmann
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2018 devemux86
  * Copyright 2016 Andrey Novikov
- * Copyright 2017 Gustl22
+ * Copyright 2017-2018 Gustl22
+ * Copyright 2018 Bezzu
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -30,13 +31,14 @@ import org.oscim.core.MercatorProjection;
 import org.oscim.core.Tag;
 import org.oscim.core.Tile;
 import org.oscim.layers.tile.MapTile;
+import org.oscim.layers.tile.buildings.BuildingLayer;
 import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.ITileDataSource;
 import org.oscim.tiling.source.mapfile.header.SubFileParameter;
 import org.oscim.utils.Parameters;
 import org.oscim.utils.geom.TileClipper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.utils.geom.TileSeparator;
+import org.oscim.debug.Logger;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -82,9 +84,9 @@ public class MapDatabase implements ITileDataSource {
      * Error message for an invalid first way offset.
      */
     private static final String INVALID_FIRST_WAY_OFFSET = "invalid first way offset: ";
-
-    static final Logger log = LoggerFactory.getLogger(MapDatabase.class);
-
+    
+    static final Logger log = new Logger(MapDatabase.class);
+    
     /**
      * Bitmask for the optional POI feature "elevation".
      */
@@ -204,6 +206,7 @@ public class MapDatabase implements ITileDataSource {
 
     private final TileProjection mTileProjection;
     private final TileClipper mTileClipper;
+    private final TileSeparator mTileSeparator;
 
     private final MapFileTileSource mTileSource;
 
@@ -219,7 +222,7 @@ public class MapDatabase implements ITileDataSource {
             mReadBuffer = new ReadBuffer(mInputFile);
 
         } catch (IOException e) {
-            log.error(e.getMessage());
+            log.error(e);
             /* make sure that the file is closed */
             dispose();
             throw new IOException();
@@ -227,6 +230,7 @@ public class MapDatabase implements ITileDataSource {
 
         mTileProjection = new TileProjection();
         mTileClipper = new TileClipper(0, 0, 0, 0);
+        mTileSeparator = new TileSeparator(0, 0, 0, 0);
     }
 
     public MapFileTileSource getTileSource() {
@@ -283,7 +287,7 @@ public class MapDatabase implements ITileDataSource {
             QueryCalculations.calculateBlocks(queryParameters, subFileParameter);
             processBlocks(sink, queryParameters, subFileParameter);
         } catch (IOException e) {
-            log.error(e.getMessage());
+            log.error(e);
             sink.completed(FAILED);
             return;
         }
@@ -300,7 +304,7 @@ public class MapDatabase implements ITileDataSource {
                 mInputFile.close();
                 mInputFile = null;
             } catch (IOException e) {
-                log.error(e.getMessage());
+                log.error(e);
             }
         }
     }
@@ -401,49 +405,61 @@ public class MapDatabase implements ITileDataSource {
         }
     }
 
-    //    private long mCurrentRow;
-    //    private long mCurrentCol;
-
-    private int xmin, ymin, xmax, ymax;
-
-    private void setTileClipping(QueryParameters queryParameters, long mCurrentRow, long mCurrentCol) {
+    private void setTileClipping(QueryParameters queryParameters, SubFileParameter subFileParameter,
+                                 long currentRow, long currentCol) {
         long numRows = queryParameters.toBlockY - queryParameters.fromBlockY;
         long numCols = queryParameters.toBlockX - queryParameters.fromBlockX;
 
-        //log.debug(numCols + "/" + numRows + " " + mCurrentCol + " " + mCurrentRow);
+        //log.debug(numCols + "/" + numRows + " " + currentCol + " " + currentRow);
 
         // At large query zoom levels use enlarged buffer
         int buffer;
-        if (queryParameters.queryZoomLevel > MapFileTileSource.MAX_ZOOM_LEVEL)
+        if (queryParameters.queryZoomLevel > BuildingLayer.MIN_ZOOM)
             buffer = Tile.SIZE / 2;
         else
             buffer = (int) (16 * CanvasAdapter.getScale() + 0.5f);
 
-        xmin = -buffer;
-        ymin = -buffer;
-        xmax = Tile.SIZE + buffer;
-        ymax = Tile.SIZE + buffer;
+        int xmin = -buffer;
+        int ymin = -buffer;
+        int xmax = Tile.SIZE + buffer;
+        int ymax = Tile.SIZE + buffer;
+
+        int xSmin = 0;
+        int ySmin = 0;
+        int xSmax = Tile.SIZE;
+        int ySmax = Tile.SIZE;
 
         if (numRows > 0) {
-            int w = (int) (Tile.SIZE / (numCols + 1));
-            int h = (int) (Tile.SIZE / (numRows + 1));
+            /* If blocks are at a border, sometimes too less blocks are requested,
+             * so the divisor for tile dimensions is increased to base tile subdivision.
+             */
+            boolean isTopBorder = queryParameters.fromBaseTileY < subFileParameter.boundaryTileTop;
+            boolean isLeftBorder = queryParameters.fromBaseTileX < subFileParameter.boundaryTileLeft;
+            long numSubX = queryParameters.toBaseTileX - queryParameters.fromBaseTileX;
+            long numSubY = queryParameters.toBaseTileY - queryParameters.fromBaseTileY;
+            long numDifX = numSubX - numCols; // 0 except at map borders
+            long numDifY = numSubY - numRows; // 0 except at map borders
 
-            if (mCurrentCol > 0)
-                xmin = (int) (mCurrentCol * w);
+            int w = (int) (Tile.SIZE / (numSubX + 1));
+            int h = (int) (Tile.SIZE / (numSubY + 1));
 
-            if (mCurrentCol < numCols)
-                xmax = (int) (mCurrentCol * w + w);
+            if (currentCol > 0)
+                xSmin = xmin = (int) ((currentCol + (isLeftBorder ? numDifX : 0)) * w);
 
-            if (mCurrentRow > 0)
-                ymin = (int) (mCurrentRow * h);
+            if (currentCol < numCols)
+                xSmax = xmax = (int) ((currentCol + (isLeftBorder ? numDifX : 0)) * w + w);
 
-            if (mCurrentRow < numRows)
-                ymax = (int) (mCurrentRow * h + h);
+            if (currentRow > 0)
+                ySmin = ymin = (int) ((currentRow + (isTopBorder ? numDifY : 0)) * h);
+
+            if (currentRow < numRows)
+                ySmax = ymax = (int) ((currentRow + (isTopBorder ? numDifY : 0)) * h + h);
         }
         mTileClipper.setRect(xmin, ymin, xmax, ymax);
+        mTileSeparator.setRect(xSmin, ySmin, xSmax, ySmax);
     }
 
-    //private final static Tag mWaterTag = new Tag("natural", "water");
+    //private static final Tag mWaterTag = new Tag("natural", "water");
 
     /**
      * Map rendering.
@@ -469,10 +485,7 @@ public class MapDatabase implements ITileDataSource {
         /* read and process all blocks from top to bottom and from left to right */
         for (long row = queryParams.fromBlockY; row <= queryParams.toBlockY; row++) {
             for (long column = queryParams.fromBlockX; column <= queryParams.toBlockX; column++) {
-                //mCurrentCol = column - queryParameters.fromBlockX;
-                //mCurrentRow = row - queryParameters.fromBlockY;
-
-                setTileClipping(queryParams,
+                setTileClipping(queryParams, subFileParameter,
                         row - queryParams.fromBlockY,
                         column - queryParams.fromBlockX);
 
@@ -658,6 +671,9 @@ public class MapDatabase implements ITileDataSource {
             }
             mTileProjection.projectPoint(latitude, longitude, e);
 
+            if (!mTileSeparator.separate(e))
+                continue;
+
             e.setLayer(layer);
 
             if (pois != null) {
@@ -750,7 +766,7 @@ public class MapDatabase implements ITileDataSource {
             lon += deltaLon;
 
             if (pos == length - 2) {
-                boolean line = isLine || (lon != firstLon && lat != firstLat);
+                boolean line = isLine || (lon != firstLon || lat != firstLat);
 
                 if (line) {
                     outBuffer[outPos++] = lon;
@@ -953,13 +969,15 @@ public class MapDatabase implements ITileDataSource {
                     e.setLabelPosition(e.points[0] + labelPosition[0], e.points[1] + labelPosition[1]);
                 mTileProjection.project(e);
 
-                // At large query zoom levels clip everything
-                if ((!e.tags.containsKey(Tag.KEY_BUILDING)
-                        && !e.tags.containsKey(Tag.KEY_BUILDING_PART))
-                        || queryParameters.queryZoomLevel > MapFileTileSource.MAX_ZOOM_LEVEL) {
-                    if (!mTileClipper.clip(e)) {
+                // Avoid clipping for buildings, which slows rendering.
+                // But clip everything if buildings are displayed.
+                if (!e.tags.containsKey(Tag.KEY_BUILDING)
+                        && !e.tags.containsKey(Tag.KEY_BUILDING_PART)) {
+                    if (!mTileClipper.clip(e))
                         continue;
-                    }
+                } else if (queryParameters.queryZoomLevel >= BuildingLayer.MIN_ZOOM) {
+                    if (!mTileSeparator.separate(e))
+                        continue;
                 }
                 e.simplify(1, true);
 
@@ -1064,7 +1082,7 @@ public class MapDatabase implements ITileDataSource {
             QueryCalculations.calculateBlocks(queryParameters, subFileParameter);
             processBlocks(queryParameters, subFileParameter, Tile.getBoundingBox(upperLeft, lowerRight), selector, mapReadResult);
         } catch (IOException e) {
-            log.error(e.getMessage());
+            log.error(e);
             return null;
         }
 

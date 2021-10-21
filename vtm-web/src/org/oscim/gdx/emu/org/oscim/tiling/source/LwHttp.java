@@ -28,7 +28,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class LwHttp implements HttpEngine {
-    //static final Logger log = LoggerFactory.getLogger(LwHttp.class);
+    //static final Logger log = new Logger(LwHttp.class);
 
     private XMLHttpRequest mHttpRequest;
 
@@ -58,6 +58,7 @@ public class LwHttp implements HttpEngine {
         }
     }
 
+    @Override
     public void close() {
         if (mHttpRequest == null)
             return;

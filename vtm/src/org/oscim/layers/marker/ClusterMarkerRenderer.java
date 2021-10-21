@@ -2,7 +2,7 @@
  * Copyright 2013 Hannes Janetzek
  * Copyright 2016 Izumi Kawashima
  * Copyright 2017 Longri
- * Copyright 2017 devemux86
+ * Copyright 2017-2018 devemux86
  * Copyright 2017 nebular
  * Copyright 2017 Wolfgang Schramm
  *
@@ -55,7 +55,7 @@ public class ClusterMarkerRenderer extends MarkerRenderer {
     /**
      * Map Cluster Icon Size. This is the biggest size for clusters of CLUSTER_MAXSIZE elements. Smaller clusters will be slightly smaller
      */
-    protected static final int MAP_MARKER_CLUSTER_SIZE_DP = 64;
+    protected static final int MAP_MARKER_CLUSTER_SIZE_DP = 80;
 
     /**
      * Clustering grid square size, decrease to cluster more aggresively. Ideally this value is the typical marker size
@@ -243,7 +243,8 @@ public class ClusterMarkerRenderer extends MarkerRenderer {
         //int changedVisible = 0;
         int numVisible = 0;
 
-        mMarkerLayer.map().viewport().getMapExtents(mBox, mExtents);
+        // Increase view to show items that are partially visible
+        mMarkerLayer.map().viewport().getMapExtents(mBox, Tile.SIZE / 2);
 
         long flip = (long) (Tile.SIZE * v.pos.scale) >> 1;
 

@@ -19,15 +19,8 @@ package org.oscim.test.renderer;
 import org.oscim.backend.GL;
 import org.oscim.backend.canvas.Color;
 import org.oscim.gdx.GdxMapApp;
-import org.oscim.gdx.GdxMapImpl;
 import org.oscim.layers.GenericLayer;
-import org.oscim.renderer.BucketRenderer;
-import org.oscim.renderer.BufferObject;
-import org.oscim.renderer.GLShader;
-import org.oscim.renderer.GLState;
-import org.oscim.renderer.GLUtils;
-import org.oscim.renderer.GLViewport;
-import org.oscim.renderer.MapRenderer;
+import org.oscim.renderer.*;
 import org.oscim.utils.FastMath;
 
 import java.nio.FloatBuffer;
@@ -35,10 +28,10 @@ import java.nio.FloatBuffer;
 import static org.oscim.backend.GLAdapter.gl;
 import static org.oscim.renderer.MapRenderer.COORD_SCALE;
 
-public class HexagonRenderTest extends GdxMapImpl {
+public class HexagonRenderTest extends GdxMapApp {
 
     @Override
-    protected void createLayers() {
+    public void createLayers() {
         mMap.setMapPosition(0, 0, 1 << 4);
         mMap.layers().add(new GenericLayer(mMap, new HexagonRenderer()));
     }
@@ -120,7 +113,7 @@ public class HexagonRenderTest extends GdxMapImpl {
             // set VBO vertex layout
             gl.vertexAttribPointer(hVertexPosition, 2, GL.FLOAT, false, 0, 0);
 
-            GLState.enableVertexArrays(hVertexPosition, -1);
+            GLState.enableVertexArrays(hVertexPosition, GLState.DISABLED);
 
             /* apply view and projection matrices */
             // set mvp (tmp) matrix relative to mMapPosition
@@ -176,7 +169,7 @@ public class HexagonRenderTest extends GdxMapImpl {
                 }
             }
 
-            GLUtils.checkGlError("...");
+            GLUtils.checkGlError(getClass().getName() + ": render() end");
         }
 
         private boolean init() {
@@ -201,7 +194,7 @@ public class HexagonRenderTest extends GdxMapImpl {
             return true;
         }
 
-        private final static String vShaderStr = ""
+        private static final String vShaderStr = ""
                 + "#ifdef GLES\n"
                 + "precision mediump float;\n"
                 + "#endif\n"
@@ -213,7 +206,7 @@ public class HexagonRenderTest extends GdxMapImpl {
                 + "   gl_Position = u_mvp * vec4(u_center + a_pos, 0.0, 1.0);"
                 + "}";
 
-        private final static String fShaderStr = ""
+        private static final String fShaderStr = ""
                 + "#ifdef GLES\n"
                 + "precision mediump float;\n"
                 + "#endif\n"

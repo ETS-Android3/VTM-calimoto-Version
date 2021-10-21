@@ -12,7 +12,7 @@ import java.util.List;
  * @author M.Kergall
  */
 public class RouteLeg implements Parcelable {
-    //final static Logger log = LoggerFactory.getLogger(RouteLeg.class);
+    //final static Logger log = new Logger(RouteLeg.class);
 
     /**
      * in km

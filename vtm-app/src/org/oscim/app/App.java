@@ -26,12 +26,11 @@ import android.view.WindowManager;
 
 import org.oscim.android.MapView;
 import org.oscim.map.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 public class App extends Application {
-
-    public final static Logger log = LoggerFactory.getLogger(App.class);
+    
+    public final static Logger log = new Logger(App.class);
 
     public static Map map;
     public static MapView view;

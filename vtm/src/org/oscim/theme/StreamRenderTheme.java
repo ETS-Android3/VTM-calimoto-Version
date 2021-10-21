@@ -85,7 +85,7 @@ public class StreamRenderTheme implements ThemeFile {
         try {
             mInputStream.reset();
         } catch (IOException e) {
-            throw new ThemeException(e.getMessage());
+            throw new ThemeException(e.getMessage(), e);
         }
         return mInputStream;
     }

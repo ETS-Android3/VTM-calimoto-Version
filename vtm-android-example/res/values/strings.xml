@@ -3,15 +3,15 @@
     <string name="app_name">VTM Samples</string>
     <string name="theme_default">Default</string>
     <string name="theme_calimoto">calimoto theme</string>
+    <string name="theme_calimoto_navigation">calimoto navigation theme</string>
+    <string name="theme_calimoto_roadtrip">calimoto roadtrip theme</string>
+    <string name="theme_calimoto_roadtrip_navigation">calimoto roadtrip navigation theme</string>
+    <string name="theme_calimoto_myspin">calimoto myspin theme</string>
     <string name="theme_osmarender">Osmarender</string>
     <string name="theme_osmagray">Osmagray</string>
     <string name="theme_tubes">Tubes</string>
     <string name="theme_newtron">NewTron</string>
     <string name="theme_external">External theme</string>
-    <string name="ok">OK</string>
-    <string name="cancel">Cancel</string>
-    <string name="error">Error</string>
-    <string name="file_invalid">The selected file is invalid.</string>
     <string name="styler_mode_line">Line</string>
     <string name="styler_mode_area">Area</string>
     <string name="styler_mode_outline">Outline</string>
@@ -20,5 +20,18 @@
     <string name="style_2">Hide nature</string>
     <string name="menu_gridlayer">Grid</string>
     <string name="dialog_reverse_geocoding_title">Reverse Geocoding</string>
+    <string name="add">Add</string>
+    <string name="cancel">Cancel</string>
+    <string name="error">Error</string>
+    <string name="file_invalid">The selected file is invalid.</string>
+    <string name="ok">OK</string>
+    <string name="remove">Remove</string>
+    <string name="search">Search</string>
+    <string name="search_key">\'*\' or OSM key</string>
+    <string name="search_value">void or value</string>
+    <string name="now">Now</string>
+    <string name="warning">Warning</string>
+    <string name="startup_message_mbtiles">To run this sample activity, you need any  MBTiles with filename test.mbtiles installed on storage.\n\nadb push file.mbtiles /sdcard/test.mbtiles</string>
+    <string name="exit">Exit</string>
 
 </resources>

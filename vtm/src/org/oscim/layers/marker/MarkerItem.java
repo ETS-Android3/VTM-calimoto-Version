@@ -57,12 +57,12 @@ public class MarkerItem implements MarkerInterface {
         this.geoPoint = geoPoint;
         this.uid = uid;
     }
-
+    
     public MarkerItem(GeoPoint geoPoint, Bitmap bitmap, HotspotPlace hotspotPlace) {
         this(null, null, geoPoint);
         this.mMarker = new MarkerSymbol(bitmap, hotspotPlace);
     }
-
+    
     public MarkerItem(GeoPoint geoPoint, Bitmap bitmap) {
         this(geoPoint, bitmap, HotspotPlace.CENTER);
     }
@@ -88,7 +88,7 @@ public class MarkerItem implements MarkerInterface {
     public MarkerSymbol getMarker() {
         return mMarker;
     }
-
+    
     @Override
     public int getZoomLevelDrawn() {
         return zoomLevelDrawn;
@@ -102,15 +102,15 @@ public class MarkerItem implements MarkerInterface {
         if (mMarker != null)
             mMarker.setRotation(rotation);
     }
-
+    
     public void setGeoPoint(GeoPoint geoPoint) {
         this.geoPoint = geoPoint;
     }
-
+    
     public void setZoomLevelDrawn(int zoomLevelDrawn) {
         this.zoomLevelDrawn = zoomLevelDrawn;
     }
-
+    
     public boolean isInside(ViewController viewController, Point pointMapTap) {
         if (geoPoint == null) {
             return false;

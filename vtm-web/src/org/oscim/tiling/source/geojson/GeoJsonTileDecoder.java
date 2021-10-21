@@ -23,8 +23,7 @@ import org.oscim.core.MapElement;
 import org.oscim.core.Tile;
 import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.source.ITileDecoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +33,7 @@ import static org.oscim.core.MercatorProjection.latitudeToY;
 import static org.oscim.core.MercatorProjection.longitudeToX;
 
 public class GeoJsonTileDecoder implements ITileDecoder {
-    static final Logger log = LoggerFactory.getLogger(GeoJsonTileDecoder.class);
+    static final Logger log = new Logger(GeoJsonTileDecoder.class);
 
     private final MapElement mapElement;
     private final GeoJsonTileSource mTileSource;
@@ -47,7 +46,7 @@ public class GeoJsonTileDecoder implements ITileDecoder {
         mapElement.layer = 5;
     }
 
-    final static LinkedHashMap<String, Object> mProperties = new LinkedHashMap<String, Object>(10);
+    static final LinkedHashMap<String, Object> mProperties = new LinkedHashMap<String, Object>(10);
 
     double mTileY, mTileX, mTileScale;
 

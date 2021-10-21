@@ -1,6 +1,6 @@
 /*
  * Copyright 2010, 2011, 2012 mapsforge.org
- * Copyright 2016 devemux86
+ * Copyright 2016-2019 devemux86
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -26,7 +26,6 @@ import android.os.Environment;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
-
 import org.oscim.android.test.R;
 
 import java.io.File;
@@ -57,17 +56,16 @@ public class FilePicker extends Activity implements AdapterView.OnItemClickListe
      * The name of the extra data in the result {@link Intent}.
      */
     public static final String SELECTED_FILE = "selectedFile";
-
+    
     private static final String PREFERENCES_FILE = "FilePicker";
     private static final String CURRENT_DIRECTORY = "currentDirectory";
-    private static final String DEFAULT_DIRECTORY = Environment.getExternalStorageDirectory().getAbsolutePath();
     private static final int DIALOG_FILE_INVALID = 0;
-
+    
     // private static final int DIALOG_FILE_SELECT = 1;
     protected Comparator<File> mFileComparator = getDefaultFileComparator();
     protected FileFilter mFileDisplayFilter;
     protected ValidFileFilter mFileSelectFilter;
-
+    
     /**
      * Sets the file comparator which is used to order the contents of all
      * directories before displaying them. If set to
@@ -78,7 +76,7 @@ public class FilePicker extends Activity implements AdapterView.OnItemClickListe
     public void setFileComparator(Comparator<File> fileComparator) {
         mFileComparator = fileComparator;
     }
-
+    
     /**
      * Sets the file display filter. This filter is used to determine which
      * files and subfolders of directories will be
@@ -89,7 +87,7 @@ public class FilePicker extends Activity implements AdapterView.OnItemClickListe
     public void setFileDisplayFilter(FileFilter fileDisplayFilter) {
         mFileDisplayFilter = fileDisplayFilter;
     }
-
+    
     /**
      * Sets the file select filter. This filter is used when the user selects a
      * file to determine if it is valid. If set
@@ -100,7 +98,7 @@ public class FilePicker extends Activity implements AdapterView.OnItemClickListe
     public void setFileSelectFilter(ValidFileFilter fileSelectFilter) {
         mFileSelectFilter = fileSelectFilter;
     }
-
+    
     /**
      * Creates the default file comparator.
      *
@@ -121,12 +119,13 @@ public class FilePicker extends Activity implements AdapterView.OnItemClickListe
             }
         };
     }
-
+    
+    private String mDefaultDirectory;
     private File mDirectory;
     private FilePickerIconAdapter mFilePickerIconAdapter;
     private File[] mFiles;
     private File[] mFilesWithParentFolder;
-
+    
     @SuppressWarnings("deprecation")
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -142,29 +141,29 @@ public class FilePicker extends Activity implements AdapterView.OnItemClickListe
             showDialog(DIALOG_FILE_INVALID);
         }
     }
-
+    
     /**
      * Browses to the current directory.
      */
     private void browseToCurrentDirectory() {
         setTitle(mDirectory.getAbsolutePath());
-
+        
         // read the subfolders and files from the current directory
         if (mFileDisplayFilter == null) {
             mFiles = mDirectory.listFiles();
         } else {
             mFiles = mDirectory.listFiles(mFileDisplayFilter);
         }
-
+        
         if (mFiles == null) {
             mFiles = new File[0];
         } else {
             // order the subfolders and files
             Arrays.sort(mFiles, mFileComparator);
         }
-
+        
         // if a parent directory exists, add it at the first position
-        if (mDirectory.getParentFile() != null) {
+        if (mDirectory.getParentFile() != null && mDirectory.getParentFile().canRead()) {
             mFilesWithParentFolder = new File[mFiles.length + 1];
             mFilesWithParentFolder[0] = mDirectory.getParentFile();
             System.arraycopy(mFiles, 0, mFilesWithParentFolder, 1,
@@ -176,23 +175,25 @@ public class FilePicker extends Activity implements AdapterView.OnItemClickListe
         }
         mFilePickerIconAdapter.notifyDataSetChanged();
     }
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_picker);
-
+        
+        mDefaultDirectory = getExternalFilesDir(null) != null ? getExternalFilesDir(null).getAbsolutePath() : "/sdcard/";
+        
         mFilePickerIconAdapter = new FilePickerIconAdapter(this);
         GridView gridView = (GridView) findViewById(R.id.filePickerView);
         gridView.setOnItemClickListener(this);
         gridView.setAdapter(mFilePickerIconAdapter);
-
+        
         // if (savedInstanceState == null) {
         // // first start of this instance
         // showDialog(DIALOG_FILE_SELECT);
         // }
     }
-
+    
     @Override
     protected Dialog onCreateDialog(int id) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -200,13 +201,13 @@ public class FilePicker extends Activity implements AdapterView.OnItemClickListe
             case DIALOG_FILE_INVALID:
                 builder.setIcon(android.R.drawable.ic_menu_info_details);
                 builder.setTitle(R.string.error);
-
+                
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append(getString(R.string.file_invalid));
                 stringBuilder.append("\n\n");
                 stringBuilder.append(mFileSelectFilter.getFileOpenResult()
                         .getErrorMessage());
-
+                
                 builder.setMessage(stringBuilder.toString());
                 builder.setPositiveButton(R.string.ok, null);
                 return builder.create();
@@ -219,7 +220,7 @@ public class FilePicker extends Activity implements AdapterView.OnItemClickListe
                 return null;
         }
     }
-
+    
     @Override
     protected void onPause() {
         super.onPause();
@@ -231,19 +232,15 @@ public class FilePicker extends Activity implements AdapterView.OnItemClickListe
         }
         editor.commit();
     }
-
+    
     @Override
     protected void onResume() {
         super.onResume();
-
+        
         // restore the current directory
         SharedPreferences preferences = getSharedPreferences(PREFERENCES_FILE,
                 MODE_PRIVATE);
-        mDirectory = new File(preferences.getString(CURRENT_DIRECTORY,
-                DEFAULT_DIRECTORY));
-        if (!mDirectory.exists() || !mDirectory.canRead()) {
-            mDirectory = new File(DEFAULT_DIRECTORY);
-        }
+        mDirectory = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
         browseToCurrentDirectory();
     }
 }

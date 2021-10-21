@@ -11,8 +11,7 @@ import org.osmdroid.routing.RouteProvider;
 import org.osmdroid.utils.BonusPackHelper;
 import org.osmdroid.utils.HttpConnection;
 import org.osmdroid.utils.PolylineEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,11 +28,11 @@ import java.util.Locale;
  * @author M.Kergall
  */
 public class OSRMRouteProvider extends RouteProvider {
-
-    final static Logger log = LoggerFactory.getLogger(OSRMRouteProvider.class);
+    
+    final static Logger log = new Logger(OSRMRouteProvider.class);
 
     // 1 for 6 digit precision, 10 for 5
-    private final static int ENCODING_PRECISION = 1;
+    private static final int ENCODING_PRECISION = 1;
 
     //static final String OSRM_SERVICE = "http://city.informatik.uni-bremen.de:5000/viaroute?";
     //static final String OSRM_SERVICE = "http://city.informatik.uni-bremen.de:5001/viaroute?";

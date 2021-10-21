@@ -26,8 +26,8 @@ import org.oscim.renderer.GLState;
 import org.oscim.renderer.GLUtils;
 import org.oscim.utils.pool.Inlist;
 import org.oscim.utils.pool.SyncPool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
+
 
 import java.util.ArrayList;
 
@@ -36,7 +36,7 @@ import javax.annotation.CheckReturnValue;
 import static org.oscim.backend.GLAdapter.gl;
 
 public class TextureItem extends Inlist<TextureItem> {
-    static final Logger log = LoggerFactory.getLogger(TextureItem.class);
+    static final Logger log = new Logger(TextureItem.class);
 
     static final boolean dbg = false;
 
@@ -194,6 +194,7 @@ public class TextureItem extends Inlist<TextureItem> {
         /**
          * Retrieve a TextureItem from pool.
          */
+        @Override
         public synchronized TextureItem get() {
             TextureItem t = super.get();
 
@@ -304,7 +305,7 @@ public class TextureItem extends Inlist<TextureItem> {
                 gl.generateMipmap(GL.TEXTURE_2D);
 
             if (dbg)
-                GLUtils.checkGlError(TextureItem.class.getName());
+                GLUtils.checkGlError(getClass().getName());
 
             if (mUseBitmapPool)
                 releaseBitmap(t);
@@ -340,8 +341,8 @@ public class TextureItem extends Inlist<TextureItem> {
 
     /* Pool for not-pooled textures. Disposed items will only be released
      * on the GL-Thread and will not be put back in any pool. */
-    final static TexturePool NOPOOL = new TexturePool(0);
-    final static ArrayList<Integer> disposedTextures = new ArrayList<Integer>();
+    static final TexturePool NOPOOL = new TexturePool(0);
+    static final ArrayList<Integer> disposedTextures = new ArrayList<Integer>();
 
     /**
      * Disposed textures are released by MapRenderer after each frame

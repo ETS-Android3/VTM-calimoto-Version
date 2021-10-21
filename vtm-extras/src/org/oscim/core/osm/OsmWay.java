@@ -16,11 +16,10 @@
  */
 package org.oscim.core.osm;
 
-import com.vividsolutions.jts.geom.CoordinateSequence;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.impl.PackedCoordinateSequenceFactory;
-
+import org.locationtech.jts.geom.CoordinateSequence;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
 import org.oscim.core.TagSet;
 
 import java.util.List;
@@ -44,6 +43,7 @@ public class OsmWay extends OsmElement {
         return "w" + id;
     }
 
+    @Override
     public Geometry toJts() {
         double[] coords = new double[nodes.size() * 2];
         int i = 0;

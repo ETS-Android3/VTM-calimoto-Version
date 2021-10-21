@@ -1,6 +1,7 @@
 /*
  * Copyright 2013 Hannes Janetzek
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2019 devemux86
+ * Copyright 2019 Gustl22
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -19,6 +20,7 @@ package org.oscim.android.test;
 
 import android.os.Bundle;
 
+import org.oscim.backend.CanvasAdapter;
 import org.oscim.core.MapPosition;
 import org.oscim.core.MercatorProjection;
 import org.oscim.layers.GroupLayer;
@@ -38,6 +40,23 @@ import org.oscim.theme.VtmThemes;
 public class SimpleMapActivity extends BaseMapActivity {
     private DefaultMapScaleBar mapScaleBar;
 
+    BuildingLayer mBuildingLayer;
+    private boolean mShadow;
+
+    public SimpleMapActivity() {
+        this(false);
+    }
+
+    public SimpleMapActivity(boolean shadow) {
+        super();
+        mShadow = shadow;
+    }
+
+    public SimpleMapActivity(boolean shadow, int contentView) {
+        super(contentView);
+        mShadow = shadow;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +66,8 @@ public class SimpleMapActivity extends BaseMapActivity {
 
     void createLayers() {
         GroupLayer groupLayer = new GroupLayer(mMap);
-        groupLayer.layers.add(new BuildingLayer(mMap, mBaseLayer));
+        mBuildingLayer = new BuildingLayer(mMap, mBaseLayer, false, mShadow);
+        groupLayer.layers.add(mBuildingLayer);
         groupLayer.layers.add(new LabelLayer(mMap, mBaseLayer));
         mMap.layers().add(groupLayer);
 
@@ -60,7 +80,7 @@ public class SimpleMapActivity extends BaseMapActivity {
         MapScaleBarLayer mapScaleBarLayer = new MapScaleBarLayer(mMap, mapScaleBar);
         BitmapRenderer renderer = mapScaleBarLayer.getRenderer();
         renderer.setPosition(GLViewport.Position.BOTTOM_LEFT);
-        renderer.setOffset(5 * getResources().getDisplayMetrics().density, 0);
+        renderer.setOffset(5 * CanvasAdapter.getScale(), 0);
         mMap.layers().add(mapScaleBarLayer);
 
         mMap.setTheme(VtmThemes.DEFAULT);
@@ -108,6 +128,7 @@ public class SimpleMapActivity extends BaseMapActivity {
 
                     p.setTilt((float) (Math.random() * 60));
                     p.setBearing((float) (Math.random() * 360));
+                    p.setRoll((float) (Math.random() * 360));
                     //mMapView.map().setMapPosition(p);
 
                     mMapView.map().animator().animateTo(time, p);

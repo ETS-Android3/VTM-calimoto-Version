@@ -1,3 +1,21 @@
+/*
+ * Copyright 2013 Hannes Janetzek
+ * Copyright 2018 devemux86
+ * Copyright 2018 Izumi Kawashima
+ *
+ * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
+ *
+ * This program is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.oscim.gdx.client;
 
 import com.google.gwt.user.client.Timer;
@@ -10,7 +28,7 @@ import org.oscim.map.Map;
 import java.util.HashMap;
 
 public class MapUrl extends Timer {
-    private int curLon, curLat, curZoom, curTilt, curRot;
+    private int curLon, curLat, curZoom, curTilt, curRot, curRoll;
     private MapPosition pos = new MapPosition();
     private final Map mMap;
     private String mParams = "";
@@ -40,6 +58,7 @@ public class MapUrl extends Timer {
         double lat = pos.getLatitude(), lon = pos.getLongitude();
         float rotation = pos.bearing;
         float tilt = pos.tilt;
+        float roll = pos.roll;
 
         //String themeName = "";
         //String mapName = "";
@@ -59,6 +78,8 @@ public class MapUrl extends Timer {
                     rotation = Float.parseFloat(p.substring(4));
                 else if (p.startsWith("tilt="))
                     tilt = Float.parseFloat(p.substring(5));
+                else if (p.startsWith("roll="))
+                    roll = Float.parseFloat(p.substring(5));
                     //    else if (p.startsWith("theme="))
                     //        themeName = p.substring(6);
                     //    else if (p.startsWith("map="))
@@ -83,27 +104,27 @@ public class MapUrl extends Timer {
                 MercatorProjection.latitudeToY(lat),
                 1 << zoom,
                 rotation,
-                tilt);
+                tilt, roll);
 
     }
 
     @Override
     public void run() {
         mMap.viewport().getMapPosition(pos);
-        int lat = (int) (MercatorProjection.toLatitude(pos.y) * 1000);
-        int lon = (int) (MercatorProjection.toLongitude(pos.x) * 1000);
+        int lat = (int) (pos.getLatitude() * 1000);
+        int lon = (int) (pos.getLongitude() * 1000);
+        int tilt = (int) (pos.tilt);
         int rot = (int) (pos.bearing);
-        rot = (int) (pos.bearing) % 360;
-        //rot = rot < 0 ? -rot : rot;
+        int roll = (int) (pos.roll);
 
         if (curZoom != pos.zoomLevel || curLat != lat || curLon != lon
-                || curTilt != rot || curRot != (int) (pos.bearing)) {
-
+                || curTilt != tilt || curRot != rot || curRoll != roll) {
             curLat = lat;
             curLon = lon;
             curZoom = pos.zoomLevel;
-            curTilt = (int) pos.tilt;
+            curTilt = tilt;
             curRot = rot;
+            curRoll = roll;
 
             String newURL = Window.Location
                     .createUrlBuilder()
@@ -111,6 +132,7 @@ public class MapUrl extends Timer {
                             + "scale=" + pos.zoomLevel
                             + "&rot=" + curRot
                             + "&tilt=" + curTilt
+                            + "&roll=" + curRoll
                             + "&lat=" + (curLat / 1000f)
                             + "&lon=" + (curLon / 1000f))
                     .buildString();

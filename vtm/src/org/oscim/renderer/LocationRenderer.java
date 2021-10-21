@@ -1,7 +1,7 @@
 /*
  * Copyright 2013 Ahmad Saleem
  * Copyright 2013 Hannes Janetzek
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2019 devemux86
  * Copyright 2016 ocsike
  * Copyright 2017 Mathieu De Brito
  *
@@ -36,16 +36,16 @@ public class LocationRenderer extends LayerRenderer {
     private static final long ANIM_RATE = 50;
     private static final long INTERVAL = 2000;
 
-    private static final float CIRCLE_SIZE = 30;
+    public static float CIRCLE_SIZE = 0;
     private static final int COLOR = 0xff3333cc;
-    private static final int SHOW_ACCURACY_ZOOM = 16;
+    private static final int SHOW_ACCURACY_ZOOM = 0;
 
     private final Map mMap;
     private final Layer mLayer;
-    private final float mScale;
+    protected final float mScale;
 
     private String mShaderFile;
-    private int mShaderProgram;
+    protected int mShaderProgram;
     private int hVertexPosition;
     private int hMatrixPosition;
     private int hScale;
@@ -64,6 +64,7 @@ public class LocationRenderer extends LayerRenderer {
     private boolean mLocationIsVisible;
 
     private boolean mRunAnim;
+    private boolean mAnimate = true;
     private long mAnimStart;
 
     private Callback mCallback;
@@ -86,6 +87,10 @@ public class LocationRenderer extends LayerRenderer {
         mColors[1] = a * Color.gToFloat(COLOR);
         mColors[2] = a * Color.bToFloat(COLOR);
         mColors[3] = a;
+    }
+
+    public void setAnimate(boolean animate) {
+        mAnimate = animate;
     }
 
     public void setCallback(Callback callback) {
@@ -122,6 +127,8 @@ public class LocationRenderer extends LayerRenderer {
         mRunAnim = enable;
         if (!enable)
             return;
+        if (!mAnimate)
+            return;
 
         final Runnable action = new Runnable() {
             private long lastRun;
@@ -130,11 +137,12 @@ public class LocationRenderer extends LayerRenderer {
             public void run() {
                 if (!mRunAnim)
                     return;
+                if (!mAnimate)
+                    return;
 
                 long diff = System.currentTimeMillis() - lastRun;
                 mMap.postDelayed(this, Math.min(ANIM_RATE, diff));
-                if (!mLocationIsVisible)
-                    mMap.render();
+                mMap.render();
                 lastRun = System.currentTimeMillis();
             }
         };
@@ -217,22 +225,21 @@ public class LocationRenderer extends LayerRenderer {
         GLState.blend(true);
         GLState.test(false, false);
 
-        GLState.enableVertexArrays(hVertexPosition, -1);
+        GLState.enableVertexArrays(hVertexPosition, GLState.DISABLED);
         MapRenderer.bindQuadVertexVBO(hVertexPosition/*, true*/);
 
         float radius = CIRCLE_SIZE * mScale;
 
-        animate(true);
         boolean viewShed = false;
         if (!mLocationIsVisible /* || pos.zoomLevel < SHOW_ACCURACY_ZOOM */) {
-            //animate(true);
+            animate(true);
         } else {
             if (v.pos.zoomLevel >= mShowAccuracyZoom)
                 radius = (float) (mRadius * v.pos.scale);
             radius = Math.max(CIRCLE_SIZE * mScale, radius);
 
             viewShed = true;
-            //animate(false);
+            animate(false);
         }
         gl.uniform1f(hScale, radius);
 
@@ -244,7 +251,7 @@ public class LocationRenderer extends LayerRenderer {
         v.mvp.multiplyMM(v.viewproj, v.mvp);
         v.mvp.setAsUniform(hMatrixPosition);
 
-        if (!viewShed) {
+        if (!viewShed && mAnimate) {
             float phase = Math.abs(animPhase() - 0.5f) * 2;
             //phase = Interpolation.fade.apply(phase);
             phase = Interpolation.swing.apply(phase);
@@ -274,7 +281,7 @@ public class LocationRenderer extends LayerRenderer {
         gl.drawArrays(GL.TRIANGLE_STRIP, 0, 4);
     }
 
-    private boolean init() {
+    protected boolean init() {
         int program = GLShader.loadShader(mShaderFile != null ? mShaderFile : "location_1");
         if (program == 0)
             return false;

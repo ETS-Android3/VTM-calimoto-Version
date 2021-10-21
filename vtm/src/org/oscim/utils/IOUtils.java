@@ -16,8 +16,7 @@
  */
 package org.oscim.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -27,7 +26,7 @@ import java.net.Socket;
  * A utility class with IO-specific helper methods.
  */
 public final class IOUtils {
-    final static Logger log = LoggerFactory.getLogger(IOUtils.class);
+    final static Logger log = new Logger(IOUtils.class);
 
     /**
      * Invokes the {@link Closeable#close()} method on the given object. If an
@@ -43,7 +42,7 @@ public final class IOUtils {
         try {
             closeable.close();
         } catch (IOException e) {
-            log.debug(e.getMessage());
+            log.debug(e);
         }
     }
 
@@ -55,7 +54,7 @@ public final class IOUtils {
         try {
             closeable.close();
         } catch (IOException e) {
-            log.debug(e.getMessage());
+            log.debug(e);
         }
     }
 

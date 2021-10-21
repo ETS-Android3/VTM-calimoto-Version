@@ -7,8 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osmdroid.utils.BonusPackHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -25,8 +24,8 @@ import java.util.Locale;
  * @author M.Kergall
  */
 public class GeocoderNominatim {
-
-    final static Logger log = LoggerFactory.getLogger(GeocoderNominatim.class);
+    
+    final static Logger log = new Logger(GeocoderNominatim.class);
 
     public static final String NOMINATIM_SERVICE_URL = "http://nominatim.openstreetmap.org/";
     public static final String MAPQUEST_SERVICE_URL = "http://open.mapquestapi.com/nominatim/v1/";
@@ -51,7 +50,7 @@ public class GeocoderNominatim {
         init(context, Locale.getDefault());
     }
 
-    static public boolean isPresent() {
+    public static boolean isPresent() {
         return true;
     }
 

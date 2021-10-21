@@ -24,8 +24,7 @@ import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.source.PbfDecoder;
 import org.oscim.utils.pool.Inlist;
 import org.oscim.utils.pool.Pool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,7 +32,7 @@ import java.util.ArrayList;
 import java.util.zip.InflaterInputStream;
 
 public class TileDecoder extends PbfDecoder {
-    static final Logger log = LoggerFactory.getLogger(TileDecoder.class);
+    static final Logger log = new Logger(TileDecoder.class);
 
     private static final int TAG_TILE_LAYERS = 3;
 
@@ -68,7 +67,7 @@ public class TileDecoder extends PbfDecoder {
     private final String mLocale = "de";
     private ITileDataSink mMapDataCallback;
 
-    private final static float REF_TILE_SIZE = 4096.0f;
+    private static final float REF_TILE_SIZE = 4096.0f;
     private float mScale;
 
     @Override
@@ -373,9 +372,9 @@ public class TileDecoder extends PbfDecoder {
         }
     }
 
-    private final static int CLOSE_PATH = 0x07;
-    private final static int MOVE_TO = 0x01;
-    //private final static int LINE_TO = 0x02;
+    private static final int CLOSE_PATH = 0x07;
+    private static final int MOVE_TO = 0x01;
+    //private static final int LINE_TO = 0x02;
 
     private int lastX, lastY;
 

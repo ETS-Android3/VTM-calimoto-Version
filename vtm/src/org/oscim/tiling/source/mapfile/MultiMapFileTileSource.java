@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2018 devemux86
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -15,12 +15,12 @@
 package org.oscim.tiling.source.mapfile;
 
 import org.oscim.core.BoundingBox;
-import org.oscim.core.GeoPoint;
+import org.oscim.layers.tile.buildings.BuildingLayer;
+import org.oscim.map.Viewport;
 import org.oscim.tiling.ITileDataSource;
+import org.oscim.tiling.OverzoomTileDataSource;
 import org.oscim.tiling.TileSource;
-import org.oscim.tiling.source.mapfile.header.MapFileInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,18 +29,22 @@ import java.util.List;
 import java.util.Map;
 
 public class MultiMapFileTileSource extends TileSource implements IMapFileTileSource {
-
-    private static final Logger log = LoggerFactory.getLogger(MultiMapFileTileSource.class);
-
+    
+    private static final Logger log = new Logger(MultiMapFileTileSource.class);
+    
     private final List<MapFileTileSource> mapFileTileSources = new ArrayList<>();
     private final Map<MapFileTileSource, int[]> zoomsByTileSource = new HashMap<>();
 
     public MultiMapFileTileSource() {
-        this(0, 17);
+        this(Viewport.MIN_ZOOM_LEVEL, Viewport.MAX_ZOOM_LEVEL);
     }
 
     public MultiMapFileTileSource(int zoomMin, int zoomMax) {
-        super(zoomMin, zoomMax);
+        this(zoomMin, zoomMax, BuildingLayer.MIN_ZOOM);
+    }
+
+    public MultiMapFileTileSource(int zoomMin, int zoomMax, int overZoom) {
+        super(zoomMin, zoomMax, overZoom);
     }
 
     public boolean add(MapFileTileSource mapFileTileSource) {
@@ -64,7 +68,11 @@ public class MultiMapFileTileSource extends TileSource implements IMapFileTileSo
         }
         return boundingBox;
     }
-
+    
+    public List<MapFileTileSource> getMapFileTileSources() {
+        return new ArrayList<>(mapFileTileSources);
+    }
+    
     public MapInfo getMapInfo() {
         for (int i = mapFileTileSources.size() - 1 ; i >= 0 ; i--) {
             MapFileTileSource mapFileTileSource = mapFileTileSources.get(i);
@@ -77,7 +85,7 @@ public class MultiMapFileTileSource extends TileSource implements IMapFileTileSo
 
     @Override
     public ITileDataSource getDataSource() {
-        MultiMapDatabase multiMapDatabase = new MultiMapDatabase(this);
+        MultiMapDatabase multiMapDatabase = new MultiMapDatabase();
         for (MapFileTileSource mapFileTileSource : mapFileTileSources) {
             try {
                 MapDatabase mapDatabase = new MapDatabase(mapFileTileSource);
@@ -86,10 +94,10 @@ public class MultiMapFileTileSource extends TileSource implements IMapFileTileSo
                     mapDatabase.restrictToZoomRange(zoomLevels[0], zoomLevels[1]);
                 multiMapDatabase.add(mapDatabase);
             } catch (IOException e) {
-                log.debug(e.getMessage());
+                log.debug(e);
             }
         }
-        return multiMapDatabase;
+        return new OverzoomTileDataSource(multiMapDatabase, mOverZoom);
     }
 
     @Override

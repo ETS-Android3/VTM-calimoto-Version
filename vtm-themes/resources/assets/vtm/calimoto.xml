@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rendertheme xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" map-background="#FCFBE7"
+<rendertheme xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" map-background="#f8f4f0"
     version="1" xmlns="http://opensciencemap.org/rendertheme"
     xsi:schemaLocation="http://opensciencemap.org/rendertheme https://raw.githubusercontent.com/mapsforge/vtm/master/resources/rendertheme.xsd">
 
@@ -14,13 +14,17 @@
         	some explanations:
         	- fade:	the zoom level the element is faded in  (the fade starts at the border from the previous level and ends with the full color at the end to the next level)
         	- blend: the zoom level the element-color is mixed with the color defined in blend-fill.
-        	- mesh: (tesselation) is used fort the lowres world map polygons and overlapping areas. (Still not clear)
+        	- mesh: (tesselation) is used fort the lowres world map polygons and overlapping areas, if polygons overlap they get lost, mesh prevents that.
         	- when inheriting another style with 'from' then 'width' is relative to the parent 
         	- alpha channel is supported ==> e.g. 8 digit hex color format
         	- width in inherit style is relative to the parent
         	- area-size (text or caption) in percentage: to show label only if polygon area covers specified amount of a tile.
         	- stroke-dasharray is currently not supported (https://github.com/mapsforge/vtm/issues/131) is stipple instead (see track)
         	- cat element can only be used on <m> tags!
+        	- match tunnel-tag that are not 'no' or 'false'
+				<m k="tunnel" v="-|no|false">
+			- match area-tag that are 'no' or 'false' or not present
+				<m k="area" v="~|no|false">-->
         	
         	this stylesheet file is divided in:	
         		general style section (styles for element handling, outline styles)
@@ -47,80 +51,63 @@
 <!-- 		Text Styles						 -->
 
     <!-- base style for road labels -->
-    <style-text fill="#777777" id="road" k="name" priority="27" size="13" stroke="#eeeeee" stroke-width="2.5" />
-    
+    <style-text fill="#2d261f" id="road" k="name" priority="33" size="13" stroke="#aaffffff" stroke-width="2.5" />
+
     <!-- base style for road refs -->
-    <style-text fill="#777777" id="road_ref" k="ref" priority="28" size="13" stroke="#eeeeee" stroke-width="2.5" />
+    <style-text fill="#2d261f" id="road_ref" k="ref" priority="32" size="13" stroke="#aaffffff" stroke-width="2.5" />
 
     <!-- base style for major road label -->
-    <style-text fill="#777777" id="major-road" k="name" priority="29" size="13" stroke="#eeeeee" stroke-width="2.5" />
+    <style-text fill="#2d261f" id="major-road" k="name" priority="31" size="13" stroke="#aaffffff" stroke-width="2.5" />
     
     <!-- base style for major road refs -->
-    <style-text fill="#777777" id="major-road_ref" k="ref" priority="30" size="13" stroke="#eeeeee" stroke-width="2.5" />
+    <style-text fill="#2d261f" id="major-road_ref" k="ref" priority="30" size="13" stroke="#aaffffff" stroke-width="2.5" />
     
     <!-- base style for poi labels -->
-    <style-text caption="true" dy="-20" fill="#888888" id="poi" k="name" size="10" stroke="#aaffffff" stroke-width="2.5" priority="-20" />
+    <style-text caption="true" dy="-16" fill="#2d261f" id="poi" k="name" size="13" stroke="#aaffffff" stroke-width="2.5" priority="28" />
 	
 	<!-- base style for minor poi labels -->
-	<style-text caption="true" dy="-10" fill="#888888" id="minor_poi" k="name" size="12" stroke="#aaffffff" stroke-width="2.5" priority="-21" />
-    
-    <!-- base style for area texts -->
-    <style-text fill="#888888" id="area_label" k="name" size="10" stroke="#aaffffff" stroke-width="2.5" priority="-19" style="italic"/>
-    
+	<style-text caption="true" dy="-11" fill="#2d261f" id="minor_poi" k="name" size="12" stroke="#aaffffff" stroke-width="2.5" priority="29" />
+
     <!-- base style for water texts -->
-    <style-text fill="#991b6bb1" id="water_label" k="name" size="16" stroke="#aaffffff" stroke-width="2.5" priority="19" style="italic"/>
+    <style-text fill="#991b6bb1" id="water_label" k="name" size="14" stroke="#aaffffff" stroke-width="2.5" priority="41" style="italic"/>
     
     <!-- base style for ferries -->
-    <style-text fill="#888888" id="ferry" k="name" size="13" stroke="#aaffffff" stroke-width="2.0" priority="26"/>
+    <style-text fill="#2d261f" id="ferry" k="name" size="13" stroke="#aaffffff" stroke-width="2.5" priority="34"/>
     
 <!--  		Area Styles 					-->
     <!-- base style for all residential/urban areas -->
     <style-area fill="#d3d3c5" id="residential" />
 
-    <!-- base style for railway | industrial areas -->
-    <style-area fill="#deded5" id="railway|industrial" />
-
-    <!-- texture overlay to getting areas a little more realistic-->
-    <style-area id="tex1" src="assets:textures/rough.png" />
-
     <!-- park|common|green|cemetery|golf_course|dog_park -->
-    <style-area fill="#DAF2C1" id="park" use="tex1" />
+    <style-area fill="#c0d8e8c8" id="park"  />
     
     <!-- sports -->
-    <style-area fill="#B8E6B8" id="sports" use="tex1" />
+    <style-area fill="#c0d8e8c8" id="sports"/>
     
 <!-- 		Line Styles						-->
     <!-- base style for fixed width lines -->
     <style-line cap="butt" fix="true" id="fix" width="1.0" />
     <style-line cap="butt" fix="true" id="park" stroke="#9ac56e" width="1.0" />
-    
-    <style-line id="residential_line" stroke="#ffffff" width="1.3" />
-    <style-line cap="square" id="residential:bridge" use="residential_line" />
-    <style-line id="pedestrian" use="residential_line" width="-0.4" />
-    <style-line cap="square" id="pedestrian:bridge" use="pedestrian" />
-    <style-line id="motorway" stroke="#f1c0a7" width="1.8" />
-    <style-line id="motorway:z6" stroke="#f1c0a7" width="1.8" />
-    <style-line id="trunk" stroke="#f7a67d" width="1.6" />
-    <style-line id="trunk:z6" stroke="#f7a67d" width="1.6" />
-    <style-line id="trunk_link" cap="butt" stroke="#f7a67d" width="0.8" />
-    <style-line id="motorway_link" cap="butt" stroke="#f1c0a7" width="0.9" />
-    <style-line id="primary" stroke="#FFD27A" width="1.5" />
-    <style-line id="primary_link" stroke="#FFD27A" width="1.0" />
-    <style-line id="secondary" stroke="#FFE873" width="1.5"/>
-    <style-line id="tertiary" use="secondary" width="-0.3" />
-    <style-line id="construction" stroke="#e0e0e0" width="0.6" stipple="5" stipple-stroke="#00000000" stipple-width="1.2" />
-    <style-line id="highway-service" use="residential_line" width="-0.6" />    
-
-    <!-- track|footway|path|cycleway -->
-    <style-line id="highway:track" stroke="#c68c53" width="0.6" stipple="5" stipple-stroke="#00000000" stipple-width="1.2" />
-    <style-line id="highway:track:z15" stroke="#c68c53" width="0.4" stipple="10" stipple-stroke="#00000000" stipple-width="1.2" />
-    <style-line id="highway:track:z16" stroke="#c68c53" width="0.3" stipple="20" stipple-stroke="#00000000" stipple-width="1.2" />
+	
+	<style-line id="residential_line" stroke="#ffffff" width="1.3" />
+	<style-line cap="square" id="residential:bridge" use="residential_line" />
+	<style-line id="motorway" stroke="#eaa07b" width="1.8" />
+	<style-line id="motorway:z6" stroke="#eaa07b" width="1.8" />
+	<style-line id="trunk" stroke="#f4a657" width="1.6" />
+	<style-line id="trunk_link" cap="butt" stroke="#f4a657" width="0.8" />
+	<style-line id="motorway_link" cap="butt" stroke="#eaa07b" width="0.9" />
+	<style-line id="primary" stroke="#ffbb33" width="1.5" />
+	<style-line id="primary_link" stroke="#ffbb33" width="1.0" />
+	<style-line id="secondary" stroke="#ffdd33" width="1.5"/>
+	<style-line id="tertiary" use="secondary" width="-0.3" />
+	
+	<!-- track|footway|path|cycleway -->
+    <style-line id="highway:track" stroke="#aad1a67a" width="0.7"/>
     
     <!-- waterways and water area styles -->
-    <style-line cap="butt" fix="true" id="water:outline" stroke="#C4DFF6" width="1.0" />
-    <style-line cap="butt" fix="true" id="water" stroke="#C4DFF6" width="1.0" />
-    <style-line fix="false" id="river" stroke="#C4DFF6" use="water" />
-    <style-area fill="#C4DFF6" id="water" use="tex1" />
+    <style-line cap="round" id="water" stroke="#C4DFF6" width="1.0" />
+    <style-line id="river" stroke="#C4DFF6" use="water" />
+    <style-area fill="#C4DFF6" id="water"/>
 
     <!-- no-go area boundary -->
     <style-line cap="butt" fix="true" id="fence" stroke="#444444" width="1.2" />
@@ -129,14 +116,24 @@
     <!-- buildings -->
     <style-line fade="15" id="building" stroke="#eeb7b6b3" use="fix" />
     <style-area fade="15" fill="#f2f0eb" id="building" stroke="#b7b6b3" stroke-width="1.0" />
-
-    <!-- lowres world map elements -->
+	
+	<!-- activate if mapsforge large relation processing is fixed (see california)-->
+	<!-- protected_area needs more filtering right now -->
+	<m k="leisure|protect_class|boundary" v="2_z11|3_z11|4_z11|6_z11|nature_reserve_z11|national_park_z11" >
+		<area fade="9" fill="#80d9e8c9"/>
+	</m>
+	
+	<m k="leisure|protect_class|boundary" v="2|3|4|6|nature_reserve|national_park" >
+		<area fill="#80d9e8c9" />
+	</m> 
+	
+	<!-- lowres world map elements -->
     <m e="way" k="natural" v="issea|sea">
         <area mesh="true" use="water" />
     </m>
 
     <m e="way" k="natural" v="nosea">
-        <area fill="#FCFBE7" stroke="#FCFBE7" stroke-width="5.0" />
+        <area fill="#f8f4f0" stroke="#f8f4f0" stroke-width="5.0" />
     </m>
     
 <!-- 			OSM Element handling			 -->
@@ -147,182 +144,195 @@
 
         <!-- landuse base -->
          <m k="landuse">
-            <m v="residential_z11|allotments_z11|brownfield_z11|commercial_z11|retail_z11|construction_z11|greenfield_z11|residential|allotments|brownfield|commercial|retail|construction|greenfield">
-                <area fade="10" use="residential" />
+            <m v="residential_z11|brownfield_z11|commercial_z11|retail_z11|construction_z11|greenfield_z11">
+                <area fade="10" use="residential" mesh="true"/>
             </m>
+			 <m v="residential|brownfield|commercial|retail|construction|greenfield">
+				 <area fade="12" use="residential" mesh="true"/>
+			 </m>
         </m>
 
         <m k="landuse">
- 			<m v="quarry_z11|quarry">
+ 			<m v="quarry_z11">
                 <area fade="10" fill="#deded5"/>
             </m>
-            <m v="industrial|railway|railway_z11|garages|landfill|factory">
-                <area fade="13" use="railway|industrial" />
+			<m v="quarry">
+				<area fade="12" fill="#deded5"/>
+			</m>
+            <m v="railway_z11|industrial_z11|garages_z11|landfill_z11|factory_z11">
+                <area fade="10" use="residential" />
             </m>
+			<m v="industrial|railway|garages|landfill|factory">
+				<area fade="12" use="residential" />
+			</m>
         </m>
         <m k="landuse|natural|leisure|amenity|tourism">
-            <!-- kind of more like landuse imho -->
-          <!--  <m k="leisure|landuse" v="nature_reserve|protected_area|national_park"> -->
-            	<!-- remove when the ocean is rendered above protected areas <area  fill="#80DAF2C1" use="tex1" />  -->
-          <!--      <text use="area_label"/>
-            </m> -->
-
             <m k="tourism">
-           
-                <m v="zoo|picnic_site|caravan_site|camp_site" zoom-min="14">
-                    <area fade="14" use="park" />
+                <m v="zoo|picnic_site|caravan_site|camp_site" zoom-min="13">
+                    <area fade="13" use="park" />
                 </m>
             </m>
 
             <!-- amenity -->
-            <m k="amenity" zoom-min="14">
-                <m v="kindergarten|school|college|university">
-                    <area fade="14" fill="#FFF5CC" />
+            <m k="amenity" zoom-min="13">
+                <m v="kindergarten|school|college|university|embassy|theatre|place_of_worship|doctors|fuel|biergarten|restaurant|alpine_hut">
+                    <area fade="13" use="residential"/>
                 </m>
-                <m v="hospital" zoom-min="14">
-                    <area fade="14" fill="#f0dddb" />
+                <m v="hospital" zoom-min="13">
+                    <area fade="13" use="residential"/>
                 </m>
             </m>
 
             <!-- landuse -->
-            <m k="landuse" v="cemetery|grave_yard" zoom-min="14">
-                <area use="park" fade="14"/>
-                 	<m zoom-min="14" zoom-max="15">
-                		<area fade="14" src="assets:calimoto/cemetery_32.png"/>
-           		 	</m>
-           		 	<m zoom-min="16">
-                		<area src="assets:calimoto/cemetery_32.png"/>
-           		 	</m>
+            <m k="landuse" v="cemetery|grave_yard" zoom-min="13">
+                <area use="park" fade="13"/>
            	</m>
-            <m k="landuse" v="village_green|recreation_ground" zoom-min="14">
-                <area fade="14" use="park" />
+            <m k="landuse" v="village_green|recreation_ground" zoom-min="13">
+                <area fade="13" use="park" />
             </m>
-            <m k="leisure" v="park|common|golf_course|dog_park|garden" zoom-min="14">
-                <area use="park" fade="14"/>
+            <m k="leisure" v="park|common|golf_course|dog_park|garden" zoom-min="13">
+                <area use="park" fade="13"/>
             </m>
 
             <!-- Heideland, keep below forest -->
-            <m v="heath_z11|fell_z11|meadow_z11|scrub_z11|grassland_z11|grass_z11|heath|fell|meadow|scrub|grassland|grass" zoom-min="10">
-                <area fade="10" fill="#DAF2C1" use="tex1" />
+            <m v="grassland_z11|grass_z11|allotments_z11" zoom-min="10">
+                <area fade="10" fill="#c0d8e8c8"/>
             </m>
-
-            <m k="landuse|natural" v="forest_z11|wood_z11|forest|wood" zoom-min="9">
-            	<area fade="9" fill="#80b3cf96" use="tex1"/>
+			<m v="grassland|grass|allotments" zoom-min="12">
+				<area fade="12" fill="#c0d8e8c8"/>
+			</m>
+			
+			<m k="landuse|natural" v="forest_z5|wood_z5" zoom-min="5">
+				<area fade="5" fill="#99b3cf96" mesh="true"/>
+			</m>
+            <m k="landuse|natural" v="forest_z8|wood_z8" zoom-min="8">
+            	<area fade="8" fill="#99b3cf96" mesh="true"/>
             </m>
+			<m k="landuse|natural" v="forest_z11|wood_z11" zoom-min="9">
+				<area fade="9" fill="#99b3cf96" mesh="true"/>
+			</m>
+			<m k="landuse|natural" v="forest|wood" zoom-min="12">
+			<area fade="12" fill="#99b3cf96" mesh="true"/>
+			</m>
 
             <!-- amenity -->
             <m k="amenity">
-                <m v="parking" zoom-min="14">
-                    <area fade="14" fill="#f2f2f2"/>
+                <m v="parking" zoom-min="12">
+                    <area fade="12" use="residential"/>
                 </m>
             </m>
 
             <!-- natural -->
             <m k="natural">
-                <m v="glacier_z11|glacier">
-                    <area fade="8" fill="#fafaff" use="tex1"/>
+                <m v="glacier_z11">
+                    <area fade="8" fill="#fafaff"/>
                 </m>
-                <m v="beach_z11|sand_z11|beach|sand" zoom-min="10">>
-                    <area fade="10" fill="#FFEEC7" use="tex1"/>
+				<m v="glacier">
+					<area fade="12" fill="#fafaff"/>
+				</m>
+                <m v="beach_z11|sand_z11" zoom-min="10">
+                    <area fade="10" fill="#FFEEC7" />
                 </m>
-                <m v="marsh_z11|wetland_z11|mud_z11|scree_z11|rock_z11|stone_z11|bare_rock_z11|bedrock_z11|marsh|wetland|mud|scree|rock|stone|bare_rock|bedrock">
-                    <area fade="10" fill="#f0eed3" use="tex1"/>
-                </m>
+				<m v="beach|sand" zoom-min="12">
+					<area fade="12" fill="#FFEEC7" />
+				</m>
             </m>
 
             <!-- leisure -->
             <m k="leisure">
-                <m v="stadium">
-                    <area fade="14" use="sports" />
-                </m>
-                <!--should be under playing field -->
-                <m v="sports_centre|water_park|playground|miniature_golf|pitch|track|soccer|swimming|tennis|baseball|volleyball|shooting|cricket|football|climbing|equestrian">
-                    <area fade="14" use="sports" />
+                <m v="sports_centre|water_park|playground|miniature_golf|pitch|track|soccer|swimming|tennis|baseball|volleyball|shooting|cricket|football|climbing|equestrian|stadium">
+                    <area fade="13" use="sports" />
                 </m>
                 <m v="swimming_pool">
                     <area fade="14" fill="#d4ebfc" stroke="#6060ff" stroke-width="0.2" />
                 </m>
             </m>
-
-            <m k="leisure|landuse" zoom-min="10">
-                <m v="military_z11|military" zoom-max="11">
-              		<area fade="10" src="assets:calimoto/military_red_hatch.png" symbol-height="96" symbol-width="96"/>
-                </m>
-                <m v="military|military_z11" zoom-min="12">
-              		<area src="assets:calimoto/military_red_hatch.png" symbol-height="192" symbol-width="192"/>
-                </m>
-            </m>
-            <m k="landuse" v="reservoir_z11|basin_z11|reservoir|basin">
-                <area fade="8" use="water" />
+			
+            <m k="landuse" v="reservoir_z11|basin_z11">
+                <area fade="8" use="water" mesh="true"/>
 				<m zoom-min="13">
-              		<text use="water_label"/>
+					<caption area-size="0.05" fill="#991b6bb1" k="name" size="14" stroke="#aaffffff" stroke-width="2.5" priority="42" style="italic"/>
             	</m>
             </m>
+			<m k="landuse" v="reservoir|basin">
+				<area fade="12" use="water" mesh="true"/>
+				<m zoom-min="13">
+					<caption area-size="0.05" fill="#991b6bb1" k="name" size="14" stroke="#aaffffff" stroke-width="2.5" priority="42" style="italic"/>
+				</m>
+			</m>
         </m><!-- end landuse|natural|leisure||amenity|tourism -->
     </m>
 
     <!-- waterways -->
     <m e="way" k="waterway">
         <m v="drain" zoom-min="13">
-            <line fade="13" use="water" width="0.2" />
+            <line fade="13" use="water" width="-0.7" />
+			<m zoom-min="16">
+				<text use="water_label"/>
+			</m>
         </m>
         <m v="canal_z11|canal" zoom-min="10">
-            <line fade="10" use="river" width="-0.3" />
-            <m zoom-min="13">
+            <line fade="10" use="river" />
+            <m zoom-min="15">
                <text use="water_label"/>
             </m>
         </m>
         <m v="stream" zoom-min="13">
-            <line fade="13" use="water" width="0.5" />
+            <line fade="13" use="water" width="-0.3" />
+			<m zoom-min="16">
+				<text use="water_label"/>
+			</m>
         </m>
         <m v="river_z11|river" zoom-min="8">         
-            <line fade="8" use="river" width="0.3" />
-            <m zoom-min="13">
+            <line fade="8" use="river" width="1.0" />
+            <m zoom-min="14">
                <text use="water_label"/>
             </m>
         </m>
         <m v="riverbank" zoom-min="8">
-            <area fade="8" use="water" />
-            <m zoom-min="13">
+            <area fade="8" use="water" mesh="true"/>
+            <m zoom-min="14">
                <text use="water_label"/>
             </m>
         </m>
         <m v="dock" zoom-min="12">
             <area fade="12" use="water" />
-            <m zoom-min="13">
+            <m zoom-min="14">
                <text use="water_label"/>
             </m>
         </m>
         <m v="dam">
             <line fade="13" stroke="#ababab" use="fix" width="0.2" />
         </m>
-        <m k="lock" v="yes|true">
-            <line stroke="#f8f8f8" use="fix" width="0.5" />
-        </m>
     </m>
 
     <m e="way">
-        <m closed="yes" k="natural|landuse" v="water_z11|water">
-            <area fade="8" use="water" stroke="#C4DFF6" stroke-width="2.0" />
-            <caption area-size="0.2" fill="#991b6bb1" k="name" size="16" stroke="#aaffffff" stroke-width="2.5" priority="19" style="italic"/>
-        </m>
+		<m closed="yes" k="natural|landuse" v="water_z5">
+			<area fade="5" use="water" stroke="#C4DFF6" stroke-width="2.0" mesh="true"/>
+			<caption area-size="0.1" fill="#991b6bb1" k="name" size="14" stroke="#aaffffff" stroke-width="2.5" priority="43" style="italic"/>
+		</m>
+		<m closed="yes" k="natural|landuse" v="water_z11">
+			<area fade="8" use="water" stroke="#C4DFF6" stroke-width="2.0" mesh="true"/>
+			<caption area-size="0.1" fill="#991b6bb1" k="name" size="14" stroke="#aaffffff" stroke-width="2.5" priority="43" style="italic"/>
+		</m>
+		<m closed="yes" k="natural|landuse" v="water">
+			<area fade="12" use="water" stroke="#C4DFF6" stroke-width="2.0" mesh="true"/>
+			<caption area-size="0.1" fill="#991b6bb1" k="name" size="14" stroke="#aaffffff" stroke-width="2.5" priority="43" style="italic"/>
+		</m>
         
         <!-- outlines -->
-	  	<outline-layer id="1" stroke="#aa807040" width="0.3" />
+	  	<outline-layer id="1" stroke="#aa000000" width="0.3" />
 	  	<outline-layer id="2" stroke="#c0c0c0" width="0.3" />
-	  	<outline-layer id="primary_outline" stroke="#FFB523" width="0.3" />
-		<outline-layer id="secondary_outline" stroke="#FFE251" width="0.3" />
+	  	<outline-layer id="primary_outline" stroke="#ffaa00" width="0.3" />
+		<outline-layer id="secondary_outline" stroke="#ffd500" width="0.3" />
 	  	
-	  	<outline-layer id="motorway_outline" stroke="#d97d7d" width="0.3" />
-	  	<outline-layer id="trunk_outline" stroke="#E27945" width="0.3" />
+	  	<outline-layer id="motorway_outline" stroke="#d16161" width="0.3" />
+	  	<outline-layer id="trunk_outline" stroke="#dd6022" width="0.3" />
 	  		  	
 	  	<!-- calimoto bendiness halo -->
 	  	<outline-layer id="mainroads:halo_outline_100" stroke="#ff9999" width="2.0" />
 	  	<outline-layer id="mainroads:halo_outline_200" stroke="#ff6666" width="2.0" />
 	  	<outline-layer id="mainroads:halo_outline_350" stroke="#e60000" width="2.0" />
-	  	<outline-layer id="unclassified:halo_outline_100" stroke="#ff9999" width="1.4" />
-	  	<outline-layer id="unclassified:halo_outline_200" stroke="#ff6666" width="1.4" />
-	  	<outline-layer id="unclassified:halo_outline_350" stroke="#e60000" width="1.4" />
 		
 	   	<!-- outline 0 -->
 	    <outline-layer blur="1.0" id="glow" stroke="#000000" width="0.3" />
@@ -338,18 +348,10 @@
                     <!-- highway tunnels -->
                     <m k="highway">
                         <m v="track">
-                            <m zoom-max="14">
-                            	<line use="highway:track" />    
-                            </m>
-                            <m zoom-min="15" zoom-max="15">
-                                <line use="highway:track:z15" />
-                            </m>
-							<m zoom-min="16">
-                                <line use="highway:track:z16" />
-                            </m>
+							<line use="highway:track" />
                         </m>
                         <m v="trunk_link">
-                            <m zoom-max="11" zoom-min="8">
+                            <m zoom-max="11" zoom-min="7">
 								<line cap="square" outline="trunk_outline" use="trunk_link" />
                             </m>
                             <m zoom-min="12">
@@ -365,18 +367,9 @@
                             </m>
                         </m>
                         <m zoom-min="12">
-                            <m v="pedestrian">
-                                <line outline="0" use="pedestrian" />
-                                <m zoom-min="16">
-                                	<text use="road" />
-                                </m>
-                            </m>                        
-                            <m v="construction">
-                            	<line use="construction" />
-                        	</m>
 	                        <m v="service">
 	                            <m k="service" v="~|parking_aisle">
-	                                <line outline="0" use="highway-service" />
+	                                <line outline="0" use="residential_line" />
 	                            </m>
 	                        </m>
                             <m v="residential|road|unclassified|living_street|unclassified_urban|unclassified_100_200|unclassified_200_350|unclassified_350">
@@ -404,7 +397,7 @@
                             	<text use="major-road_ref" />
                             </m>
                         </m>
-                        <m v="secondary|primary_link|primary_link_urban|secondary_urban|secondary_100_200|secondary_200_350|secondary_350" zoom-min="8">
+                        <m v="secondary|primary_link|primary_link_urban|secondary_urban|secondary_100_200|secondary_200_350|secondary_350" zoom-min="7">
 							<m zoom-max="11">
 								<line cap="square" outline="secondary_outline" use="secondary" />
                             </m>
@@ -416,7 +409,7 @@
                             	<text use="major-road_ref" />
                             </m>
                         </m>
-                        <m v="primary|primary_urban|primary_100_200|primary_200_350|primary_350" zoom-min="8">
+                        <m v="primary|primary_urban|primary_100_200|primary_200_350|primary_350" zoom-min="7">
                             <m zoom-max="11">
 								<line cap="square" outline="primary_outline" use="primary" />
                             </m>
@@ -428,7 +421,7 @@
                             	<text use="major-road_ref" />
                             </m>
                         </m>
-                        <m v="trunk" zoom-min="8">
+                        <m v="trunk" zoom-min="7">
 							<m zoom-max="11">
 								<line cap="square" outline="trunk_outline" use="trunk" />
                             </m>
@@ -465,14 +458,16 @@
 
         <!-- runways areas -->
         <m k="aeroway">
-            <m closed="yes" v="aerodrome_z11|aerodrome">
+            <m closed="yes" v="aerodrome_z11">
                 <m zoom-min="10">
                     <area fade="10" fill="#e8ecde" />
                 </m>
-                <m zoom-min="12">
-					<caption area-size="0.1" dy="18" fill="#888888" k="name" priority="46" size="19" stroke="#aaffffff" stroke-width="2.5" style="italic" />					
-				</m>
             </m>
+			<m closed="yes" v="aerodrome">
+				<m zoom-min="12">
+					<area fade="12" fill="#e8ecde" />
+				</m>
+			</m>
             <!-- A place where planes are parked -->
             <m v="apron|helipad">
                 <area fill="#f0f0f0" />
@@ -491,12 +486,7 @@
         <!-- building -->
         <m k="building">
             <m zoom-min="15">
-                <m closed="yes">
-                    <area fade="15" use="building" />
-                </m>
-                <m closed="no">
-                    <line fade="15" use="building" />
-                </m>
+				<area fade="15" use="building" />
             </m>
             <m zoom-min="16">
                 <extrusion line-color="#ffd9d8d6" side-color="#eaecebe9" top-color="#eaf9f8f6" />
@@ -505,6 +495,13 @@
                 <text use="minor_poi" />
             </m>
         </m>
+		
+		<!-- special POI are also buildings, normaly a amenity=fuel with building=yes should be rendered but in some cases it don`t, thats why check this here twice -->
+		<m k="amenity|shop" v="fuel|place_of_worship|doctors|restaurant|hotel|alpine_hut|car_repair|car|car_parts|motorcycle">
+			<m zoom-min="16">
+				<extrusion line-color="#ffd9d8d6" side-color="#eaecebe9" top-color="#eaf9f8f6" />
+			</m>
+		</m>
         
         <m k="aeroway" v="terminal">
 	        <m zoom-min="17">
@@ -529,51 +526,34 @@
                 <m k="tunnel|bridge" v="~|no">
                     <!-- highway area -->
                    <m k="area" v="yes|true">
-                        <m v="|unclassified|road|unclassified_urban|unclassified_100_200|unclassified_200_350|unclassified_350">
+                        <m v="unclassified|road|unclassified_urban|unclassified_100_200|unclassified_200_350|unclassified_350">
                             <area fill="#ffffff" />
                             <line cap="butt" fix="true" stroke="#d0d0d0" width="1.0" />
                         </m>
-                         <m v="pedestrian|service|residential|living_street" zoom-min="14">
+                         <m v="service|residential|living_street" zoom-min="14">
                             <area fill="#ffffff" />
                             <line cap="butt" fix="true" stroke="#d0d0d0" width="1.0" />
                         </m>
                     </m>
                     <m k="area" v="~|no|false">
                         <m v="track">
-	                        <m zoom-max="14">
-	                        	<line use="highway:track" />    
-	                        </m>
-	                        <m zoom-min="15" zoom-max="15">
-	                            <line use="highway:track:z15" />
-	                        </m>
-							<m zoom-min="16">
-	                            <line use="highway:track:z16" />
-	                        </m>
+							<line use="highway:track" />
 	                  	</m>
-	                        <m v="construction" zoom-min="12">
-	                            <line use="construction" />
-	                        </m>
                         <m v="service" zoom-min="13">
                             <!-- matches every service but parking_isle -->
                             <m k="service" v="-|parking_aisle">
-                                <line outline="1" use="highway-service" />
+                                <line outline="1" use="residential_line" />
                             </m>
                             <m k="service" v="parking_aisle" zoom-min="16">
-                                <line outline="1" use="highway-service" width="-0.4" />
+                                <line outline="1" use="residential_line" width="-0.4" />
                             </m>
                         </m>
                         
-                        <m v="motorway_link" zoom-min="10">
+                        <m v="motorway_link" zoom-min="9">
                             <line outline="motorway_outline" use="motorway_link" />
                         </m>
-						<m v="trunk_link" zoom-min="8">
+						<m v="trunk_link" zoom-min="7">
                             <line outline="trunk_outline" use="trunk_link" />
-                        </m>
-                        <m v="pedestrian" zoom-min="15">
-                            <line outline="1" use="residential_line" width="-0.4" />
-                            <m zoom-min="16">
-                            	<text use="road" />
-                            </m>
                         </m>
                         <m v="residential|road|unclassified|living_street|unclassified_urban" zoom-min="12">
                             <line outline="1" use="residential_line" />
@@ -589,28 +569,28 @@
                             	<text use="major-road_ref" />
                             </m>
                         </m>
-                        <m v="secondary|secondary_urban|secondary_link|secondary_link_urban" zoom-min="10">
+                        <m v="secondary|secondary_urban|secondary_link|secondary_link_urban" zoom-min="9">
                             <line outline="secondary_outline" use="secondary" />
                             <m zoom-min="14">
 								<text use="major-road" />
                             	<text use="major-road_ref" />
                             </m>
                         </m>
-							<m v="primary_link|primary_link_urban" zoom-min="8">
-                            <line outline="primary_outline" use="primary_link" />
+							<m v="primary_link|primary_link_urban" zoom-min="7">
+                            <line outline="primary_outline" use="primary_link"/>
                             <m zoom-min="13">
 								<text use="major-road" />
                             	<text use="major-road_ref" />
                             </m>
                         </m>
-                        <m v="primary|primary_urban" zoom-min="8">
+                        <m v="primary|primary_urban" zoom-min="7">
                             <line outline="primary_outline" use="primary"/>
                             <m zoom-min="13">
 								<text use="major-road" />
                             	<text use="major-road_ref" />
                             </m>
                         </m>
-                        <m v="trunk" zoom-min="8">
+                        <m v="trunk" zoom-min="7">
                             <line outline="trunk_outline" use="trunk" />
                             <m zoom-min="10">
                             	<text use="major-road" />
@@ -628,7 +608,7 @@
                         </m>
                         
 <!-- 		calimoto winding roads halo  		-->
-						<m zoom-min="8">
+						<m zoom-min="7">
 	                        <m v="primary_100_200">
 								<line outline="mainroads:halo_outline_100" use="primary"/>
 	                            <m zoom-min="13">
@@ -651,7 +631,7 @@
 	                            </m>                      
 	                        </m>						    
 						</m>
-						<m zoom-min="10">
+						<m zoom-min="9">
 							<m v="secondary_100_200">
 								<line outline="mainroads:halo_outline_100" use="secondary"/>
 	                            <m zoom-min="14">
@@ -673,6 +653,8 @@
 	                            	<text use="major-road_ref" />
 	                            </m>                       
 	                        </m>
+						</m>
+						<m zoom-min="10">
 	                        <m v="tertiary_100_200">
 								<line outline="mainroads:halo_outline_100" use="tertiary"/>
 	                            <m zoom-min="14">
@@ -697,21 +679,21 @@
 						</m>
                         <m zoom-min="12">
 	                        <m v="unclassified_100_200">
-								<line outline="unclassified:halo_outline_100" use="residential_line"/>
+								<line outline="1" use="residential_line"/>
 	                            <m zoom-min="15">
 	                            	<text use="road" />
 	                             	<text use="road_ref" />
 	                             </m>                       
 	                        </m>
 							<m v="unclassified_200_350">
-								<line outline="unclassified:halo_outline_200" use="residential_line"/>
+								<line outline="1" use="residential_line"/>
 	                            <m zoom-min="15">
 	                            	<text use="road" />
 	                             	<text use="road_ref" />
 	                             </m>                       
 	                        </m>
 	                      	<m v="unclassified_350">
-								<line outline="unclassified:halo_outline_350" use="residential_line"/>
+								<line outline="1" use="residential_line"/>
 	                            <m zoom-min="15">
 	                            	<text use="road" />
 	                             	<text use="road_ref" />
@@ -736,24 +718,10 @@
                         <m k="area" v="~|no|false">
                         	<m k="highway">
 	                            <m v="track">
-		                           	<m zoom-max="14">
-		                            	<line use="highway:track" cap="butt"/>    
-		                            </m>
-		                            <m zoom-min="15" zoom-max="15">
-		                                <line use="highway:track:z15" cap="butt"/>
-		                            </m>
-									<m zoom-min="16">
-		                                <line use="highway:track:z16" cap="butt"/>
-		                            </m>
+									<line use="highway:track"/>
 	                            </m>
 
 	                            <m select="first" zoom-min="12">
-	                                <m v="pedestrian">
-	                                    <line outline="bridge" use="pedestrian:bridge" />
-		                                <m zoom-min="16">
-		                                	<text use="road" />
-		                                </m>
-	                                </m>
 	                                <m v="residential|road|unclassified|living_street|unclassified_urban|unclassified_100_200|unclassified_200_350|unclassified_350">									
 	                                    <m zoom-max="12">
 											<line outline="1" cap="square" use="residential_line" />
@@ -769,11 +737,8 @@
 	                            </m>
 	
 	                            <m select="first">
-	                            	<m v="construction">
-	                                    <line use="construction" />
-	                                </m>
 	                                <m v="service" zoom-min="14">
-	                                    <line cap="butt" outline="bridge" use="highway-service" />
+	                                    <line cap="butt" outline="bridge" use="residential_line" />
 	                                </m>
 	                                <m v="tertiary|tertiary_link|tertiary_link_urban|tertiary_urban|tertiary_100_200|tertiary_200_350|tertiary_350">
 										<m zoom-max="11">
@@ -796,7 +761,7 @@
 	                                	</m>
 	                                </m>
 									<m v="trunk_link">
-										<m zoom-max="11" zoom-min="8">
+										<m zoom-max="11" zoom-min="7">
 											<line cap="square" outline="trunk_outline" use="trunk_link" />
 	                                	</m>
 	                                	<m zoom-min="12">
@@ -815,7 +780,7 @@
 			                            	<text use="major-road_ref" />
 			                            </m>
 	                                </m>
-	                                <m v="primary_link|primary_link_urban" zoom-min="8">
+	                                <m v="primary_link|primary_link_urban" zoom-min="7">
 	                                    <line cap="square" outline="bridge" use="primary_link" />
 											<m zoom-max="11">
 											<line cap="square" outline="primary_outline" use="primary_link" />
@@ -824,7 +789,7 @@
 											<line cap="butt" outline="bridge" use="primary_link" />
 	                                	</m>
 	                                </m>
-	                                <m v="primary|primary_urban|primary_100_200|primary_200_350|primary_350" zoom-min="8">
+	                                <m v="primary|primary_urban|primary_100_200|primary_200_350|primary_350" zoom-min="7">
 			                            <m zoom-min="13">
 											<text use="major-road" />
 			                            	<text use="major-road_ref" />
@@ -841,7 +806,7 @@
 	                                    	<text use="major-road" />
 	                                    	<text use="major-road_ref" />
 	                                    </m>
-										<m zoom-max="11" zoom-min="8">
+										<m zoom-max="11" zoom-min="7">
 											<line cap="square" outline="trunk_outline" use="trunk" />
 	                                	</m>
 	                                	<m zoom-min="12">
@@ -866,7 +831,7 @@
 
 
                         <m k="area" select="first" v="yes|true">
-                            <m v="pedestrian|service|unclassified|residential|road|living_street|unclassified_urban|unclassified_100_200|unclassified_200_350|unclassified_350">
+                            <m v="service|unclassified|residential|road|living_street|unclassified_urban|unclassified_100_200|unclassified_200_350|unclassified_350">
                                 <area fill="#eeffffff" />
                                 <line cap="butt" fix="true" stroke="#c0c0c0" width="1.0" />
                             </m>
@@ -927,17 +892,17 @@
                 </m>
             </m>
         </m>
-
-        <m k="boundary" v="administrative">
-	       <m k="admin_level">
-	           <m v="4">
-	           	<line fix="true" blur="0.6" stroke="#bfbfbf" width="1.5" />
-	           </m>
-	           <m v="2">
-	           	<line fix="true" blur="0.6" stroke="#999999" width="2.0" />
-	           </m>
-	       </m>
-	    </m>
+	
+		
+		<m k="admin_level">
+			<m v="2">
+				<line fix="true" blur="0.6" stroke="#999999" width="2.0" />
+			</m>
+			<m v="4">
+				<line fix="true" blur="0.6" stroke="#bfbfbf" width="1.5" />
+			</m>
+		</m>
+	   
 
         <m k="highway" v="track">
             <m k="area" v="yes">
@@ -958,7 +923,7 @@
             <m k="area" v="~|false|no">
                 <m k="highway">
                     <m k="oneway" v="yes|true" zoom-min="16">
-                        <lineSymbol src="assets:symbols/oneway.svg"  />
+                        <lineSymbol src="assets:calimoto/oneway.svg"  />
                     </m>
                 </m>
             </m>
@@ -970,300 +935,324 @@
         <m k="barrier">
             <m zoom-min="10">
                 <m v="toll_booth" e="node">
-                    <symbol src="assets:symbols/barrier/toll_booth.svg" />
+                    <symbol src="assets:calimoto/toll_booth.svg" />
                 </m>
             </m>
         </m>
 
         <!-- historic -->
-        <m k="historic" v="monument|ruins|castle">
-            <m e="way" zoom-min="14" v="ruins|castle">
-	        	<area fade="14" use="building" />
-            </m>
-            <m zoom-min="15" e="node">
-				<symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-            </m>
-            <m zoom-min="17" e="node">>
-                <text use="minor_poi" />
-            </m>
-        </m>
+		<m k="name">
+			<m k="historic" v="monument|castle">
+				<m e="way" zoom-min="14" v="castle">
+					<area fade="14" use="building" />
+					<extrusion line-color="#ffd9d8d6" side-color="#eaecebe9" top-color="#eaf9f8f6" />
+				</m>
+				<m zoom-min="15" e="node">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+					<text use="minor_poi" />
+				</m>
+			</m>
+		</m>
 
         <!-- place -->
-        <m k="place">
+        <m k="place|calimoto_place">
         	<m v="locality" zoom-min="14">
-                <caption style="bold" fill="#888888" k="name" priority="44" size="14" stroke="#50ffffff" stroke-width="2.0" />
+                <caption fill="#2d261f" k="name" priority="11" size="11" stroke="#50ffffff" stroke-width="2.0" />
             </m>
            	<m v="isolated_dwelling" zoom-min="15">
-                <caption style="bold" fill="#888888" k="name" priority="43" size="14" stroke="#50ffffff" stroke-width="2.0" />
+                <caption fill="#2d261f" k="name" priority="10" size="13" stroke="#50ffffff" stroke-width="2.0" />
             </m>
 			<m v="hamlet" zoom-min="14">
-                <caption style="bold" fill="#888888" k="name" priority="42" size="14" stroke="#50ffffff" stroke-width="2.0" />
+                <caption fill="#2d261f" k="name" priority="9" size="13" stroke="#50ffffff" stroke-width="2.0" />
             </m>
             <m v="suburb" zoom-min="13">
-                <caption style="bold_italic" fill="#888888" k="name" priority="47" size="17" stroke="#50ffffff" stroke-width="2.0" />
+                <caption style="bold_italic" fill="#2d261f" k="name" priority="8" size="13" stroke="#50ffffff" stroke-width="2.0" />
             </m>
-            <m v="village" zoom-min="12">
-                <caption fill="#888888" k="name" priority="46" size="17" stroke="#50ffffff" stroke-width="2.0" />
+            <m v="village" zoom-min="11">
+                <caption fill="#2d261f" k="name" priority="7" size="15" stroke="#50ffffff" stroke-width="2.0" />
             </m>
             <m v="island" zoom-min="10">
-                <caption style="bold" fill="#888888" k="name" priority="45" size="20" stroke="#50ffffff" stroke-width="2.0" />
+                <caption style="bold" fill="#2d261f" k="name" priority="6" size="18" stroke="#50ffffff" stroke-width="2.0" />
             </m>
-            <m v="town" zoom-min="10">
-                <caption fill="#666666" k="name" priority="48" size="19" stroke="#50ffffff" stroke-width="2.0" />
+            <m v="town">
+				<m  zoom-min="9" zoom-max="9">
+					<caption fill="#2d261f" k="name" priority="5" size="14" stroke="#50ffffff" stroke-width="2.0" />
+				</m>
+				<m  zoom-min="10" zoom-max="10">
+					<caption fill="#2d261f" k="name" priority="5" size="16" stroke="#50ffffff" stroke-width="2.0" />
+				</m>
+				<m zoom-min="11">
+					<caption fill="#2d261f" k="name" priority="5" size="18" stroke="#50ffffff" stroke-width="2.0" />
+				</m>
             </m>
-            <m v="city" zoom-min="4">
-                <m zoom-max="6">
-                    <caption dy="14" fill="#444444" k="name" priority="49" size="19" stroke="#50ffffff" stroke-width="2.0" symbol="assets:symbols/dot_black.svg" />
-                </m>
-                <m zoom-min="7">
-                    <caption style="bold" dy="14" fill="#444444" k="name" priority="49" size="19" stroke="#50ffffff" stroke-width="2.0" symbol="assets:symbols/dot_black.svg" />
-                </m>
-            </m>
+			<m v="city_0" zoom-max="7">
+				<m>
+					<caption style="bold" dy="14" fill="#2d261f" k="name" priority="1" size="18" stroke="#50ffffff" stroke-width="2.0" symbol="assets:calimoto/dot_black.svg" />
+				</m>
+			</m>
+			<m v="city_1" zoom-max="7">
+				<m>
+					<caption style="bold" dy="14" fill="#2d261f" k="name" priority="2" size="18" stroke="#50ffffff" stroke-width="2.0" symbol="assets:calimoto/dot_black.svg" />
+				</m>
+			</m>
+			<m v="city_2" zoom-max="7">
+				<m>
+					<caption style="bold" dy="14" fill="#2d261f" k="name" priority="3" size="18" stroke="#50ffffff" stroke-width="2.0" symbol="assets:calimoto/dot_black.svg" />
+				</m>
+			</m>
+			<m v="city">
+				<m>
+					<caption style="bold" dy="14" fill="#2d261f" k="name" priority="4" size="18" stroke="#50ffffff" stroke-width="2.0" symbol="assets:calimoto/dot_black.svg" />
+				</m>
+			</m>
             <m v="country" zoom-min="3" zoom-max="5">
-                <caption style="bold" fill="#443355" k="name" priority="50" size="20" stroke="#50ffffff" stroke-width="2.0" />
+                <caption style="bold" fill="#2d261f" k="name" priority="0" size="18" stroke="#50ffffff" stroke-width="2.0" />
             </m>
         </m>
 
         <!-- railway -->
         <m k="railway">
             <m v="station" e="node">
-                <symbol src="assets:symbols/transport/train_station2.svg" />
+                <symbol src="assets:calimoto/rail-15.svg" symbol-percent="70"/>
                 <text use="poi"/>
             </m>
-            
-<!--             <m v="level_crossing" zoom-min="16">
-                <symbol src="assets:symbols/railway-crossing.svg" />
-            </m>  -->
         </m>
-
+		
         <!-- aeroway -->
-        <m k="aeroway" e="node">
-            <m v="helipad" zoom-min="13">
-                <symbol src="assets:symbols/transport/helicopter.svg" />
+        <m k="aeroway">
+            <m v="aerodrome|aerodrome_z11|airport" zoom-min="12" zoom-max="15">
+				<symbol src="assets:calimoto/airport-15.svg"  symbol-percent="70"/>
             </m>
-            <m v="aerodrome|airport" zoom-min="13">
-                <symbol src="assets:symbols/transport/airport2.svg" />
-            </m>
-            
             <m select="when-matched">
                 <text use="poi" />
            </m>
         </m>
-
-        <m k="amenity|building">
-            <m select="first" zoom-min="15" e="node">
-                <m v="hospital">
-					<symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-                </m>
-                <m v="pharmacy">
-					<symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-                </m>
-                <m v="police">
-					<symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />                  
-                </m>
-                                                                                                
-                <m select="when-matched">
-                    <text use="minor_poi" />
-                </m>
-            </m>
-       	</m>
-       	
+	
+		<!-- render only POI if they got a name !-->
+	<m k="name">
+		<m k="amenity|building">
+			<m select="first" zoom-min="15" e="node">
+				<m v="hospital">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" /> 
+				</m>
+				<m v="pharmacy">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+				</m>
+				<m v="police">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+				</m>
+				<m v="doctors">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+				</m>			
+				<m select="when-matched">
+					<text use="minor_poi" />
+				</m>
+			</m>
+		</m>
+	
 		<m k="amenity">
-            <m select="first" zoom-min="15" e="node">
-                <m v="school">
-					<symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-                </m>
-                <m v="university|college">
-					<symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-                </m>
-                <m v="cinema">
-					<symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-                </m>
-                <m v="atm" zoom-min="17">
-					<symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-                </m>
-                <m v="bank">
-					<symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-                </m>
-                <m v="place_of_worship">
-                    <m k="denomination|religion" v="buddhist">
-						<symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-                    </m>
-                    <m k="denomination|religion" v="christian">
-						<symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-                    </m>
-                    <m k="denomination|religion" v="hindu">
-						<symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-                    </m>
-                    <m k="denomination|religion" v="jewish">
-						<symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-                    </m>
-                    <m k="denomination|religion" v="muslim|moslem">
-						<symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-                    </m>
-                    <m k="denomination|religion" v="shinto">
-						<symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-                    </m>
-                    <m k="denomination|religion" v="~|*">
-						<symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-                    </m>
-                </m>
-                <m v="theatre">
-					<symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-                </m>
-                                                                                
-                <m select="when-matched">
-                    <text use="minor_poi" />
-                </m>
-            </m>
-       </m>
-       
-	   <m k="shop" v="motorcycle">
-            <m zoom-min="15">
-	            <symbol src="assets:calimoto/motorcycle.svg"/>                                                                                                                    
-	            <text use="poi" />
-            </m>
-       </m> 
-       
-       <m k="shop">
-            <m select="first" zoom-min="15">
-                <m v="car_repair|car|car_parts">
-					<symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-                </m>
-
-                <m select="when-matched" zoom-min="17">
-                    <text use="minor_poi" />
-                </m>
-            </m>
-        </m>
-       
-	   <m k="amenity">
-            <m select="first" zoom-min="16">
-                <m v="biergarten">
-                    <symbol src="assets:symbols/dot_black.svg" symbol-percent="70"/>                    
-                </m>
-                <m v="cafe">
-                    <symbol src="assets:symbols/dot_black.svg" symbol-percent="70"/>
-                </m>
-                <m v="bar">
-                    <symbol src="assets:symbols/dot_black.svg" symbol-percent="70"/>
-                </m>
+			<m select="first" zoom-min="15" e="node">
+				<m v="school">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+				</m>
+				<m v="university|college">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+				</m>
+				<m v="cinema">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+				</m>
+				<m v="embassy">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+				</m>
+				<m v="atm" zoom-min="17">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+				</m>
+				<m v="bank">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+				</m>
+				<m v="place_of_worship">
+					<m k="denomination|religion" v="buddhist">
+						<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+					</m>
+					<m k="denomination|religion" v="christian">
+						<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+					</m>
+					<m k="denomination|religion" v="hindu">
+						<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+					</m>
+					<m k="denomination|religion" v="jewish">
+						<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+					</m>
+					<m k="denomination|religion" v="muslim|moslem">
+						<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+					</m>
+					<m k="denomination|religion" v="shinto">
+						<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+					</m>
+					<m k="denomination|religion" v="~|*">
+						<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+					</m>
+				</m>
+				<m v="theatre">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+				</m>
+			
+				<m select="when-matched">
+					<text use="minor_poi" />
+				</m>
+			</m>
+		</m>
+	
+		<m k="shop" v="motorcycle">
+			<m zoom-min="15">
+				<symbol src="assets:calimoto/motorcycle_2.svg"/>
+				<text use="poi" />
+			</m>
+		</m>
+	
+		<m k="shop">
+			<m select="first" zoom-min="15">
+				<m v="car_repair|car|car_parts">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+				</m>
+			
+				<m select="when-matched" zoom-min="15">
+					<text use="minor_poi" />
+				</m>
+			</m>
+		</m>
+	
+		<m k="amenity">
+			<m select="first" zoom-min="16">
+				<m v="biergarten">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70"/>
+				</m>
+				<m v="cafe">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70"/>
+				</m>
+				<m v="bar">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70"/>
+				</m>
 				<m v="pub">
-					<symbol src="assets:symbols/dot_black.svg" symbol-percent="70"/>
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70"/>
 				</m>
-                <m v="fast_food">
-                    <symbol src="assets:symbols/dot_black.svg" symbol-percent="70"/>
-                </m>
-                <m v="restaurant">
-                    <symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-                </m>
-                <m select="when-matched">
-                    <text use="minor_poi" />
-                </m>
-            </m>
-       </m>
-       
-       <m select="first" zoom-min="14">
-           <m k="amenity" v="fuel">
-               <symbol src="assets:calimoto/fuel.svg" />
-			   <text use="poi" />
-           </m>
-       </m>
-       
-       <m select="first" zoom-min="14">
-           <m k="leisure" v="stadium" e="node">
-			   <symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-           </m> 		   
-           <m select="when-matched">
-               <text use="minor_poi" />
-           </m>
-       </m>
-
-        <m k="tourism">                
-       <!--      <m e="way" zoom-min="14" v="attraction">
-	        	<area fade="14" use="building" />
-            </m>  -->
-            <m select="first" zoom-min="15">
-                <m v="attraction|theme_park">
-					<symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-                </m>            	
-                <m select="when-matched">
-                    <text use="minor_poi" />
-                </m>
-            </m>
-        </m>
-        
-  		<m k="man_made">
-            <m zoom-min="15">
-                <m v="lighthouse">
-					<symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-                    <text use="minor_poi" />
-                </m>
-            </m>
-        </m>
-                
-       	<m k="tourism">
-            <m select="first" zoom-min="16" e="node">
-                <m v="alpine_hut">
-                    <symbol src="assets:symbols/dot_black.svg" symbol-percent="70"/>
-                </m>
-                <m v="camp_site">
-                    <symbol src="assets:symbols/dot_black.svg" symbol-percent="70"/>
-                </m>
-                <m v="caravan_site">
-                    <symbol src="assets:symbols/dot_black.svg" symbol-percent="70"/>
-                </m>
-                <m v="hostel">
-                    <symbol src="assets:symbols/dot_black.svg" symbol-percent="70"/>
-                </m>
-                <m v="motel">
-                    <symbol src="assets:symbols/dot_black.svg" symbol-percent="70"/>
-                </m>
-                <m v="chalet">
-                    <symbol src="assets:symbols/dot_black.svg" symbol-percent="70"/>
-                </m>
+				<m v="fast_food">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70"/>
+				</m>
+				<m v="restaurant">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+				</m>
+				<m select="when-matched">
+					<text use="minor_poi" />
+				</m>
+			</m>
+		</m>
+	
+		<m select="first" zoom-min="14">
+			<m k="amenity" v="fuel">
+				<symbol src="assets:calimoto/fuel_2.svg" symbol-percent="70"/>
+				<text use="poi" />
+			</m>
+		</m>
+	
+		<m select="first" zoom-min="14">
+			<m k="leisure" v="stadium" e="node">
+				<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+			</m>
+			<m select="when-matched">
+				<text use="minor_poi" />
+			</m>
+		</m>
+	
+		<m k="tourism">
+			<!--      <m e="way" zoom-min="14" v="attraction">
+					 <area fade="14" use="building" />
+				 </m>  -->
+			<m select="first" zoom-min="15">
+				<m v="attraction|theme_park">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+				</m>
+				<m select="when-matched">
+					<text use="minor_poi" />
+				</m>
+			</m>
+		</m>
+	
+		<m k="man_made">
+			<m zoom-min="15">
+				<m v="lighthouse">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+					<text use="minor_poi" />
+				</m>
+			</m>
+		</m>
+	
+		<m k="tourism">
+			<m select="first" zoom-min="16" e="node">
+				<m v="alpine_hut">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70"/>
+				</m>
+				<m v="camp_site">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70"/>
+				</m>
+				<m v="caravan_site">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70"/>
+				</m>
+				<m v="picnic_site">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70"/>
+				</m>
+				<m v="hostel">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70"/>
+				</m>
+				<m v="motel">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70"/>
+				</m>
+				<m v="chalet">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70"/>
+				</m>
 				<m v="hotel">
-					<symbol src="assets:symbols/dot_black.svg" symbol-percent="70"/>
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70"/>
 				</m>
-            	
-                <m select="when-matched">
-                    <text use="minor_poi" />
-                </m>
-            </m>
-        </m>
-        
-  		<m k="natural">
-            <m zoom-min="15">
-                <m v="cave_entrance">
-					<symbol src="assets:symbols/dot_black.svg" symbol-percent="70" />
-                    <text use="minor_poi" />
-                </m>
-            </m>
-        </m>
+			
+				<m select="when-matched">
+					<text use="minor_poi" />
+				</m>
+			</m>
+		</m>
+	
+		<m k="natural">
+			<m zoom-min="15">
+				<m v="cave_entrance">
+					<symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+					<text use="minor_poi" />
+				</m>
+			</m>
+		</m>
+	</m>
         
         <m k="tourism" v="viewpoint" zoom-min="14">
-                <symbol src="assets:symbols/tourist/view_point.svg" />
-                <caption style="bold" dy="16" fill="#888888" k="ele" size="12" stroke="#50ffffff" stroke-width="2.0" priority="12"/>
-	            <caption style="bold" dy="-16" fill="#888888" k="name" size="14" stroke="#50ffffff" stroke-width="2.0" priority="12"/>
+				<symbol src="assets:calimoto/viewpoint-15.svg" symbol-percent="70"/>
+                <caption dy="16" fill="#2d261f" k="ele" size="13" stroke="#aaffffff" stroke-width="2.5" priority="21"/>
+	            <caption dy="-16" fill="#2d261f" k="name" size="13" stroke="#aaffffff" stroke-width="2.5" priority="21"/>
         </m>
         
   		<m k="mountain_pass">
             <m zoom-min="12">
             	<symbol src="assets:calimoto/pass.svg" symbol-percent="150"/>
-            	<caption style="bold" dy="18" fill="#888888" k="ele" size="12" stroke="#50ffffff" stroke-width="2.0" priority="15" />
-            	<caption style="bold" dy="-18" fill="#888888" k="name" size="14" stroke="#50ffffff" stroke-width="2.0" priority="15"  />
+            	<caption dy="18" fill="#2d261f" k="ele" size="13" stroke="#aaffffff" stroke-width="2.5" priority="20" />
+            	<caption dy="-18" fill="#2d261f" k="name" size="13" stroke="#aaffffff" stroke-width="2.5" priority="20"  />
             </m>
         </m>
 
         <m k="natural" v="peak" zoom-min="13">
-            <symbol src="assets:symbols/peak.svg" />
-            <caption style="bold" dy="12" fill="#888888" k="ele" size="12" stroke="#50ffffff" stroke-width="2.0" priority="14"/>
-            <caption style="bold" dy="-12" fill="#888888" k="name" size="14" stroke="#50ffffff" stroke-width="2.0" priority="14"/>
+			<symbol src="assets:calimoto/mountain-15.svg" symbol-percent="70"/>
+			<caption dy="14" fill="#2d261f" k="ele" size="13" stroke="#aaffffff" stroke-width="2.5" priority="23"/>
+			<caption dy="-14" fill="#2d261f" k="name" size="13" stroke="#aaffffff" stroke-width="2.5" priority="23"/>
         </m>
         <m k="natural" v="volcano" zoom-min="13">
-            <symbol src="assets:symbols/volcano.svg" />
-            <caption style="bold" dy="12" fill="#888888" k="ele" size="12" stroke="#50ffffff" stroke-width="2.0" priority="13"/>
-            <caption style="bold" dy="-12" fill="#888888" k="name" size="14" stroke="#50ffffff" stroke-width="2.0" priority="13"/>
+			<symbol src="assets:calimoto/volcano-15.svg" symbol-percent="70"/>
+            <caption dy="14" fill="#2d261f" k="ele" size="13" stroke="#aaffffff" stroke-width="2.5" priority="22"/>
+            <caption dy="-14" fill="#2d261f" k="name" size="13" stroke="#aaffffff" stroke-width="2.5" priority="22"/>
         </m>
     </m>
 </rendertheme>

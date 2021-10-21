@@ -31,6 +31,7 @@ import org.oscim.layers.tile.buildings.BuildingLayer;
 import org.oscim.layers.tile.vector.VectorTileLayer;
 import org.oscim.layers.tile.vector.labeling.LabelLayer;
 import org.oscim.map.Map;
+import org.oscim.renderer.GLState;
 import org.oscim.renderer.GLViewport;
 import org.oscim.renderer.MapRenderer;
 import org.oscim.scalebar.DefaultMapScaleBar;
@@ -41,18 +42,15 @@ import org.oscim.scalebar.MetricUnitAdapter;
 import org.oscim.theme.ExternalRenderTheme;
 import org.oscim.theme.VtmThemes;
 import org.oscim.theme.comparator.BothMapPositionHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.oscim.backend.GLAdapter.gl;
-
 public class MapApplicationAdapter extends ApplicationAdapter {
-
-    Logger log = LoggerFactory.getLogger(MapApplicationAdapter.class);
+    
+    Logger log = new Logger(MapApplicationAdapter.class);
 
     private int x, y, width, height;
     private MapScaleBarLayer mapScaleBarLayer;
@@ -76,7 +74,7 @@ public class MapApplicationAdapter extends ApplicationAdapter {
             Gdx.app.postRunnable(new Runnable() {
                 @Override
                 public void run() {
-                    map.viewport().setScreenSize(MapApplicationAdapter.this.width, MapApplicationAdapter.this.height);
+                    map.viewport().setViewSize(MapApplicationAdapter.this.width, MapApplicationAdapter.this.height);
                     mapRenderer.onSurfaceChanged(MapApplicationAdapter.this.width, MapApplicationAdapter.this.height);
                 }
             });
@@ -129,7 +127,7 @@ public class MapApplicationAdapter extends ApplicationAdapter {
         int w = Gdx.graphics.getWidth();
         int h = Gdx.graphics.getHeight();
 
-        map.viewport().setScreenSize(w, h);
+        map.viewport().setViewSize(w, h);
         mapRenderer.onSurfaceCreated();
         mapRenderer.onSurfaceChanged(w, h);
 
@@ -164,7 +162,7 @@ public class MapApplicationAdapter extends ApplicationAdapter {
 
     @Override
     public void render() {
-        gl.viewport(0, 0, width, height);
+        GLState.viewport(width, height);
 
         try {
             mapRenderer.onDrawFrame();

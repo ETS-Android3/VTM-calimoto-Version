@@ -1,6 +1,6 @@
 /*
  * Copyright 2013 Hannes Janetzek
- * Copyright 2016 devemux86
+ * Copyright 2016-2019 devemux86
  * Copyright 2016 Izumi Kawashima
  * Copyright 2017 Longri
  *
@@ -46,6 +46,7 @@ public class MarkerSymbol {
     final boolean mBillboard;
 
     float rotation = 0;
+    private float clickPaddingInPercent = 0;
 
     public MarkerSymbol(TextureRegion textureRegion, float relX, float relY) {
         this(textureRegion, relX, relY, true);
@@ -174,12 +175,17 @@ public class MarkerSymbol {
         if (isBitmap()) {
             w = mBitmap.getWidth();
             h = mBitmap.getHeight();
-        } else {
+        } 
+        else {
             w = mTextureRegion.rect.w;
             h = mTextureRegion.rect.h;
         }
+        if (clickPaddingInPercent > 0) {
+            w *= 1.0f + clickPaddingInPercent;
+            h *= 1.0f + clickPaddingInPercent;
+        }
         float ox = -w * mOffset.x;
-        float oy = -h * (1 - mOffset.y);
+		float oy = -h * (1 - mOffset.y);
 
         return dx >= ox && dy >= oy && dx <= ox + w && dy <= oy + h;
     }
@@ -190,5 +196,9 @@ public class MarkerSymbol {
 
     public void setRotation(float rotation) {
         this.rotation = rotation;
+    }
+    
+    public void setClickPaddingInPercent(float clickPaddingInPercent) {
+        this.clickPaddingInPercent = clickPaddingInPercent;
     }
 }

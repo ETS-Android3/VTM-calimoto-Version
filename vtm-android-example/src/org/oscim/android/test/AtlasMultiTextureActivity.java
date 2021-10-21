@@ -1,6 +1,6 @@
 /*
  * Copyright 2014 Hannes Janetzek
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2018 devemux86
  * Copyright 2017 Longri
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
@@ -30,15 +30,12 @@ import org.oscim.layers.marker.ItemizedLayer;
 import org.oscim.layers.marker.MarkerItem;
 import org.oscim.layers.marker.MarkerSymbol;
 import org.oscim.layers.marker.MarkerSymbol.HotspotPlace;
-import org.oscim.layers.tile.buildings.BuildingLayer;
-import org.oscim.layers.tile.vector.VectorTileLayer;
-import org.oscim.layers.tile.vector.labeling.LabelLayer;
+import org.oscim.layers.tile.bitmap.BitmapTileLayer;
 import org.oscim.renderer.atlas.TextureAtlas;
 import org.oscim.renderer.atlas.TextureRegion;
-import org.oscim.theme.VtmThemes;
 import org.oscim.tiling.TileSource;
 import org.oscim.tiling.source.OkHttpEngine;
-import org.oscim.tiling.source.oscimap4.OSciMap4TileSource;
+import org.oscim.tiling.source.bitmap.DefaultSources;
 import org.oscim.utils.TextureAtlasUtils;
 
 import java.util.ArrayList;
@@ -52,25 +49,21 @@ public class AtlasMultiTextureActivity extends MarkerOverlayActivity {
         // Map events receiver
         mMap.layers().add(new MapEventsReceiver(mMap));
 
-        TileSource tileSource = OSciMap4TileSource.builder()
+        TileSource tileSource = DefaultSources.OPENSTREETMAP
                 .httpFactory(new OkHttpEngine.OkHttpFactory())
                 .build();
-        VectorTileLayer l = mMap.setBaseMap(tileSource);
-        mMap.layers().add(new BuildingLayer(mMap, l));
-        mMap.layers().add(new LabelLayer(mMap, l));
-        mMap.setTheme(VtmThemes.DEFAULT);
+        mMap.layers().add(new BitmapTileLayer(mMap, tileSource));
 
         // Create Atlas from Bitmaps
         java.util.Map<Object, Bitmap> inputMap = new LinkedHashMap<>();
         java.util.Map<Object, TextureRegion> regionsMap = new LinkedHashMap<>();
         List<TextureAtlas> atlasList = new ArrayList<>();
 
-        float scale = getResources().getDisplayMetrics().density;
         Canvas canvas = CanvasAdapter.newCanvas();
         Paint paint = CanvasAdapter.newPaint();
         paint.setTypeface(Paint.FontFamily.DEFAULT, Paint.FontStyle.NORMAL);
-        paint.setTextSize(12 * scale);
-        paint.setStrokeWidth(2 * scale);
+        paint.setTextSize(12 * CanvasAdapter.getScale());
+        paint.setStrokeWidth(2 * CanvasAdapter.getScale());
         paint.setColor(Color.BLACK);
         List<MarkerItem> pts = new ArrayList<>();
         for (double lat = -90; lat <= 90; lat += 10) {
@@ -78,12 +71,12 @@ public class AtlasMultiTextureActivity extends MarkerOverlayActivity {
                 String title = lat + "/" + lon;
                 pts.add(new MarkerItem(title, "", new GeoPoint(lat, lon)));
 
-                Bitmap bmp = CanvasAdapter.newBitmap((int) (40 * scale), (int) (40 * scale), 0);
+                Bitmap bmp = CanvasAdapter.newBitmap((int) (40 * CanvasAdapter.getScale()), (int) (40 * CanvasAdapter.getScale()), 0);
                 canvas.setBitmap(bmp);
                 canvas.fillColor(Color.GREEN);
 
-                canvas.drawText(Double.toString(lat), 3 * scale, 17 * scale, paint);
-                canvas.drawText(Double.toString(lon), 3 * scale, 35 * scale, paint);
+                canvas.drawText(Double.toString(lat), 3 * CanvasAdapter.getScale(), 17 * CanvasAdapter.getScale(), paint);
+                canvas.drawText(Double.toString(lon), 3 * CanvasAdapter.getScale(), 35 * CanvasAdapter.getScale(), paint);
                 inputMap.put(title, bmp);
             }
         }

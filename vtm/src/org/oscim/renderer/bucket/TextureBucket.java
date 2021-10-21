@@ -23,8 +23,7 @@ import org.oscim.renderer.GLState;
 import org.oscim.renderer.GLViewport;
 import org.oscim.renderer.MapRenderer;
 import org.oscim.renderer.bucket.TextureItem.TexturePool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.nio.ShortBuffer;
 
@@ -33,21 +32,21 @@ import static org.oscim.renderer.MapRenderer.COORD_SCALE;
 import static org.oscim.renderer.MapRenderer.MAX_INDICES;
 
 public class TextureBucket extends RenderBucket {
+    
+    static final Logger log = new Logger(TextureBucket.class);
 
-    static final Logger log = LoggerFactory.getLogger(TextureBucket.class);
+    public static final int INDICES_PER_SPRITE = 6;
+    static final int VERTICES_PER_SPRITE = 4;
+    static final int SHORTS_PER_VERTICE = 6;
 
-    public final static int INDICES_PER_SPRITE = 6;
-    final static int VERTICES_PER_SPRITE = 4;
-    final static int SHORTS_PER_VERTICE = 6;
-
-    public final static int TEXTURE_HEIGHT = 256;
-    public final static int TEXTURE_WIDTH = 1024;
-    final static int POOL_FILL = 4;
+    public static final int TEXTURE_HEIGHT = 256;
+    public static final int TEXTURE_WIDTH = 1024;
+    static final int POOL_FILL = 4;
 
     /**
      * pool shared by TextLayers
      */
-    public final static TexturePool pool = new TexturePool(POOL_FILL,
+    public static final TexturePool pool = new TexturePool(POOL_FILL,
             TEXTURE_WIDTH,
             TEXTURE_HEIGHT,
             false);
@@ -76,6 +75,7 @@ public class TextureBucket extends RenderBucket {
         compileVertexItems(vboData);
     }
 
+    @Override
     protected void clear() {
         while (textures != null)
             textures = textures.dispose();
@@ -94,8 +94,8 @@ public class TextureBucket extends RenderBucket {
             uScale = getUniform("u_scale");
             uCoordScale = getUniform("u_coord_scale");
             uTexSize = getUniform("u_div");
-            aPos = getAttrib("vertex");
-            aTexCoord = getAttrib("tex_coord");
+            aPos = getAttrib("a_pos");
+            aTexCoord = getAttrib("a_tex_coord");
         }
 
         @Override
@@ -145,7 +145,7 @@ public class TextureBucket extends RenderBucket {
                 for (int i = 0; i < t.indices; i += MAX_INDICES) {
                     /* to.offset * (24(shorts) * 2(short-bytes)
                      * / 6(indices) == 8) */
-                    int off = (t.offset + i) * 8 + tb.vertexOffset;
+                    int off = (t.offset + i) * RenderBuckets.SHORT_BYTES * 4 + tb.vertexOffset;
 
                     int numIndices = t.indices - i;
                     if (numIndices > MAX_INDICES)
@@ -165,10 +165,10 @@ public class TextureBucket extends RenderBucket {
 
     public void render(int offset, int numIndices) {
         gl.vertexAttribPointer(shader.aPos, 4, GL.SHORT,
-                false, 12, offset);
+                false, RenderBuckets.SHORT_BYTES * 6, offset);
 
         gl.vertexAttribPointer(shader.aTexCoord, 2, GL.SHORT,
-                false, 12, offset + 8);
+                false, RenderBuckets.SHORT_BYTES * 6, offset + RenderBuckets.SHORT_BYTES * 4);
 
         gl.drawElements(GL.TRIANGLES, numIndices,
                 GL.UNSIGNED_SHORT, 0);

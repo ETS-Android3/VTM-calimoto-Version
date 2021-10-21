@@ -19,7 +19,6 @@ package org.oscim.test.renderer;
 import org.oscim.backend.canvas.Color;
 import org.oscim.backend.canvas.Paint.Cap;
 import org.oscim.gdx.GdxMapApp;
-import org.oscim.gdx.GdxMapImpl;
 import org.oscim.layers.GenericLayer;
 import org.oscim.renderer.BucketRenderer;
 import org.oscim.renderer.GLViewport;
@@ -31,15 +30,14 @@ import org.oscim.renderer.bucket.TextBucket;
 import org.oscim.renderer.bucket.TextItem;
 import org.oscim.theme.styles.LineStyle;
 import org.oscim.theme.styles.TextStyle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.util.Arrays;
 
-public class AtlasTest extends GdxMapImpl {
+public class AtlasTest extends GdxMapApp {
 
     @Override
-    protected void createLayers() {
+    public void createLayers() {
         mMap.setMapPosition(0, 0, 1 << 4);
         mMap.layers().add(new GenericLayer(mMap, new AtlasRenderLayer()));
     }
@@ -50,8 +48,8 @@ public class AtlasTest extends GdxMapImpl {
     }
 
     static class AtlasRenderLayer extends BucketRenderer {
-
-        Logger log = LoggerFactory.getLogger(AtlasRenderLayer.class);
+    
+        Logger log = new Logger(AtlasRenderLayer.class);
 
         public AtlasRenderLayer() {
 

@@ -27,8 +27,7 @@ import org.oscim.tiling.ITileDataSource;
 import org.oscim.tiling.source.PbfDecoder;
 import org.oscim.tiling.source.UrlTileDataSource;
 import org.oscim.tiling.source.UrlTileSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,7 +45,7 @@ public class OSciMap2TileSource extends UrlTileSource {
     }
 
     static class TileDecoder extends PbfDecoder {
-        static final Logger log = LoggerFactory.getLogger(TileDecoder.class);
+        static final Logger log = new Logger(TileDecoder.class);
         private static final int TAG_TILE_NUM_TAGS = 1;
         private static final int TAG_TILE_TAG_KEYS = 2;
         private static final int TAG_TILE_TAG_VALUES = 3;
@@ -75,7 +74,7 @@ public class OSciMap2TileSource extends UrlTileSource {
         private ITileDataSink mMapDataSink;
 
         // scale coordinates to tile size
-        private final static float REF_TILE_SIZE = 4096.0f;
+        private static final float REF_TILE_SIZE = 4096.0f;
         private float mScale;
 
         TileDecoder() {

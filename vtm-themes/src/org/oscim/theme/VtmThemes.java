@@ -34,21 +34,28 @@ public enum VtmThemes implements ThemeFile {
 
     DEFAULT("vtm/default.xml"),
     CALIMOTO("vtm/calimoto.xml"),
+    CALIMOTO_ROADTRIP("vtm/calimoto_roadtrip.xml"),
     CALIMOTO_NAVIGATION("vtm/calimoto_navigation.xml"),
+    CALIMOTO_ROADTRIP_NAVIGATION("vtm/calimoto_roadtrip_navigation.xml"),
+    CALIMOTO_MYSPIN("vtm/calimoto_myspin.xml"),
     MAPZEN("vtm/mapzen.xml"),
     NEWTRON("vtm/newtron.xml"),
-    OPENMAPTILES("vtm/openmaptiles.xml"),
+    CALIMOTO_ONLINE("vtm/calimoto_online.xml"),
+    CALIMOTO_ONLINE_NAVIGATION("vtm/calimoto_online_navigation.xml"),
+    CALIMOTO_ONLINE_HILLSHADE("vtm/calimoto_online_hillshade.xml"),
+    CALIMOTO_ONLINE_SATELLITE("vtm/calimoto_online_satellite.xml"),
     OSMAGRAY("vtm/osmagray.xml"),
     OSMARENDER("vtm/osmarender.xml"),
     TRONRENDER("vtm/tronrender.xml");
+    
 
     private final String mPath;
     private XmlRenderThemeMenuCallback mXmlRenderThemeMenuCallback = null;
-
+    
     VtmThemes(String path) {
         mPath = path;
     }
-
+    
     public void setCategories(final Set<String> categories) {
         if (categories == null) {
             mXmlRenderThemeMenuCallback = null;

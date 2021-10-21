@@ -22,13 +22,12 @@ import org.oscim.core.MapElement;
 import org.oscim.renderer.MapRenderer;
 import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.QueryResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import static org.oscim.tiling.QueryResult.FAILED;
 
 public abstract class TileLoader implements ITileDataSink {
-    final static Logger log = LoggerFactory.getLogger(TileLoader.class);
+    final static Logger log = new Logger(TileLoader.class);
 
     private final TileManager mTileManager;
     private Timer mTimer;

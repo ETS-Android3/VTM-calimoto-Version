@@ -3,7 +3,7 @@ apply plugin: 'maven'
 
 dependencies {
     api project(':vtm')
-    api 'com.squareup.okhttp3:okhttp:3.8.0'
+    api 'com.squareup.okhttp3:okhttp:4.2.0'
 }
 
 sourceSets {

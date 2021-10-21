@@ -1,6 +1,7 @@
 /*
  * Copyright 2013 Hannes Janetzek
  * Copyright 2016 devemux86
+ * Copyright 2018 Gustl22
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -22,26 +23,25 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import org.oscim.backend.AssetAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.io.InputStream;
 
 public class GdxAssets extends AssetAdapter {
-    private static final Logger log = LoggerFactory.getLogger(GdxAssets.class);
-
+    private static final Logger log = new Logger(GdxAssets.class);
+    
     static String pathPrefix = "";
-
+    
     private GdxAssets(String path) {
         pathPrefix = path;
     }
-
+    
     @Override
     public InputStream openFileAsStream(String fileName) {
         FileHandle file = Gdx.files.internal(pathPrefix + fileName);
         if (file == null)
             throw new IllegalArgumentException("missing file " + fileName);
-
+        
         try {
             return file.read();
         } catch (GdxRuntimeException e) {
@@ -49,7 +49,14 @@ public class GdxAssets extends AssetAdapter {
             return null;
         }
     }
-
+    
+    /**
+     * Get file path in GDX assets.
+     */
+    public static String getAssetPath(String fileName) {
+        return Gdx.files.internal(pathPrefix + fileName).path();
+    }
+    
     public static void init(String path) {
         AssetAdapter.init(new GdxAssets(path));
     }

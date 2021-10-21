@@ -19,41 +19,58 @@
  */
 package org.oscim.core;
 
+import org.oscim.utils.GeoPointUtils;
+
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * A BoundingBox represents an immutable set of two latitude and two longitude
  * coordinates.
  */
-public class BoundingBox {
+public class BoundingBox implements Serializable {
+    /**
+     * Generated serial version UID
+     */
+    private static final long serialVersionUID = 3284425051802630406L;
+
     /**
      * Conversion factor from degrees to microdegrees.
      */
     private static final double CONVERSION_FACTOR = 1000000d;
+    
+    /**
+     * Worldwide bounding box
+     */
+    public static final BoundingBox BOUNDING_BOX_WORLD = new BoundingBox(
+            GeoPointUtils.LATITUDE_MIN,
+            GeoPointUtils.LONGITUDE_MIN,
+            GeoPointUtils.LATITUDE_MAX,
+            GeoPointUtils.LONGITUDE_MAX);
 
     /**
      * The maximum latitude value of this BoundingBox in microdegrees (degrees *
      * 10^6).
      */
-    public int maxLatitudeE6;
+    public final int maxLatitudeE6;
 
     /**
      * The maximum longitude value of this BoundingBox in microdegrees (degrees
      * * 10^6).
      */
-    public int maxLongitudeE6;
+    public final int maxLongitudeE6;
 
     /**
      * The minimum latitude value of this BoundingBox in microdegrees (degrees *
      * 10^6).
      */
-    public int minLatitudeE6;
+    public final int minLatitudeE6;
 
     /**
      * The minimum longitude value of this BoundingBox in microdegrees (degrees
      * * 10^6).
      */
-    public int minLongitudeE6;
+    public final int minLongitudeE6;
 
     /**
      * @param minLatitudeE6  the minimum latitude in microdegrees (degrees * 10^6).
@@ -113,7 +130,7 @@ public class BoundingBox {
                 && geoPoint.longitudeE6 <= maxLongitudeE6
                 && geoPoint.longitudeE6 >= minLongitudeE6;
     }
-
+    
     public boolean contains(BoundingBox boundingBox) {
         return boundingBox.maxLatitudeE6 <= maxLatitudeE6
                 && boundingBox.minLatitudeE6 >= minLatitudeE6

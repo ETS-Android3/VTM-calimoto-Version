@@ -24,8 +24,7 @@ import org.oscim.layers.tile.MapTile;
 import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.ITileDataSource;
 import org.oscim.tiling.TileSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -35,7 +34,7 @@ import static org.oscim.tiling.QueryResult.SUCCESS;
 import static org.oscim.tiling.QueryResult.TILE_NOT_FOUND;
 
 public class JeoTileSource extends TileSource {
-    final static Logger log = LoggerFactory.getLogger(JeoTileSource.class);
+    final static Logger log = new Logger(JeoTileSource.class);
 
     final TileDataset mTileDataset;
 

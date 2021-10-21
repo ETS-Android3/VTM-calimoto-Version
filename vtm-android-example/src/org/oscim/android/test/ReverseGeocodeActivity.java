@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 devemux86
+ * Copyright 2017-2018 devemux86
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -32,6 +32,7 @@ import org.oscim.event.MotionEvent;
 import org.oscim.layers.Layer;
 import org.oscim.layers.TileGridLayer;
 import org.oscim.map.Map;
+import org.oscim.tiling.OverzoomTileDataSource;
 import org.oscim.tiling.source.mapfile.MapDatabase;
 import org.oscim.tiling.source.mapfile.MapReadResult;
 import org.oscim.tiling.source.mapfile.PointOfInterest;
@@ -46,7 +47,7 @@ import java.util.List;
  * - POI in specified radius.<br/>
  * - Ways containing touch point.
  */
-public class ReverseGeocodeActivity extends MapsforgeMapActivity {
+public class ReverseGeocodeActivity extends MapsforgeActivity {
 
     private static final int TOUCH_RADIUS = 32 / 2;
 
@@ -69,7 +70,7 @@ public class ReverseGeocodeActivity extends MapsforgeMapActivity {
 
         if (requestCode == SELECT_MAP_FILE) {
             // For debug
-            TileGridLayer gridLayer = new TileGridLayer(mMap, getResources().getDisplayMetrics().density);
+            TileGridLayer gridLayer = new TileGridLayer(mMap);
             mMap.layers().add(gridLayer);
         }
     }
@@ -96,7 +97,7 @@ public class ReverseGeocodeActivity extends MapsforgeMapActivity {
                 int tileYMax = MercatorProjection.pixelYToTileY(pixelY + touchRadius, (byte) mMap.getMapPosition().getZoomLevel());
                 Tile upperLeft = new Tile(tileXMin, tileYMin, (byte) mMap.getMapPosition().getZoomLevel());
                 Tile lowerRight = new Tile(tileXMax, tileYMax, (byte) mMap.getMapPosition().getZoomLevel());
-                MapReadResult mapReadResult = ((MapDatabase) mTileSource.getDataSource()).readLabels(upperLeft, lowerRight);
+                MapReadResult mapReadResult = ((MapDatabase) ((OverzoomTileDataSource) mTileSource.getDataSource()).getDataSource()).readLabels(upperLeft, lowerRight);
 
                 StringBuilder sb = new StringBuilder();
 

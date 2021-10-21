@@ -1,7 +1,8 @@
 /*
  * Copyright 2013 Hannes Janetzek
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2018 devemux86
  * Copyright 2017 Longri
+ * Copyright 2018 Gustl22
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -27,8 +28,7 @@ import org.oscim.renderer.GLViewport;
 import org.oscim.renderer.MapRenderer;
 import org.oscim.theme.styles.LineStyle;
 import org.oscim.utils.FastMath;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -67,11 +67,11 @@ import static org.oscim.renderer.MapRenderer.bindQuadIndicesVBO;
  * flip        0  1  0  1  0  1  0  1
  * </pre>
  * <p/>
- * Vertex layout:
- * [2 short] position,
- * [2 short] extrusion,
- * [1 short] line length
- * [1 short] unused
+ * Vertex layout (here: 1 unit == 1 short):
+ * [2 unit] position,
+ * [2 unit] extrusion,
+ * [1 unit] line length
+ * [1 unit] unused
  * <p/>
  * indices, for two blocks:
  * 0, 1, 2,
@@ -85,9 +85,9 @@ import static org.oscim.renderer.MapRenderer.bindQuadIndicesVBO;
  * - see addLine hack otherwise.
  */
 public final class LineTexBucket extends LineBucket {
-
-    static final Logger log = LoggerFactory.getLogger(LineTexBucket.class);
-
+    
+    static final Logger log = new Logger(LineTexBucket.class);
+    
     public int evenQuads;
     public int oddQuads;
 
@@ -100,6 +100,7 @@ public final class LineTexBucket extends LineBucket {
         this.evenSegment = true;
     }
 
+    @Override
     public void addLine(GeometryBuffer geom) {
         addLine(geom.points, geom.index, -1, false);
     }
@@ -146,7 +147,7 @@ public final class LineTexBucket extends LineBucket {
             float x = points[pos++] * COORD_SCALE;
             float y = points[pos++] * COORD_SCALE;
 
-            /* randomize a bit */
+            /* randomize a bit (must be within range of +/- Short.MAX_VALUE) */
             float lineLength = line.randomOffset ? (x * x + y * y) % 80 : 0;
 
             while (pos < end) {
@@ -158,46 +159,67 @@ public final class LineTexBucket extends LineBucket {
                 float vy = ny - y;
 
                 //    /* normalize vector */
-                double a = Math.sqrt(vx * vx + vy * vy);
-                //    vx /= a;
-                //    vy /= a;
-                
+                double dist = Math.sqrt(vx * vx + vy * vy);
+                //    vx /= dist;
+                //    vy /= dist;
+
                 /* normalized perpendicular to line segment */
-                short dx = (short) ((-vy / a) * DIR_SCALE);
-                short dy = (short) ((vx / a) * DIR_SCALE);
+                short dx = (short) ((-vy / dist) * DIR_SCALE);
+                short dy = (short) ((vx / dist) * DIR_SCALE);
 
-                vi.add((short) x, (short) y, dx, dy, (short) lineLength, (short) 0);
+                if (lineLength + dist > Short.MAX_VALUE)
+                    lineLength = Short.MIN_VALUE; // reset lineLength (would cause minimal shift)
 
-                lineLength += a;
-
-                vi.seek(6);
-                vi.add((short) nx, (short) ny, dx, dy, (short) lineLength, (short) 0);
-
+                if (dist > (Short.MAX_VALUE - Short.MIN_VALUE)) {
+                    // In rare cases sloping lines are larger than max range of short:
+                    // sqrt(x² + y²) > short range. So need to split them in 2 parts.
+                    // Alternatively can set max clip value to:
+                    // (Short.MAX_VALUE / Math.sqrt(2)) / MapRenderer.COORD_SCALE
+                    float ix = (x + (vx / 2));
+                    float iy = (y + (vy / 2));
+                    addShortVertex(vi, (short) x, (short) y, (short) ix, (short) iy,
+                            dx, dy, (short) lineLength, (int) (dist / 2));
+                    addShortVertex(vi, (short) ix, (short) iy, (short) nx, (short) ny,
+                            dx, dy, (short) lineLength, (int) (dist / 2));
+                } else {
+                    addShortVertex(vi, (short) x, (short) y, (short) nx, (short) ny,
+                            dx, dy, (short) lineLength, (int) dist);
+                    lineLength += dist;
+                }
                 x = nx;
                 y = ny;
-
-                if (evenSegment) {
-                    /* go to second segment */
-                    vi.seek(-12);
-                    evenSegment = false;
-
-                    /* vertex 0 and 2 were added */
-                    numVertices += 3;
-                    evenQuads++;
-                } else {
-                    /* go to next block */
-                    evenSegment = true;
-
-                    /* vertex 1 and 3 were added */
-                    numVertices += 1;
-                    oddQuads++;
-                }
             }
         }
 
         /* advance offset to last written position */
         if (!evenSegment)
             vi.seek(12);
+    }
+
+    private void addShortVertex(VertexData vi, short x, short y, short nx, short ny,
+                                short dx, short dy, short lineLength, int dist) {
+
+        vi.add(x, y, dx, dy, lineLength, (short) 0);
+
+        vi.seek(6);
+        vi.add(nx, ny, dx, dy, (short) (lineLength + dist), (short) 0);
+
+        if (evenSegment) {
+            /* go to second segment */
+            vi.seek(-12);
+            evenSegment = false;
+
+            /* vertex 0 and 2 were added */
+            numVertices += 3;
+            evenQuads++;
+        } else {
+            /* go to next block */
+            evenSegment = true;
+
+            /* vertex 1 and 3 were added */
+            numVertices += 1;
+            oddQuads++;
+        }
     }
 
     @Override
@@ -234,19 +256,19 @@ public final class LineTexBucket extends LineBucket {
             uPatternWidth = getUniform("u_pwidth");
             uPatternScale = getUniform("u_pscale");
 
-            aPos0 = getAttrib("a_pos0");
+            aPos0 = getAttrib("a_pos0"); // posX, posY, extrX, extrY
             aPos1 = getAttrib("a_pos1");
-            aLen0 = getAttrib("a_len0");
+            aLen0 = getAttrib("a_len0"); // line length, unused
             aLen1 = getAttrib("a_len1");
             aFlip = getAttrib("a_flip");
         }
     }
 
-    public final static class Renderer {
+    public static final class Renderer {
         private static Shader shader;
 
         /* factor to normalize extrusion vector and scale to coord scale */
-        private final static float COORD_SCALE_BY_DIR_SCALE =
+        private static final float COORD_SCALE_BY_DIR_SCALE =
                 COORD_SCALE / LineBucket.DIR_SCALE;
 
         private static int mVertexFlipID;
@@ -275,7 +297,7 @@ public final class LineTexBucket extends LineBucket {
             GLState.bindVertexBuffer(mVertexFlipID);
             gl.bufferData(GL.ARRAY_BUFFER, flip.length, sbuf,
                     GL.STATIC_DRAW);
-            GLState.bindVertexBuffer(0);
+            GLState.bindVertexBuffer(GLState.UNBIND);
 
             //    mTexID = new int[10];
             //    byte[] stipple = new byte[40];
@@ -319,8 +341,11 @@ public final class LineTexBucket extends LineBucket {
                     GL.REPEAT, GL.REPEAT);
         }
 
-        private final static int STRIDE = 12;
-        private final static int LEN_OFFSET = 8;
+        /* posX, posY, extrX, extrY, length, unused */
+        private static final int STRIDE = 6 * RenderBuckets.SHORT_BYTES;
+
+        /* offset for line length, unused; skip first 4 units */
+        private static final int LEN_OFFSET = 4 * RenderBuckets.SHORT_BYTES;
 
         public static RenderBucket draw(RenderBucket b, GLViewport v,
                                         float div, RenderBuckets buckets) {
@@ -328,7 +353,7 @@ public final class LineTexBucket extends LineBucket {
             GLState.blend(true);
             shader.useProgram();
 
-            GLState.enableVertexArrays(-1, -1);
+            GLState.enableVertexArrays(GLState.DISABLED, GLState.DISABLED);
 
             int aLen0 = shader.aLen0;
             int aLen1 = shader.aLen1;
@@ -359,7 +384,7 @@ public final class LineTexBucket extends LineBucket {
                 LineTexBucket lb = (LineTexBucket) b;
                 LineStyle line = lb.line.current();
 
-                gl.uniform1f(shader.uMode, line.dashArray != null ? 2 : (line.texture != null ? 1 : 0));
+                gl.uniform1i(shader.uMode, line.dashArray != null ? 2 : (line.texture != null ? 1 : 0));
 
                 if (line.texture != null)
                     line.texture.bind();
@@ -368,14 +393,13 @@ public final class LineTexBucket extends LineBucket {
                 GLUtils.setColor(shader.uBgColor, line.color, 1);
 
                 float pScale;
-
                 if (s >= 1) {
-                    pScale = (line.stipple * s);
-                    int cnt = (int) (pScale / line.stipple);
-                    pScale = (float) line.stipple / (cnt + 1);
+                    pScale = line.stipple * s;
+                    float cnt = pScale / line.stipple;
+                    pScale = line.stipple / (cnt + 1);
                 } else {
                     pScale = line.stipple / s;
-                    int cnt = (int) (pScale / line.stipple);
+                    float cnt = pScale / line.stipple;
                     pScale = line.stipple * cnt;
                 }
 
@@ -399,8 +423,8 @@ public final class LineTexBucket extends LineBucket {
                     if (numIndices > MAX_INDICES)
                         numIndices = MAX_INDICES;
 
-                    /* i / 6 * (24 shorts per block * 2 short bytes) */
-                    int add = (b.vertexOffset + i * 8) + vOffset;
+                    /* i * (24 units per block / 6) * unit bytes) */
+                    int add = (b.vertexOffset + i * 4 * RenderBuckets.SHORT_BYTES) + vOffset;
 
                     gl.vertexAttribPointer(aPos0, 4, GL.SHORT, false, STRIDE,
                             add + STRIDE);
@@ -424,8 +448,8 @@ public final class LineTexBucket extends LineBucket {
                     int numIndices = allIndices - i;
                     if (numIndices > MAX_INDICES)
                         numIndices = MAX_INDICES;
-                    /* i / 6 * (24 shorts per block * 2 short bytes) */
-                    int add = (b.vertexOffset + i * 8) + vOffset;
+                    /* i * (24 units per block / 6) * unit bytes) */
+                    int add = (b.vertexOffset + i * 4 * RenderBuckets.SHORT_BYTES) + vOffset;
 
                     gl.vertexAttribPointer(aPos0, 4, GL.SHORT, false, STRIDE,
                             add + 2 * STRIDE);

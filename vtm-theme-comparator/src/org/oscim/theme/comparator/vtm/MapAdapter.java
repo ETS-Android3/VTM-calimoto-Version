@@ -1,5 +1,6 @@
 /*
  * Copyright 2017 Longri
+ * Copyright 2019 devemux86
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -22,12 +23,11 @@ import org.oscim.event.Event;
 import org.oscim.event.Gesture;
 import org.oscim.event.MotionEvent;
 import org.oscim.map.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 public class MapAdapter extends Map implements Map.UpdateListener {
-
-    private final static Logger log = LoggerFactory.getLogger(MapAdapter.class);
+    
+    private final static Logger log = new Logger(MapAdapter.class);
 
     MapAdapter() {
         super();
@@ -51,6 +51,16 @@ public class MapAdapter extends Map implements Map.UpdateListener {
         return height;
     }
 
+    @Override
+    public int getScreenWidth() {
+        return Gdx.graphics.getDisplayMode().width;
+    }
+
+    @Override
+    public int getScreenHeight() {
+        return Gdx.graphics.getDisplayMode().height;
+    }
+
     private final Runnable mRedrawCb = new Runnable() {
         @Override
         public void run() {
@@ -58,6 +68,11 @@ public class MapAdapter extends Map implements Map.UpdateListener {
             Gdx.graphics.requestRendering();
         }
     };
+
+    @Override
+    public void updateMap() {
+        updateMap(true);
+    }
 
     @Override
     public void updateMap(boolean forceRender) {
@@ -70,7 +85,6 @@ public class MapAdapter extends Map implements Map.UpdateListener {
             }
         }
     }
-
 
     @Override
     public void render() {
@@ -114,6 +128,7 @@ public class MapAdapter extends Map implements Map.UpdateListener {
     }
 
 
+    @Override
     public boolean handleGesture(Gesture g, MotionEvent e) {
         this.updateMap(true);
         return super.handleGesture(g, e);

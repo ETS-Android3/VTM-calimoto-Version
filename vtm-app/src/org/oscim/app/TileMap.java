@@ -1,6 +1,6 @@
 /* Copyright 2010, 2011, 2012 mapsforge.org
  * Copyright 2012 Hannes Janetzek
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2019 devemux86
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -15,11 +15,13 @@
  */
 package org.oscim.app;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -43,13 +45,12 @@ import org.oscim.core.GeoPoint;
 import org.oscim.overlay.DistanceTouchOverlay;
 import org.osmdroid.location.POI;
 import org.osmdroid.overlays.MapEventsReceiver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.util.Map;
 
 public class TileMap extends MapActivity implements MapEventsReceiver {
-    final static Logger log = LoggerFactory.getLogger(TileMap.class);
+    final static Logger log = new Logger(TileMap.class);
 
     private static final int DIALOG_ENTER_COORDINATES = 0;
     private static final int DIALOG_LOCATION_PROVIDER_DISABLED = 2;
@@ -72,6 +73,11 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
+        }
 
         setContentView(R.layout.activity_tilemap);
         App.view = (MapView) findViewById(R.id.mapView);

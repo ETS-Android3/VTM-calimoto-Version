@@ -1,0 +1,962 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rendertheme xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" map-background="#f8f4f0"
+    version="1" xmlns="http://opensciencemap.org/rendertheme"
+    xsi:schemaLocation="http://opensciencemap.org/rendertheme https://raw.githubusercontent.com/mapsforge/vtm/master/resources/rendertheme.xsd">
+
+    <!-- 	This stylesheet/ theme is used in the calimoto app as online style for the tegola server
+
+            The same tile provider is used as web backend. But the stylesheet differs from the web style sheet in multiple ways:
+            - web style sheet is mapbox styling in JSON
+            - this style is mapsforge styling in xml
+
+
+            difference to mapsforge .map Stylesheet
+            - fade is completely removed (elements appear based on the area size and tag)
+            -
+
+     -->
+
+
+    <!-- 		General style definitions		 -->
+
+
+    <!-- 		Text Styles						 -->
+
+    <!-- base style for road labels -->
+    <style-text fill="#2d261f" id="road" k="name" priority="33" size="13" stroke="#aaffffff" stroke-width="2.5" />
+
+    <!-- base style for road refs -->
+    <style-text fill="#2d261f" id="road_ref" k="ref" priority="32" size="13" stroke="#aaffffff" stroke-width="2.5" />
+
+    <!-- base style for major road label -->
+    <style-text fill="#2d261f" id="major-road" k="name" priority="31" size="13" stroke="#aaffffff" stroke-width="2.5" />
+
+    <!-- base style for major road refs -->
+    <style-text fill="#2d261f" id="major-road_ref" k="ref" priority="30" size="13" stroke="#aaffffff" stroke-width="2.5" />
+
+    <!-- base style for poi labels -->
+    <style-text caption="true" dy="-16" fill="#2d261f" id="poi" k="name" size="13" stroke="#aaffffff" stroke-width="2.5" priority="28" />
+
+    <!-- base style for minor poi labels -->
+    <style-text caption="true" dy="-11" fill="#2d261f" id="minor_poi" k="name" size="12" stroke="#aaffffff" stroke-width="2.5" priority="29" />
+
+    <!-- base style for water texts -->
+    <style-text fill="#991b6bb1" id="water_label" k="name" size="14" stroke="#aaffffff" stroke-width="2.5" priority="41" style="italic"/>
+
+    <!-- base style for ferries -->
+    <style-text fill="#2d261f" id="ferry" k="name" size="13" stroke="#aaffffff" stroke-width="2.5" priority="34"/>
+
+    <!--  		Area Styles 					-->
+    <!-- base style for all residential/urban areas -->
+    <style-area fill="#d3d3c5" id="residential" />
+
+    <!-- park|common|green|cemetery|golf_course|dog_park -->
+    <style-area fill="#70d8e8c8" id="park"/>
+
+    <!-- sports -->
+    <style-area fill="#70d8e8c8" id="sports"/>
+
+    <!-- 		Line Styles						-->
+    <!-- base style for fixed width lines -->
+    <style-line cap="butt" fix="true" id="fix" width="1.0" />
+    <style-line cap="butt" fix="true" id="park" stroke="#9ac56e" width="1.0" />
+
+    <style-line id="residential_line" stroke="#ffffff" width="1.3" />
+    <style-line cap="square" id="residential:bridge" use="residential_line" />
+    <style-line id="motorway" stroke="#eaa07b" width="1.8" />
+    <style-line id="motorway:z6" stroke="#eaa07b" width="1.8" />
+    <style-line id="trunk" stroke="#f4a657" width="1.6" />
+    <style-line id="trunk_link" cap="butt" stroke="#f4a657" width="0.8" />
+    <style-line id="motorway_link" cap="butt" stroke="#eaa07b" width="0.9" />
+    <style-line id="primary" stroke="#ffbb33" width="1.5" />
+    <style-line id="primary_link" stroke="#ffbb33" width="1.0" />
+    <style-line id="secondary" stroke="#ffdd33" width="1.5"/>
+    <style-line id="tertiary" use="secondary" width="-0.3" />
+
+    <!-- track|footway|path|cycleway -->
+    <style-line id="highway:track" stroke="#aad1a67a" width="0.7"/>
+
+    <!-- waterways and water area styles -->
+    <style-line cap="round" id="water" stroke="#C4DFF6" width="1.0" />
+    <style-line id="river" stroke="#C4DFF6" use="water" />
+    <style-area fill="#C4DFF6" id="water"/>
+
+    <!-- no-go area boundary -->
+    <style-line cap="butt" fix="true" id="fence" stroke="#444444" width="1.2" />
+    <style-line cap="butt" id="aeroway:runway" stroke="#c8ccbe" width="1.8" />
+
+    <!-- buildings -->
+    <style-line id="building" stroke="#eeb7b6b3" use="fix" />
+    <style-area fill="#f2f0eb" id="building" stroke="#b7b6b3" stroke-width="1.0" />
+
+    <!-- protected_areas and national parks -->
+    <m v="landuse_areas">
+        <m v="2_z11|3_z11|4_z11|6_z11|nature_reserve_z11|national_park_z11" >
+            <area fill="#70d9e8c9"/>
+        </m>
+
+        <m v="2|3|4|6|nature_reserve|national_park" >
+            <area fill="#70d9e8c9"/>
+        </m>
+    </m>
+
+    <m e="way" v="ocean_0-7|ocean_8-20">
+        <area mesh="true" use="water" />
+    </m>
+
+    <!-- all urban areas like residential, commercial, industrial etc. -->
+    <m v="urban_areas|school|college|university|library|hospital">
+        <area use="residential" mesh="true"/>
+    </m>
+
+    <!-- 			OSM Element handling			 -->
+
+    <!-- landuse base -->
+
+    <m v="landuse_areas|water_areas|amenity_areas|urban_areas">
+        <m v="picnic_site|camp_site">
+            <area use="park" />
+        </m>
+
+        <!-- landuse -->
+        <m v="landuse_areas">
+            <m v="village_green|recreation_ground">
+                <area use="park" />
+            </m>
+            <m v="park|common|golf_course|dog_park|garden|cemetery">
+                <area use="park"/>
+            </m>
+            <m v="grassland_z11|grass_z11|allotments_z11">
+                <area use="park"/>
+            </m>
+            <m v="grassland|grass|allotments">
+                <area use="park"/>
+            </m>
+            <m v="quarry|quarry_z11">
+                <area fill="#70deded5"/>
+            </m>
+        </m>
+
+        <m v="forest_z11|wood_z11|forest|wood|wood_z11|forest_z5|wood_z5|forest_z8|wood_z8">
+            <area fill="#70b3cf96" mesh="true" />
+        </m>
+
+        <!-- leisure -->
+        <m v="landuse_areas">
+            <!--should be under playing field -->
+            <m v="sports_centre|water_park|playground|miniature_golf|pitch|track|soccer|swimming|tennis|baseball|volleyball|shooting|cricket|football|climbing|equestrian|stadium">
+                <area use="sports" />
+            </m>
+        </m>
+
+        <m v="water_areas">
+            <area use="water" mesh="true"/>
+            <m>
+                <caption area-size="0.05" fill="#991b6bb1" k="name" size="14" stroke="#aaffffff" stroke-width="2.5" priority="42" style="italic"/>
+            </m>
+        </m>
+    </m><!-- end landuse|natural|leisure||amenity|tourism -->
+
+    <!-- waterways -->
+    <m v="water_lines">
+        <m v="drain|ditch">
+            <line use="water" width="-0.7"/>
+            <m zoom-min="16">
+                <text use="water_label"/>
+            </m>
+        </m>
+        <m v="canal_z11|canal">
+            <line use="river" />
+            <m zoom-min="15">
+                <text use="water_label"/>
+            </m>
+        </m>
+        <m v="stream">
+            <line use="water" width="-0.3" />
+            <m zoom-min="16">
+                <text use="water_label"/>
+            </m>
+        </m>
+        <m v="river_z11|river" >
+            <m zoom-max="10">
+                <line use="river" width="0.5"/>
+            </m>
+            <m zoom-min="11">
+                <line use="river" width="1.0" />
+            </m>
+            <m zoom-min="14">
+                <text use="water_label"/>
+            </m>
+        </m>
+    </m>
+
+    <m e="way">
+
+        <!-- outlines -->
+        <outline-layer id="1" stroke="#aa000000" width="0.3" />
+        <outline-layer id="primary_outline" stroke="#ffaa00" width="0.3" />
+        <outline-layer id="secondary_outline" stroke="#ffd500" width="0.3" />
+
+        <outline-layer id="motorway_outline" stroke="#d16161" width="0.3" />
+        <outline-layer id="trunk_outline" stroke="#dd6022" width="0.3" />
+
+        <!-- calimoto bendiness halo -->
+        <outline-layer id="mainroads:halo_outline_100" stroke="#ff9999" width="2.0" />
+        <outline-layer id="mainroads:halo_outline_200" stroke="#ff6666" width="2.0" />
+        <outline-layer id="mainroads:halo_outline_350" stroke="#e60000" width="2.0" />
+
+        <!-- outline 0 -->
+        <outline-layer blur="1.0" id="glow" stroke="#000000" width="0.3" />
+        <outline-layer id="0" stroke="#c8000000" width="0.1" />
+
+        <!-- 		tunnel section 		-->
+        <!-- match tunnel-tag (to ensure tunnel key is present) -->
+        <m k="tunnel" v="1">
+            <!-- highway tunnels -->
+            <m v="transport_lines">
+                <m v="track">
+                    <line use="highway:track" />
+                </m>
+                <m v="trunk_link" zoom-min="7">
+                    <m zoom-max="11">
+                        <line cap="square" outline="trunk_outline" use="trunk_link" />
+                    </m>
+                    <m zoom-min="12">
+                        <line blur="0.4" outline="0" use="trunk_link" />
+                    </m>
+                </m>
+                <m v="motorway_link">
+                    <m zoom-max="11">
+                        <line cap="square" outline="motorway_outline" use="motorway_link" />
+                    </m>
+                    <m zoom-min="12">
+                        <line blur="0.4" outline="0" use="motorway_link" />
+                    </m>
+                </m>
+                <m>
+                    <m v="service">
+                        <m k="service" v="~|parking_aisle">
+                            <line outline="0" use="residential_line" />
+                        </m>
+                    </m>
+                    <m v="residential|road|unclassified|living_street|unclassified_urban|unclassified_100_200|unclassified_200_350|unclassified_350">
+                        <m zoom-max="12">
+                            <line cap="square" outline="1" use="residential_line" />
+                        </m>
+                        <m zoom-min="13">
+                            <line blur="0.4" outline="0" use="residential_line" />
+                        </m>
+                        <m v="residential|road|living_street|unclassified|unclassified_urban|unclassified_100_200|unclassified_200_350|unclassified_350" zoom-min="15">
+                            <text use="road" />
+                            <text use="road_ref" />
+                        </m>
+                    </m>
+                </m>
+                <m v="tertiary|secondary_link|secondary_link_urban|tertiary_link|tertiary_link_urban|tertiary_urban|tertiary_100_200|tertiary_200_350|tertiary_350">
+                    <m zoom-min="10" zoom-max="11">
+                        <line cap="square" outline="secondary_outline" use="tertiary" />
+                    </m>
+                    <m zoom-min="12">
+                        <line blur="0.4" outline="0" use="tertiary" />
+                    </m>
+                    <m zoom-min="14">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m v="secondary|primary_link|primary_link_urban|secondary_urban|secondary_100_200|secondary_200_350|secondary_350" zoom-min="8">
+                    <m zoom-max="11">
+                        <line cap="square" outline="secondary_outline" use="secondary" />
+                    </m>
+                    <m zoom-min="12">
+                        <line blur="0.4" outline="0" use="secondary" />
+                    </m>
+                    <m zoom-min="14">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m v="primary|primary_urban|primary_100_200|primary_200_350|primary_350" zoom-min="7">
+                    <m zoom-max="11">
+                        <line cap="square" outline="primary_outline" use="primary" />
+                    </m>
+                    <m zoom-min="12">
+                        <line blur="0.4" outline="0" use="primary" />
+                    </m>
+                    <m zoom-min="13">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m v="trunk" zoom-min="7">
+                    <m zoom-max="11">
+                        <line cap="square" outline="trunk_outline" use="trunk" />
+                    </m>
+                    <m zoom-min="12">
+                        <line blur="0.4" outline="0" use="trunk" />
+                    </m>
+                    <m zoom-min="13">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m v="motorway">
+                    <m zoom-max="11">
+                        <line cap="square" outline="motorway_outline" use="motorway" />
+                    </m>
+                    <m zoom-min="12">
+                        <line blur="0.4" outline="0" use="motorway" />
+                    </m>
+                    <m zoom-min="12">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+            </m>
+            <!-- railway tunnel -->
+            <m v="transport_lines">
+                <m v="rail">
+                    <line cap="butt" fix="true" stroke="#aa888888" width="0.9" />
+                </m>
+            </m>
+        </m><!-- end tunnel -->
+
+        <!-- runways areas -->
+        <m v="aeroway">
+            <m closed="yes" v="aerodrome_z11|aerodrome">
+                <area fill="#e8ecde" />
+                <m zoom-min="12">
+                    <caption area-size="0.1" dy="18" fill="#888888" k="name" priority="35" size="14" stroke="#aaffffff" stroke-width="2.5" style="italic" />
+                </m>
+            </m>
+            <!-- A place where planes are parked -->
+            <m v="apron">
+                <area fill="#f0f0f0" />
+            </m>
+        </m>
+
+        <!-- turning circles -->
+        <!-- <m k="highway" v="turning_circle"> <circle radius="1.5" scale-radius="true"
+          fill="#707070" />
+          </m> -->
+
+        <!-- building -->
+        <m v="buildings" zoom-min="15">
+            <m>
+                <m closed="yes">
+                    <area use="building" />
+                </m>
+                <m closed="no">
+                    <line use="building" />
+                </m>
+            </m>
+            <m zoom-min="16">
+                <extrusion line-color="#ffd9d8d6" side-color="#eaecebe9" top-color="#eaf9f8f6" default-height="5"/>
+            </m>
+            <m zoom-min="17">
+                <text use="minor_poi" />
+            </m>
+        </m>
+
+        <!-- normal highway section -->
+        <!-- Natural Earth motorway data-->
+        <m v="transport_lines_z4">
+            <line use="motorway:z6"/>
+        </m>
+
+        <!-- the normal highway ruleset is doubled due to workaround to get tunnel highways, k="tunnel" v="~|0" doesnt work with ints -.- mapsforge bug  -->
+
+        <m v="transport_lines">
+            <m k="tunnel" v="~" zoom-max="10">
+                <!-- 		normal highway section part 1 without oneway field	-->
+                <m v="track">
+                    <line use="highway:track" />
+                </m>
+                <m v="service">
+                    <!-- matches every service but parking_isle -->
+                    <line outline="1" use="residential_line" />
+                    <m v="parking_aisle">
+                        <line outline="1" use="residential_line" width="-0.4" />
+                    </m>
+                </m>
+
+                <m v="motorway_link">
+                    <line outline="motorway_outline" use="motorway_link" />
+                </m>
+                <m v="trunk_link" zoom-min="7">
+                    <line outline="trunk_outline" use="trunk_link" />
+                </m>
+                <m v="residential|road|unclassified|living_street|unclassified_urban|unclassified_100_200|unclassified_200_350|unclassified_350">
+                    <line outline="1" use="residential_line" />
+                    <m zoom-min="15">
+                        <text use="road" />
+                        <text use="road_ref" />
+                    </m>
+                </m>
+                <m v="tertiary|tertiary_link|tertiary_link_urban|tertiary_urban">
+                    <m zoom-min="10">
+                        <line outline="secondary_outline" use="tertiary" />
+                    </m>
+                    <m zoom-min="14">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m v="secondary|secondary_urban|secondary_link|secondary_link_urban">
+                    <line outline="secondary_outline" use="secondary" />
+                    <m zoom-min="14">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m v="primary_link|primary_link_urban" zoom-min="7">
+                    <line outline="primary_outline" use="primary_link" />
+                    <m zoom-min="13">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m v="primary|primary_urban" zoom-min="7">
+                    <line outline="primary_outline" use="primary"/>
+                    <m zoom-min="11">
+                        <line outline="primary_outline" use="primary"/>
+                    </m>
+                    <m zoom-min="13">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m v="trunk" zoom-min="7">
+                    <line outline="trunk_outline" use="trunk"/>
+                    <m zoom-min="10">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m v="motorway">
+                    <line outline="motorway_outline" use="motorway:z6" />
+                    <m zoom-min="8">
+                        <text use="major-road_ref" />
+                    </m>
+                    <m zoom-min="10">
+                        <text use="major-road"/>
+                    </m>
+                </m>
+
+                <!-- 		calimoto winding roads halo  		-->
+                <m zoom-min="7">
+                    <m v="primary_100_200">
+                        <line outline="mainroads:halo_outline_100" use="primary"/>
+                        <m zoom-min="13">
+                            <text use="major-road" />
+                            <text use="major-road_ref" />
+                        </m>
+                    </m>
+                    <m v="primary_200_350">
+                        <line outline="mainroads:halo_outline_200" use="primary"/>
+                        <m zoom-min="13">
+                            <text use="major-road" />
+                            <text use="major-road_ref" />
+                        </m>
+                    </m>
+                    <m v="primary_350">
+                        <line outline="mainroads:halo_outline_350" use="primary"/>
+                        <m zoom-min="13">
+                            <text use="major-road" />
+                            <text use="major-road_ref" />
+                        </m>
+                    </m>
+                </m>
+                <m v="secondary_100_200">
+                    <line outline="mainroads:halo_outline_100" use="secondary"/>
+                    <m zoom-min="14">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m v="secondary_200_350">
+                    <line outline="mainroads:halo_outline_200" use="secondary"/>
+                    <m zoom-min="14">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m v="secondary_350">
+                    <line outline="mainroads:halo_outline_350" use="secondary"/>
+                    <m zoom-min="14">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m zoom-min="10">
+                    <m v="tertiary_100_200">
+                        <line outline="mainroads:halo_outline_100" use="tertiary"/>
+                        <m zoom-min="14">
+                            <text use="major-road" />
+                            <text use="major-road_ref" />
+                        </m>
+                    </m>
+                    <m v="tertiary_200_350">
+                        <line outline="mainroads:halo_outline_200" use="tertiary"/>
+                        <m zoom-min="14">
+                            <text use="major-road" />
+                            <text use="major-road_ref" />
+                        </m>
+                    </m>
+                    <m v="tertiary_350">
+                        <line outline="mainroads:halo_outline_350" use="tertiary"/>
+                        <m zoom-min="14">
+                            <text use="major-road" />
+                            <text use="major-road_ref" />
+                        </m>
+                    </m>
+                </m>
+                <m v="raceway">
+                    <line stroke="#f5bcbc" width="0.8"/>
+                </m>
+            </m>
+
+            <m k="tunnel" v="0" zoom-min="11">
+                <!-- 		normal highway section	part 2 WITH oneway field	 		-->
+                <m v="track">
+                    <line use="highway:track" />
+                </m>
+                <m v="service">
+                    <!-- matches every service but parking_isle -->
+                    <line outline="1" use="residential_line" />
+                    <m v="parking_aisle">
+                        <line outline="1" use="residential_line" width="-0.4" />
+                    </m>
+                </m>
+
+                <m v="motorway_link">
+                    <line outline="motorway_outline" use="motorway_link" />
+                </m>
+                <m v="trunk_link">
+                    <line outline="trunk_outline" use="trunk_link" />
+                </m>
+                <m v="residential|road|unclassified|living_street|unclassified_urban|unclassified_100_200|unclassified_200_350|unclassified_350">
+                    <line outline="1" use="residential_line" />
+                    <m zoom-min="15">
+                        <text use="road" />
+                        <text use="road_ref" />
+                    </m>
+                </m>
+                <m v="tertiary|tertiary_link|tertiary_link_urban|tertiary_urban">
+                    <m zoom-min="10">
+                        <line outline="secondary_outline" use="tertiary" />
+                    </m>
+                    <m zoom-min="14">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m v="secondary|secondary_urban|secondary_link|secondary_link_urban">
+                    <line outline="secondary_outline" use="secondary" />
+                    <m zoom-min="14">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m v="primary_link|primary_link_urban">
+                    <line outline="primary_outline" use="primary_link" />
+                    <m zoom-min="13">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m v="primary|primary_urban">
+                    <line outline="primary_outline" use="primary"/>
+                    <m zoom-min="13">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m v="trunk">
+                    <line outline="trunk_outline" use="trunk" />
+                    <m zoom-min="10">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m v="motorway" zoom-min="8">
+                    <line outline="motorway_outline" use="motorway" />
+                    <m zoom-min="8">
+                        <text use="major-road_ref" />
+                    </m>
+                    <m zoom-min="10">
+                        <text use="major-road"/>
+                    </m>
+                </m>
+
+                <!-- 		calimoto winding roads halo  		-->
+                <m v="primary_100_200">
+                    <line outline="mainroads:halo_outline_100" use="primary"/>
+                    <m zoom-min="13">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m v="primary_200_350">
+                    <line outline="mainroads:halo_outline_200" use="primary"/>
+                    <m zoom-min="13">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m v="primary_350">
+                    <line outline="mainroads:halo_outline_350" use="primary"/>
+                    <m zoom-min="13">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m v="secondary_100_200">
+                    <line outline="mainroads:halo_outline_100" use="secondary"/>
+                    <m zoom-min="14">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m v="secondary_200_350">
+                    <line outline="mainroads:halo_outline_200" use="secondary"/>
+                    <m zoom-min="14">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m v="secondary_350">
+                    <line outline="mainroads:halo_outline_350" use="secondary"/>
+                    <m zoom-min="14">
+                        <text use="major-road" />
+                        <text use="major-road_ref" />
+                    </m>
+                </m>
+                <m zoom-min="10">
+                    <m v="tertiary_100_200">
+                        <line outline="mainroads:halo_outline_100" use="tertiary"/>
+                        <m zoom-min="14">
+                            <text use="major-road" />
+                            <text use="major-road_ref" />
+                        </m>
+                    </m>
+                    <m v="tertiary_200_350">
+                        <line outline="mainroads:halo_outline_200" use="tertiary"/>
+                        <m zoom-min="14">
+                            <text use="major-road" />
+                            <text use="major-road_ref" />
+                        </m>
+                    </m>
+                    <m v="tertiary_350">
+                        <line outline="mainroads:halo_outline_350" use="tertiary"/>
+                        <m zoom-min="14">
+                            <text use="major-road" />
+                            <text use="major-road_ref" />
+                        </m>
+                    </m>
+                </m>
+                <m v="raceway">
+                    <line stroke="#f5bcbc" width="0.8"/>
+                </m>
+            </m>
+
+            <!-- Bridge casings should be above other roads -->
+            <outline-layer id="bridge" stroke="#aa202020" width="0.4" />
+
+            <!-- 		bridge section 		-->
+            <!-- must contain bridge -->
+            <m k="bridge" v="1" >
+                <m v="transport_lines">
+                    <m v="track">
+                        <line use="highway:track" cap="butt"/>
+                    </m>
+
+                    <m select="first">
+                        <m v="residential|road|unclassified|living_street|unclassified_urban|unclassified_100_200|unclassified_200_350|unclassified_350">
+                            <m zoom-max="12">
+                                <line outline="1" cap="square" use="residential_line" />
+                            </m>
+                            <m zoom-min="13">
+                                <line cap="butt" outline="bridge" use="residential:bridge" />
+                            </m>
+                            <m v="residential|road|living_street|unclassified|unclassified_urban|unclassified_100_200|unclassified_200_350|unclassified_350" zoom-min="15">
+                                <text use="road" />
+                                <text use="road_ref" />
+                            </m>
+                        </m>
+                    </m>
+
+                    <m select="first">
+                        <m v="service">
+                            <line cap="butt" outline="bridge" use="residential_line" />
+                        </m>
+                        <m v="tertiary|tertiary_link|tertiary_link_urban|tertiary_urban|tertiary_100_200|tertiary_200_350|tertiary_350">
+                            <m zoom-min="10" zoom-max="11">
+                                <line cap="square" outline="secondary_outline" use="tertiary" />
+                            </m>
+                            <m zoom-min="12">
+                                <line cap="butt" outline="bridge" use="tertiary" />
+                            </m>
+                            <m zoom-min="14">
+                                <text use="major-road" />
+                                <text use="major-road_ref" />
+                            </m>
+                        </m>
+                        <m v="motorway_link">
+                            <m zoom-max="11">
+                                <line cap="square" outline="motorway_outline" use="motorway_link" />
+                            </m>
+                            <m zoom-min="12">
+                                <line cap="butt" outline="bridge" use="motorway_link" />
+                            </m>
+                        </m>
+                        <m v="trunk_link" zoom-min="7">
+                            <m zoom-max="11">
+                                <line cap="square" outline="trunk_outline" use="trunk_link" />
+                            </m>
+                            <m zoom-min="12">
+                                <line cap="butt" outline="bridge" use="trunk_link" />
+                            </m>
+                        </m>
+                        <m v="secondary|secondary_urban|secondary_100_200|secondary_200_350|secondary_350|secondary_link|secondary_link_urban">
+                            <m zoom-max="11">
+                                <line cap="square" outline="secondary_outline" use="secondary" />
+                            </m>
+                            <m zoom-min="12">
+                                <line cap="butt" outline="bridge" use="secondary" />
+                            </m>
+                            <m zoom-min="14">
+                                <text use="major-road" />
+                                <text use="major-road_ref" />
+                            </m>
+                        </m>
+                        <m v="primary_link|primary_link_urban" zoom-min="7">
+                            <line cap="square" outline="bridge" use="primary_link" />
+                            <m zoom-max="11">
+                                <line cap="square" outline="primary_outline" use="primary_link" />
+                            </m>
+                            <m zoom-min="12">
+                                <line cap="butt" outline="bridge" use="primary_link" />
+                            </m>
+                        </m>
+                        <m v="primary|primary_urban|primary_100_200|primary_200_350|primary_350" zoom-min="7">
+                            <m zoom-min="13">
+                                <text use="major-road" />
+                                <text use="major-road_ref" />
+                            </m>
+                            <m zoom-max="11">
+                                <line cap="square" outline="primary_outline" use="primary" />
+                            </m>
+                            <m zoom-min="12">
+                                <line cap="butt" outline="bridge" use="primary" />
+                            </m>
+                        </m>
+                        <m v="trunk" zoom-min="7">
+                            <m zoom-min="13">
+                                <text use="major-road" />
+                                <text use="major-road_ref" />
+                            </m>
+                            <m zoom-max="11">
+                                <line cap="square" outline="trunk_outline" use="trunk" />
+                            </m>
+                            <m zoom-min="12">
+                                <line cap="butt" outline="bridge" use="trunk" />
+                            </m>
+                        </m>
+                        <m v="motorway">
+                            <m zoom-max="11">
+                                <line cap="square" outline="motorway_outline" use="motorway" />
+                            </m>
+                            <m zoom-min="12">
+                                <line cap="butt" outline="bridge" use="motorway" />
+                            </m>
+                            <m zoom-min="12">
+                                <text use="major-road" />
+                                <text use="major-road_ref" />
+                            </m>
+                        </m>
+                        <!--
+                        -->
+                    </m>
+                </m>
+            </m><!-- end area=~|no|false -->
+
+            <!-- runways cores -->
+            <m v="transport_lines">
+                <m v="runway">
+                    <line use="aeroway:runway" />
+                </m>
+                <m v="taxiway">
+                    <line use="aeroway:runway" width="-0.8" />
+                </m>
+            </m>
+            <m v="rail" zoom-max="12">
+                <line cap="butt" fix="true" stroke="#999999" width="1.0" />
+            </m>
+            <m v="rail" zoom-min="13">
+                <line cap="butt" fix="true" stipple="10" stipple-stroke="#e6e6e6" stipple-width="1.5" stroke="#999999" width="1.5" />
+            </m>
+        </m>
+    </m>
+
+
+    <m v="state_lines" zoom-max="8" zoom-min="6">
+        <line fix="true" blur="0.6" stroke="#bfbfbf" width="1.5" />
+    </m>
+    <m v="country_lines">
+        <line fix="true" blur="0.6" stroke="#999999" width="2.0" />
+    </m>
+
+
+    <m v="admin_lines">
+        <m k="admin_level" v="4" zoom-min="9">
+            <line fix="true" blur="0.6" stroke="#bfbfbf" width="1.5" />
+        </m>
+        <m k="admin_level" v="2">
+            <line fix="true" blur="0.6" stroke="#999999" width="2.0" />
+        </m>
+    </m>
+
+    <!-- ferries -->
+    <m v="transport_lines">
+        <m v="ferry">
+            <line cap="butt" dasharray="15,10" stroke="#aa807040" width="0.3" />
+            <m zoom-min="13">
+                <text use="ferry" />
+            </m>
+        </m>
+    </m>
+
+    <!-- highway one-way markers -->
+    <m k="tunnel" v="0">
+        <m v="transport_lines">
+            <m k="oneway" v="1" zoom-min="16">
+                <lineSymbol src="assets:calimoto/oneway.svg"/>
+            </m>
+        </m>
+    </m>
+
+    <!-- historic -->
+    <m v="amenity_points">
+        <m v="monument|castle">
+            <m e="way">
+                <area use="building" />
+                <extrusion line-color="#ffd9d8d6" side-color="#eaecebe9" top-color="#eaf9f8f6" default-height="8"/>
+            </m>
+            <m zoom-min="14" e="node">
+                <symbol src="assets:calimoto/dot_black.svg" symbol-percent="70"/>
+                <text use="minor_poi" />
+            </m>
+        </m>
+    </m>
+
+    <!-- place -->
+    <m v="place_other" zoom-min="13">
+        <caption style="bold_italic" fill="#2d261f" k="name" priority="8" size="13" stroke="#50ffffff" stroke-width="2.0" />
+    </m>
+    <m v="place_village" zoom-min="11">
+        <caption fill="#2d261f" k="name" priority="7" size="15" stroke="#50ffffff" stroke-width="2.0" />
+    </m>
+    <m v="place_town">
+        <m  zoom-min="9" zoom-max="9">
+            <caption fill="#2d261f" k="name" priority="5" size="14" stroke="#50ffffff" stroke-width="2.0" />
+        </m>
+        <m  zoom-min="10" zoom-max="10">
+            <caption fill="#2d261f" k="name" priority="5" size="15" stroke="#50ffffff" stroke-width="2.0" />
+        </m>
+        <m zoom-min="11">
+            <caption fill="#2d261f" k="name" priority="5" size="16" stroke="#50ffffff" stroke-width="2.0" />
+        </m>
+    </m>
+    <m v="place_city">
+        <caption style="bold" dy="14" fill="#2d261f" k="name" priority="4" size="16" stroke="#50ffffff" stroke-width="2.0" symbol="assets:calimoto/dot_black.svg" />
+    </m>
+
+    <!-- natural earth data populated places -->
+    <m v="populated_places" zoom-min="4" zoom-max="10">
+        <m v="Admin-0 capital">
+            <caption style="bold" dy="14" fill="#2d261f" k="name" priority="1" size="16" stroke="#50ffffff" stroke-width="2.0" symbol="assets:calimoto/dot_black.svg" />
+        </m>
+    </m>
+    <m v="populated_places" zoom-min="5" zoom-max="10">
+        <m v="Admin-1 capital">
+            <caption style="bold" dy="14" fill="#2d261f" k="name" priority="2" size="16" stroke="#50ffffff" stroke-width="2.0" symbol="assets:calimoto/dot_black.svg" />
+        </m>
+    </m>
+    <m v="populated_places" zoom-min="6" zoom-max="10">
+        <m v="Populated place">
+            <caption style="bold" dy="14" fill="#2d261f" k="name" priority="3" size="16" stroke="#50ffffff" stroke-width="2.0" symbol="assets:calimoto/dot_black.svg" />
+        </m>
+    </m>
+
+    <m v="country_label_points" zoom-min="3" zoom-max="5">
+        <m k="scalerank" v="0">
+            <caption style="bold" fill="#2d261f" k="sr_subunit" priority="0" size="16" stroke="#50ffffff" stroke-width="2.0" />
+        </m>
+    </m>
+
+    <!-- railway -->
+    <m v="transport_points" e="node">
+        <m v="station" zoom-min="15">
+            <symbol src="assets:calimoto/rail-15.svg" symbol-percent="70"/>
+            <text use="poi"/>
+        </m>
+    </m>
+
+    <!-- aeroway nodes -->
+    <m v="transport_points">
+        <m v="aerodrome|aerodrome_z11|airport">
+            <symbol src="assets:calimoto/airport-15.svg"  symbol-percent="70"/>
+            <text use="poi" />
+        </m>
+    </m>
+
+    <!-- aeroway ways -->
+    <m v="aerodrome_way">
+        <m v="aerodrome|aerodrome_z11|airport" zoom-max="15">
+            <symbol src="assets:calimoto/airport-15.svg"  symbol-percent="70"/>
+            <text use="poi" />
+        </m>
+    </m>
+
+    <m v="amenity_points|amenity_areas" zoom-min="14">
+        <m v="fuel">
+            <symbol src="assets:calimoto/fuel_2.svg" symbol-percent="70"/>
+            <text use="poi" />
+        </m>
+    </m>
+
+    <!-- general rule for all poi -->
+    <m v="amenity_points" zoom-min="15">
+        <!-- except for and volcanos, they are rendered different -->
+        <m k="type" v="-|peak|volcano">
+            <symbol src="assets:calimoto/dot_black.svg" symbol-percent="70" />
+            <text use="minor_poi" />
+        </m>
+    </m>
+
+    <m v="viewpoints" zoom-min="14">
+        <symbol src="assets:calimoto/viewpoint-15.svg" symbol-percent="70"/>
+        <caption dy="16" fill="#2d261f" k="ele" size="13" stroke="#aaffffff" stroke-width="2.5" priority="21"/>
+        <caption dy="-16" fill="#2d261f" k="name" size="13" stroke="#aaffffff" stroke-width="2.5" priority="21"/>
+    </m>
+
+    <m v="mountain_pass_points">
+        <symbol src="assets:calimoto/pass.svg" symbol-percent="150"/>
+        <caption dy="18" fill="#2d261f" k="ele" size="13" stroke="#aaffffff" stroke-width="2.5" priority="20" />
+        <caption dy="-18" fill="#2d261f" k="name" size="13" stroke="#aaffffff" stroke-width="2.5" priority="20"  />
+    </m>
+
+    <m v="amenity_points" zoom-min="13">
+        <m v="peak">
+            <symbol src="assets:calimoto/mountain-15.svg" symbol-percent="70"/>
+            <caption dy="14" fill="#2d261f" k="ele" size="13" stroke="#aaffffff" stroke-width="2.5" priority="23"/>
+            <caption dy="-14" fill="#2d261f" k="name" size="13" stroke="#aaffffff" stroke-width="2.5" priority="23"/>
+        </m>
+        <m v="volcano" zoom-min="13">
+            <symbol src="assets:calimoto/volcano-15.svg" symbol-percent="70"/>
+            <caption dy="14" fill="#2d261f" k="ele" size="13" stroke="#aaffffff" stroke-width="2.5" priority="22"/>
+            <caption dy="-14" fill="#2d261f" k="name" size="13" stroke="#aaffffff" stroke-width="2.5" priority="22"/>
+        </m>
+    </m>
+</rendertheme>

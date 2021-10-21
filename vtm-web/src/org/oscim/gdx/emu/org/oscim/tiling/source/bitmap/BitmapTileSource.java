@@ -1,3 +1,20 @@
+/*
+ * Copyright 2013 Hannes Janetzek
+ * Copyright 2018 devemux86
+ *
+ * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
+ *
+ * This program is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.oscim.tiling.source.bitmap;
 
 import com.google.gwt.event.dom.client.ErrorEvent;
@@ -18,18 +35,18 @@ import org.oscim.tiling.ITileDataSource;
 import org.oscim.tiling.QueryResult;
 import org.oscim.tiling.source.LwHttp;
 import org.oscim.tiling.source.UrlTileSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 public class BitmapTileSource extends UrlTileSource {
-    static final Logger log = LoggerFactory.getLogger(LwHttp.class);
+    static final Logger log = new Logger(LwHttp.class);
 
     public static class Builder<T extends Builder<T>> extends UrlTileSource.Builder<T> {
 
         public Builder() {
-            super(null, "/{Z}/{X}/{Y}.png", 0, 17);
+            super((String) null, "/{Z}/{X}/{Y}.png");
         }
 
+        @Override
         public BitmapTileSource build() {
             return new BitmapTileSource(this);
         }
@@ -98,6 +115,7 @@ public class BitmapTileSource extends UrlTileSource {
             RootPanel.get().add(img);
 
             img.addLoadHandler(new LoadHandler() {
+                @Override
                 public void onLoad(LoadEvent event) {
                     TileLoader.postLoadDelay(new LoadDelayTask<Image>(tile, sink, img) {
 

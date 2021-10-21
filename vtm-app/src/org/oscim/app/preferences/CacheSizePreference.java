@@ -14,11 +14,10 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 import org.oscim.app.R;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 public class CacheSizePreference extends Preference implements OnSeekBarChangeListener {
-    final static Logger log = LoggerFactory.getLogger(CacheSizePreference.class);
+    final static Logger log = new Logger(CacheSizePreference.class);
 
     private static final String NS_OCIM_APP = "http://app.oscim.org";
     private static final int DEFAULT_VALUE = 50;

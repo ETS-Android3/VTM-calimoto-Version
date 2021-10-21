@@ -1,10 +1,9 @@
 buildscript {
     repositories {
         jcenter()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
     }
     dependencies {
-        classpath 'com.mobidevelop.robovm:robovm-gradle-plugin:2.3.3'
+        classpath 'com.mobidevelop.robovm:robovm-gradle-plugin:2.3.5'
     }
 }
 
@@ -17,7 +16,7 @@ sourceSets.main.java.srcDirs = ["src/"]
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 ext {
-    roboVMVersion = "2.3.3"
+    roboVMVersion = "2.3.5"
 }
 
 launchIPhoneSimulator.dependsOn build
@@ -31,6 +30,7 @@ dependencies {
     api "com.badlogicgames.gdx:gdx-backend-robovm:$gdxVersion"
     api "com.mobidevelop.robovm:robovm-cocoatouch:$roboVMVersion"
     api "com.mobidevelop.robovm:robovm-rt:$roboVMVersion"
+    implementation files("${depPaths.caloPublic}")
 }
 
 task copyVtmResources(type: Copy) {

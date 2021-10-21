@@ -1,7 +1,7 @@
 /*
  * Copyright 2013 mapsforge.org
  * Copyright 2013 Hannes Janetzek
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2018 devemux86
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -18,26 +18,26 @@
  */
 package org.oscim.tiling.source.mapfile;
 
+import org.oscim.layers.tile.buildings.BuildingLayer;
+import org.oscim.map.Viewport;
 import org.oscim.tiling.ITileDataSource;
+import org.oscim.tiling.OverzoomTileDataSource;
 import org.oscim.tiling.TileSource;
 import org.oscim.tiling.source.mapfile.header.MapFileHeader;
 import org.oscim.tiling.source.mapfile.header.MapFileInfo;
 import org.oscim.utils.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
 public class MapFileTileSource extends TileSource implements IMapFileTileSource {
-    private static final Logger log = LoggerFactory.getLogger(MapFileTileSource.class);
-
+    private static final Logger log = new Logger(MapFileTileSource.class);
     /**
      * Amount of cache blocks that the index cache should store.
      */
     private static final int INDEX_CACHE_SIZE = 64;
-    static final int MAX_ZOOM_LEVEL = 17;
     private static final String READ_ONLY_MODE = "r";
 
     MapFileHeader fileHeader;
@@ -51,14 +51,19 @@ public class MapFileTileSource extends TileSource implements IMapFileTileSource 
      * The preferred language when extracting labels from this tile source.
      */
     private String preferredLanguage;
+    private String region;
     private Callback callback;
 
     public MapFileTileSource() {
-        this(0, MAX_ZOOM_LEVEL);
+        this(Viewport.MIN_ZOOM_LEVEL, Viewport.MAX_ZOOM_LEVEL);
     }
 
     public MapFileTileSource(int zoomMin, int zoomMax) {
-        super(zoomMin, zoomMax);
+        this(zoomMin, zoomMax, BuildingLayer.MIN_ZOOM);
+    }
+
+    public MapFileTileSource(int zoomMin, int zoomMax, int overZoom) {
+        super(zoomMin, zoomMax, overZoom);
     }
 
     /**
@@ -96,7 +101,16 @@ public class MapFileTileSource extends TileSource implements IMapFileTileSource 
     public void setPreferredLanguage(String preferredLanguage) {
         this.preferredLanguage = preferredLanguage;
     }
-
+    
+    public void setRegion(String region) {
+        this.region = region;
+    }
+    
+    public String getRegion() {
+        return region;
+    }
+    
+    
     @Override
     public OpenResult open() {
         if (!options.containsKey("file"))
@@ -139,7 +153,7 @@ public class MapFileTileSource extends TileSource implements IMapFileTileSource 
             log.debug("File version: " + fileInfo.fileVersion);
             return OpenResult.SUCCESS;
         } catch (IOException e) {
-            log.error(e.getMessage());
+            log.error(e);
             // make sure that the file is closed
             close();
             return new OpenResult(e.getMessage());
@@ -149,9 +163,9 @@ public class MapFileTileSource extends TileSource implements IMapFileTileSource 
     @Override
     public ITileDataSource getDataSource() {
         try {
-            return new MapDatabase(this);
+            return new OverzoomTileDataSource(new MapDatabase(this), mOverZoom);
         } catch (IOException e) {
-            log.debug(e.getMessage());
+            log.debug(e);
         }
         return null;
     }

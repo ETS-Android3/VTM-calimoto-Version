@@ -16,8 +16,7 @@
  */
 package org.oscim.layers.tile;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import static org.oscim.layers.tile.MapTile.State.CANCEL;
 import static org.oscim.layers.tile.MapTile.State.LOADING;
@@ -27,8 +26,8 @@ import static org.oscim.layers.tile.MapTile.State.NONE;
  * A JobQueue keeps the list of pending jobs for a MapView and prioritizes them.
  */
 public class JobQueue {
-
-    static final Logger log = LoggerFactory.getLogger(JobQueue.class);
+    
+    static final Logger log = new Logger(JobQueue.class);
 
     private int mCurrentJob = 0;
     private MapTile[] mJobs;

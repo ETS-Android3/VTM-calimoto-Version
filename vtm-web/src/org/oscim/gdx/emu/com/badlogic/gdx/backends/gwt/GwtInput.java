@@ -161,6 +161,16 @@ public class GwtInput implements Input {
     }
 
     @Override
+    public float getPressure() {
+        return 0;
+    }
+
+    @Override
+    public float getPressure(int pointer) {
+        return 0;
+    }
+
+    @Override
     public boolean isButtonPressed(int button) {
         return pressedButtons.contains(button) && touched[0];
     }
@@ -187,6 +197,7 @@ public class GwtInput implements Input {
         return justPressedKeys[key];
     }
 
+    @Override
     public void getTextInput(TextInputListener listener, String title, String text, String hint) {
         TextInputDialogBox dialog = new TextInputDialogBox(title, text, hint);
         final TextInputListener capturedListener = listener;

@@ -20,7 +20,7 @@ import java.util.List;
  * @see OSRMRouteProvider
  */
 public class Route {
-    //final static Logger log = LoggerFactory.getLogger(Route.class);
+    //final static Logger log = new Logger(Route.class);
 
     /**
      * @see #STATUS_INVALID STATUS_INVALID

@@ -1,11 +1,11 @@
 package org.oscim.utils;
 
 import org.oscim.core.Box;
+import org.oscim.core.Point;
 import org.oscim.utils.pool.Pool;
 import org.oscim.utils.quadtree.BoxTree;
 import org.oscim.utils.quadtree.BoxTree.BoxItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.util.List;
 
@@ -15,8 +15,8 @@ import java.util.List;
  * so items extents should be greater than 1. FIXME tests this case
  */
 public class QuadTree<T> extends BoxTree<BoxItem<T>, T> implements SpatialIndex<T> {
-
-    static final Logger log = LoggerFactory.getLogger(QuadTree.class);
+    
+    static final Logger log = new Logger(QuadTree.class);
 
     public QuadTree(int extents, int maxDepth) {
         super(extents, maxDepth);
@@ -77,5 +77,16 @@ public class QuadTree<T> extends BoxTree<BoxItem<T>, T> implements SpatialIndex<
         boolean finished = search(box, cb, context);
         boxPool.release(box);
         return finished;
+    }
+
+    @Override
+    public List<T> searchKNearestNeighbors(Point center, int k, double maxDistance, List<T> results) {
+        // TODO
+        return results;
+    }
+
+    @Override
+    public void searchKNearestNeighbors(Point center, int k, double maxDistance, SearchCb<T> cb, Object context) {
+        // TODO
     }
 }

@@ -1,6 +1,6 @@
 /*
  * Copyright 2013 Hannes Janetzek
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2018 devemux86
  * Copyright 2017 Longri
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
@@ -21,8 +21,7 @@ package org.oscim.backend;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.backend.canvas.Canvas;
 import org.oscim.backend.canvas.Paint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,7 +33,7 @@ import java.util.Locale;
  * The Class CanvasAdapter.
  */
 public abstract class CanvasAdapter {
-    private static final Logger log = LoggerFactory.getLogger(CanvasAdapter.class);
+    private static final Logger log = new Logger(CanvasAdapter.class);
 
     private static final String PREFIX_ASSETS = "assets:";
     private static final String PREFIX_FILE = "file:";
@@ -113,8 +112,23 @@ public abstract class CanvasAdapter {
      */
     protected abstract Bitmap decodeBitmapImpl(InputStream inputStream) throws IOException;
 
+    /**
+     * Create {@link Bitmap} from InputStream.
+     *
+     * @param inputStream the input stream
+     * @param width       requested width (0: no change)
+     * @param height      requested height (0: no change)
+     * @param percent     requested scale percent (100: no change)
+     * @return the bitmap
+     */
+    protected abstract Bitmap decodeBitmapImpl(InputStream inputStream, int width, int height, int percent) throws IOException;
+
     public static Bitmap decodeBitmap(InputStream inputStream) throws IOException {
         return g.decodeBitmapImpl(inputStream);
+    }
+
+    public static Bitmap decodeBitmap(InputStream inputStream, int width, int height, int percent) throws IOException {
+        return g.decodeBitmapImpl(inputStream, width, height, percent);
     }
 
     /**
@@ -166,6 +180,13 @@ public abstract class CanvasAdapter {
                 inputStream = inputStreamFromAssets(relativePathPrefix, src);
         }
 
+        // Fallback to internal resources
+        if (inputStream == null) {
+            inputStream = inputStreamFromAssets("", src);
+            if (inputStream != null)
+                log.warn("internal resource: " + src);
+        }
+
         if (inputStream == null) {
             log.error("invalid resource: " + src);
             return null;
@@ -175,7 +196,7 @@ public abstract class CanvasAdapter {
         if (src.toLowerCase(Locale.ENGLISH).endsWith(".svg"))
             bitmap = decodeSvgBitmap(inputStream, width, height, percent);
         else
-            bitmap = decodeBitmap(inputStream);
+            bitmap = decodeBitmap(inputStream, width, height, percent);
         inputStream.close();
         return bitmap;
     }

@@ -19,8 +19,7 @@ import org.oscim.layers.tile.MapTile;
 import org.oscim.layers.tile.TileLoader;
 import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.ITileDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +28,7 @@ import static org.oscim.tiling.QueryResult.FAILED;
 import static org.oscim.tiling.QueryResult.SUCCESS;
 
 public class UrlTileDataSource implements ITileDataSource {
-    static final Logger log = LoggerFactory.getLogger(UrlTileDataSource.class);
+    static final Logger log = new Logger(UrlTileDataSource.class);
 
     protected final LwHttp mConn;
     protected final ITileDecoder mTileDecoder;

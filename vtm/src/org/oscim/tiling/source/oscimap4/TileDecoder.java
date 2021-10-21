@@ -25,15 +25,14 @@ import org.oscim.core.TagSet;
 import org.oscim.core.Tile;
 import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.source.PbfDecoder;
-import org.oscim.utils.math.MathUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.utils.FastMath;
+import org.oscim.debug.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 public class TileDecoder extends PbfDecoder {
-    static final Logger log = LoggerFactory.getLogger(TileDecoder.class);
+    static final Logger log = new Logger(TileDecoder.class);
 
     private static final int TAG_TILE_VERSION = 1;
     //private static final int TAG_TILE_TIMESTAMP = 2;
@@ -78,7 +77,7 @@ public class TileDecoder extends PbfDecoder {
     private int mVersion;
 
     // scale coordinates to tile size
-    private final static float REF_TILE_SIZE = 4096.0f;
+    private static final float REF_TILE_SIZE = 4096.0f;
     private final float mScaleFactor = REF_TILE_SIZE / Tile.SIZE;
 
     public TileDecoder() {
@@ -229,7 +228,7 @@ public class TileDecoder extends PbfDecoder {
             else if (Tag.KEY_HEIGHT.equals(key)
                     || Tag.KEY_MIN_HEIGHT.equals(key)) {
                 // Reformat values to established meters in OSM
-                tag = new Tag(key, String.valueOf(MathUtils.round2(Float.valueOf(val) / 100)), false);
+                tag = new Tag(key, String.valueOf(FastMath.round2(Float.valueOf(val) / 100)), false);
             } else
                 tag = new Tag(key, val, false, true);
 

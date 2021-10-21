@@ -1,9 +1,14 @@
 /*
  * Copyright 2010, 2011, 2012, 2013 mapsforge.org
  * Copyright 2013 Hannes Janetzek
- * Copyright 2016-2017 devemux86
- * Copyright 2017 Longri
+ * Copyright 2016-2019 devemux86
+ * Copyright 2016 mar-v-in
+ * Copyright 2016 Mathieu de Brito
+ * Copyright 2017-2018 Longri
  * Copyright 2017 nebular
+ * Copyright 2018 boldtrn
+ * Copyright 2018-2019 Gustl22
+ * Copyright 2019 Andrea Antonello
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -79,12 +84,20 @@ public class Samples extends Activity {
 
         setContentView(R.layout.activity_samples);
         LinearLayout linearLayout = findViewById(R.id.samples);
+        linearLayout.addView(createButton(GettingStarted.class));
+        linearLayout.addView(createLabel(null));
         linearLayout.addView(createButton(SimpleMapActivity.class));
-        linearLayout.addView(createButton(MapsforgeMapActivity.class));
-        linearLayout.addView(createButton(MapzenMvtMapActivity.class));
-        linearLayout.addView(createButton(MapzenGeojsonMapActivity.class));
-        linearLayout.addView(createButton(OpenMapTilesGeojsonMapActivity.class));
-        linearLayout.addView(createButton(GdxMapActivity.class));
+        linearLayout.addView(createButton(MapsforgeActivity.class));
+        linearLayout.addView(createButton(MapilionMvtActivity.class));
+        /*linearLayout.addView(createButton(MapzenMvtActivity.class));
+        linearLayout.addView(createButton(MapzenGeojsonActivity.class));*/
+        linearLayout.addView(createButton(NextzenMvtActivity.class));
+        linearLayout.addView(createButton(NextzenGeojsonActivity.class));
+        linearLayout.addView(createButton(CalimotoTegolaActivity.class));
+        linearLayout.addView(createButton(CalimotoTegolaNavigationActivity.class));
+        linearLayout.addView(createButton(CalimotoTegolaHillshadeActivity.class));
+        linearLayout.addView(createButton(CalimotoTegolaSatelliteActivity.class));
+        linearLayout.addView(createButton(GdxActivity.class));
 
         linearLayout.addView(createLabel("Features"));
         linearLayout.addView(createButton(null, "GraphHopper Routing", new View.OnClickListener() {
@@ -93,16 +106,20 @@ public class Samples extends Activity {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/graphhopper/graphhopper/tree/master/android")));
             }
         }));
+        linearLayout.addView(createButton(LocationActivity.class));
+        linearLayout.addView(createButton(LocationTextureActivity.class));
         linearLayout.addView(createButton(PoiSearchActivity.class));
 
         linearLayout.addView(createLabel("Vector Features"));
         linearLayout.addView(createButton(MapsforgeStyleActivity.class));
-        linearLayout.addView(createButton(MapsforgePolyLabelActivity.class));
+        linearLayout.addView(createButton(MapsforgeS3DBActivity.class));
         linearLayout.addView(createButton(AtlasThemeActivity.class));
         linearLayout.addView(createButton(POTTextureActivity.class));
+        linearLayout.addView(createButton(ShadowActivity.class));
 
         linearLayout.addView(createLabel("Raster Maps"));
-        linearLayout.addView(createButton(BitmapTileMapActivity.class));
+        linearLayout.addView(createButton(BitmapTileActivity.class));
+        linearLayout.addView(createButton(MBTilesBitmapTileActivity.class));
 
         linearLayout.addView(createLabel("Overlays"));
         linearLayout.addView(createButton(MarkerOverlayActivity.class));
@@ -112,20 +129,21 @@ public class Samples extends Activity {
         linearLayout.addView(createButton(ClusterMarkerOverlayActivity.class));
         linearLayout.addView(createButton(PathOverlayActivity.class));
         linearLayout.addView(createButton(LineTexActivity.class));
-        linearLayout.addView(createButton(VectorLayerMapActivity.class));
-        linearLayout.addView(createButton(LocationActivity.class));
+        linearLayout.addView(createButton(VectorLayerActivity.class));
 
         linearLayout.addView(createLabel("User Interaction"));
-        linearLayout.addView(createButton(NewGesturesActivity.class));
+        linearLayout.addView(createButton(MapEventLayer2Activity.class));
         linearLayout.addView(createButton(LayerGroupActivity.class));
 
         linearLayout.addView(createLabel("Dual Map Views"));
-        linearLayout.addView(createButton(MultiMapActivity.class));
+        linearLayout.addView(createButton(MultiMapViewActivity.class));
 
         linearLayout.addView(createLabel("Experiments"));
         linearLayout.addView(createButton(ReverseGeocodeActivity.class));
-        linearLayout.addView(createButton(OSciMapS3DBMapActivity.class));
+        linearLayout.addView(createButton(OSciMapS3DBActivity.class));
         linearLayout.addView(createButton(ThemeStylerActivity.class));
-        linearLayout.addView(createButton(JeoIndoorMapActivity.class));
+//        linearLayout.addView(createButton(JeoIndoorActivity.class));
+        linearLayout.addView(createButton(GdxPoi3DActivity.class));
+        linearLayout.addView(createButton(OverpassActivity.class));
     }
 }

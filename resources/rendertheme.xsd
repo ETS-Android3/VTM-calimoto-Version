@@ -49,6 +49,11 @@
             <xs:enumeration value="monospace" />
             <xs:enumeration value="sans_serif" />
             <xs:enumeration value="serif" />
+            <xs:enumeration value="thin" />
+            <xs:enumeration value="light" />
+            <xs:enumeration value="medium" />
+            <xs:enumeration value="black" />
+            <xs:enumeration value="condensed" />
         </xs:restriction>
     </xs:simpleType>
 
@@ -85,6 +90,7 @@
             <xs:enumeration value="ele" />
             <xs:enumeration value="addr:housenumber" />
             <xs:enumeration value="addr_housenumber" /> <!-- Mapzen -->
+            <xs:enumeration value="housenumber" /> <!-- OpenMapTiles -->
             <xs:enumeration value="name" />
             <xs:enumeration value="ref" />
         </xs:restriction>
@@ -229,6 +235,9 @@
         <xs:attribute name="symbol-width" type="xs:positiveInteger" use="optional" />
         <xs:attribute name="symbol-height" type="xs:positiveInteger" use="optional" />
         <xs:attribute name="symbol-percent" type="xs:positiveInteger" use="optional" />
+        <xs:attribute name="repeat" default="false" type="xs:boolean" use="optional" />
+        <xs:attribute name="repeat-gap" default="200" type="xs:float" use="optional" />
+        <xs:attribute name="repeat-start" default="30" type="xs:float" use="optional" />
     </xs:complexType>
 
     <xs:complexType name="extrusion">
@@ -236,6 +245,9 @@
         <xs:attribute name="line-color" type="tns:color" use="optional" />
         <xs:attribute name="side-color" type="tns:color" use="required" />
         <xs:attribute name="top-color" type="tns:color" use="required" />
+        <xs:attribute name="hsv-h" default="0" type="xs:double" use="optional" />
+        <xs:attribute name="hsv-s" default="1" type="xs:double" use="optional" />
+        <xs:attribute name="hsv-v" default="1" type="xs:double" use="optional" />
         <!-- 12m default -->
         <xs:attribute name="default-height" default="12" type="xs:positiveInteger" use="optional" />
     </xs:complexType>
@@ -292,10 +304,23 @@
         <xs:attribute name="id" type="xs:string" use="required" />
     </xs:complexType>
 
+    <!-- tag-transform element -->
+    <xs:complexType name="tag-transform">
+        <xs:attribute name="k" type="xs:string" use="required" />
+        <xs:attribute name="v" type="xs:string" use="optional" />
+        <xs:attribute name="k-lib" type="xs:string" use="required" />
+        <xs:attribute name="v-lib" type="xs:string" use="optional" />
+    </xs:complexType>
+
     <!-- rendertheme element -->
     <xs:complexType name="rendertheme">
         <xs:sequence maxOccurs="1" minOccurs="0">
             <xs:element name="stylemenu" maxOccurs="1" minOccurs="0" type="tns:stylemenu" />
+
+            <!-- tag definitions -->
+            <xs:choice maxOccurs="unbounded" minOccurs="0">
+                <xs:element name="tag-transform" type="tns:tag-transform" />
+            </xs:choice>
 
             <!-- style definitions -->
             <xs:sequence maxOccurs="256" minOccurs="0">

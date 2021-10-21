@@ -31,8 +31,7 @@ import org.oscim.tiling.TileSource;
 import org.oscim.tiling.TileSource.OpenResult;
 import org.oscim.utils.pool.Inlist.List;
 import org.oscim.utils.pool.LList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 /**
  * The vector-tile-map layer. This class manages instances of
@@ -40,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * for rendering.
  */
 public class VectorTileLayer extends TileLayer {
-    static final Logger log = LoggerFactory.getLogger(VectorTileLayer.class);
+    static final Logger log = new Logger(VectorTileLayer.class);
 
     protected TileSource mTileSource;
 

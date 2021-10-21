@@ -21,7 +21,6 @@ public interface MarkerInterface {
     MarkerSymbol getMarker();
 
     GeoPoint getPoint();
-
+    
     int getZoomLevelDrawn();
-
 }

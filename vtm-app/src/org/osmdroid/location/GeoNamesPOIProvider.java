@@ -7,8 +7,7 @@ import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
 import org.osmdroid.utils.BonusPackHelper;
 import org.osmdroid.utils.HttpConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -30,8 +29,8 @@ import javax.xml.parsers.SAXParserFactory;
  * @see "http://www.geonames.org"
  */
 public class GeoNamesPOIProvider {
-
-    final static Logger log = LoggerFactory.getLogger(GeoNamesPOIProvider.class);
+    
+    final static Logger log = new Logger(GeoNamesPOIProvider.class);
 
     protected String mUserName;
 

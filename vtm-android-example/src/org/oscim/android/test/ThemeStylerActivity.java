@@ -7,6 +7,7 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.ToggleButton;
 
+import org.oscim.backend.canvas.Color;
 import org.oscim.layers.tile.buildings.BuildingLayer;
 import org.oscim.layers.tile.vector.VectorTileLayer;
 import org.oscim.layers.tile.vector.labeling.LabelLayer;
@@ -21,14 +22,10 @@ import org.oscim.theme.styles.AreaStyle.AreaBuilder;
 import org.oscim.theme.styles.LineStyle;
 import org.oscim.theme.styles.LineStyle.LineBuilder;
 import org.oscim.theme.styles.RenderStyle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import static org.oscim.utils.ColorUtil.modHsv;
-import static org.oscim.utils.ColorUtil.shiftHue;
+import org.oscim.debug.Logger;
 
 public class ThemeStylerActivity extends BaseMapActivity implements OnSeekBarChangeListener {
-    final Logger log = LoggerFactory.getLogger(ThemeStylerActivity.class);
+    final Logger log = new Logger(ThemeStylerActivity.class);
 
     public ThemeStylerActivity() {
         super(R.layout.activity_map_styler);
@@ -90,13 +87,10 @@ public class ThemeStylerActivity extends BaseMapActivity implements OnSeekBarCha
     }
 
     int modColor(int color, HSV hsv) {
-        return modHsv(shiftHue(color, hsv.hue), 1, hsv.sat, hsv.val, true);
+        return hsv.mod(color, true);
     }
 
-    public static class HSV {
-        public double hue = 0;
-        public double sat = 1;
-        public double val = 1;
+    public static class HSV extends Color.HSV {
         public boolean changed;
     }
 
@@ -124,16 +118,16 @@ public class ThemeStylerActivity extends BaseMapActivity implements OnSeekBarCha
             c = outlineColor;
 
         if (id == R.id.seekBarS)
-            c.sat = progress / 50f;
+            c.saturation = progress / 50f;
         else if (id == R.id.seekBarV)
-            c.val = progress / 50f;
+            c.value = progress / 50f;
         else if (id == R.id.seekBarH)
             c.hue = progress / 100f;
 
         log.debug((modArea ? "area" : "line")
                 + " h:" + c.hue
-                + " s:" + c.sat
-                + " v:" + c.val);
+                + " s:" + c.saturation
+                + " v:" + c.value);
 
         VectorTileLayer l = (VectorTileLayer) mMap.layers().get(1);
         RenderTheme t = (RenderTheme) l.getTheme();
@@ -181,8 +175,8 @@ public class ThemeStylerActivity extends BaseMapActivity implements OnSeekBarCha
         }
         if (c == null)
             return;
-        ((SeekBar) findViewById(R.id.seekBarS)).setProgress((int) (c.sat * 50));
-        ((SeekBar) findViewById(R.id.seekBarV)).setProgress((int) (c.val * 50));
+        ((SeekBar) findViewById(R.id.seekBarS)).setProgress((int) (c.saturation * 50));
+        ((SeekBar) findViewById(R.id.seekBarV)).setProgress((int) (c.value * 50));
         ((SeekBar) findViewById(R.id.seekBarH)).setProgress((int) (c.hue * 100));
     }
 }

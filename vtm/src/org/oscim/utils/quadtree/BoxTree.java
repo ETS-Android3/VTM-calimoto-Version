@@ -5,8 +5,7 @@ import org.oscim.utils.pool.Inlist;
 import org.oscim.utils.pool.Pool;
 import org.oscim.utils.quadtree.BoxTree.BoxItem;
 import org.oscim.utils.quadtree.BoxTree.BoxNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.util.Arrays;
 
@@ -17,13 +16,13 @@ import java.util.Arrays;
  * ... in case this generic isnt obvious at first sight.
  */
 public class BoxTree<T extends BoxItem<E>, E> extends TileIndex<BoxNode<T>, T> {
-
-    final static Logger log = LoggerFactory.getLogger(BoxTree.class);
+    
+    final static Logger log = new Logger(BoxTree.class);
     static boolean dbg = false;
 
     protected final int extents;
     protected final int maxDepth;
-    private final static int MAX_STACK = 32;
+    private static final int MAX_STACK = 32;
 
     static class Stack<E> extends Inlist<Stack<E>> {
         /**
@@ -186,6 +185,7 @@ public class BoxTree<T extends BoxItem<E>, E> extends TileIndex<BoxNode<T>, T> {
             return new Stack<BoxNode<T>>();
         }
 
+        @Override
         protected boolean clearItem(Stack<BoxNode<T>> item) {
             if (item.tos != 0) {
                 item.tos = 0;
@@ -678,6 +678,7 @@ public class BoxTree<T extends BoxItem<E>, E> extends TileIndex<BoxNode<T>, T> {
         root.refs = 0;
     }
 
+    @Override
     public int size() {
         return root.refs;
     }

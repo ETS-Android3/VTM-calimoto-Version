@@ -35,14 +35,14 @@ import org.oscim.renderer.bucket.LineBucket;
 import org.oscim.renderer.bucket.MeshBucket;
 import org.oscim.theme.styles.AreaStyle;
 import org.oscim.theme.styles.LineStyle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
+
 
 import java.io.IOException;
 
 public class JeoVectorLayer extends JtsLayer {
-
-    public static final Logger log = LoggerFactory.getLogger(JeoVectorLayer.class);
+    
+    public static final Logger log = new Logger(JeoVectorLayer.class);
     static final boolean dbg = false;
 
     private final VectorDataset mDataset;

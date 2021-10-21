@@ -29,7 +29,7 @@ import org.mapsforge.map.layer.cache.InMemoryTileCache;
 import org.mapsforge.map.layer.cache.TileCache;
 import org.mapsforge.map.layer.cache.TwoLevelTileCache;
 import org.mapsforge.map.layer.renderer.TileRendererLayer;
-import org.mapsforge.map.model.MapViewPosition;
+import org.mapsforge.map.model.IMapViewPosition;
 import org.mapsforge.map.model.Model;
 import org.mapsforge.map.model.common.PreferencesFacade;
 import org.mapsforge.map.reader.MapFile;
@@ -38,8 +38,8 @@ import org.mapsforge.map.rendertheme.InternalRenderTheme;
 import org.mapsforge.map.rendertheme.XmlRenderTheme;
 import org.oscim.core.Tile;
 import org.oscim.theme.comparator.BothMapPositionHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
+
 
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -52,7 +52,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 public class MapsforgeMapPanel extends JPanel {
-    private final static Logger log = LoggerFactory.getLogger(MapsforgeMapPanel.class);
+    private final static Logger log = new Logger(MapsforgeMapPanel.class);
     private final GraphicFactory GRAPHIC_FACTORY = AwtGraphicFactory.INSTANCE;
     private AwtMapView mapView;
 
@@ -80,6 +80,7 @@ public class MapsforgeMapPanel extends JPanel {
                 mapView.setBounds(10, 20, getWidth() - 20, getHeight() - 30);
             }
 
+            @Override
             public void componentMoved(ComponentEvent e) {
                 super.componentMoved(e);
                 mapView.setBounds(10, 20, getWidth() - 20, getHeight() - 30);
@@ -96,7 +97,7 @@ public class MapsforgeMapPanel extends JPanel {
         layers.add(createTileRendererLayer(tileCache, mapView.getModel().mapViewPosition, mapPath, themePath));
     }
 
-    private Layer createTileRendererLayer(TileCache tileCache, MapViewPosition mapViewPosition, File mapFile, File themeFile) {
+    private Layer createTileRendererLayer(TileCache tileCache, IMapViewPosition mapViewPosition, File mapFile, File themeFile) {
 
         TileRendererLayer tileRendererLayer = new TileRendererLayer(tileCache, new MapFile(mapFile), mapViewPosition, false, true, false, GRAPHIC_FACTORY);
 

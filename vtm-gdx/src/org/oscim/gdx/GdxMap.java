@@ -1,6 +1,7 @@
 /*
  * Copyright 2013 Hannes Janetzek
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2019 devemux86
+ * Copyright 2018-2019 Gustl22
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -21,6 +22,7 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.graphics.glutils.GLVersion;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
@@ -35,8 +37,11 @@ import org.oscim.renderer.MapRenderer;
 import org.oscim.theme.VtmThemes;
 import org.oscim.tiling.TileSource;
 import org.oscim.utils.Parameters;
+import org.oscim.debug.Logger;
 
 public abstract class GdxMap implements ApplicationListener {
+    
+    public static final Logger log = new Logger(GdxMap.class);
 
     protected Map mMap;
     protected GestureDetector mGestureDetector;
@@ -48,11 +53,6 @@ public abstract class GdxMap implements ApplicationListener {
 
     protected void initDefaultLayers(TileSource tileSource, boolean tileGrid, boolean labels,
                                      boolean buildings) {
-        initDefaultLayers(tileSource, tileGrid, labels, buildings, 1);
-    }
-
-    protected void initDefaultLayers(TileSource tileSource, boolean tileGrid, boolean labels,
-                                     boolean buildings, float scale) {
         Layers layers = mMap.layers();
 
         if (tileSource != null) {
@@ -67,11 +67,20 @@ public abstract class GdxMap implements ApplicationListener {
         }
 
         if (tileGrid)
-            layers.add(new TileGridLayer(mMap, scale));
+            layers.add(new TileGridLayer(mMap));
     }
 
     @Override
     public void create() {
+        final GLVersion version = Gdx.graphics.getGLVersion();
+        log.warn(version.getDebugVersionString());
+        initGLAdapter(version);
+
+        if (!Parameters.CUSTOM_COORD_SCALE) {
+            if (Math.min(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height) > 1080)
+                MapRenderer.COORD_SCALE = 4.0f;
+        }
+
         mMap = new MapAdapter();
         mMapRenderer = new MapRenderer(mMap);
 
@@ -81,7 +90,7 @@ public abstract class GdxMap implements ApplicationListener {
         int w = Gdx.graphics.getWidth();
         int h = Gdx.graphics.getHeight();
 
-        mMap.viewport().setScreenSize(w, h);
+        mMap.viewport().setViewSize(w, h);
         mMapRenderer.onSurfaceCreated();
         mMapRenderer.onSurfaceChanged(w, h);
 
@@ -98,6 +107,8 @@ public abstract class GdxMap implements ApplicationListener {
         createLayers();
     }
 
+    protected abstract void initGLAdapter(GLVersion version);
+
     protected void createLayers() {
     }
 
@@ -112,15 +123,16 @@ public abstract class GdxMap implements ApplicationListener {
 
     @Override
     public void render() {
-        if (!mRenderRequest)
-            return;
+        // Workaround for flickering
+        /*if (!mRenderRequest)
+            return;*/
 
         mMapRenderer.onDrawFrame();
     }
 
     @Override
     public void resize(int w, int h) {
-        mMap.viewport().setScreenSize(w, h);
+        mMap.viewport().setViewSize(w, h);
         mMapRenderer.onSurfaceChanged(w, h);
         mMap.render();
     }
@@ -153,6 +165,16 @@ public abstract class GdxMap implements ApplicationListener {
             return Gdx.graphics.getHeight();
         }
 
+        @Override
+        public int getScreenWidth() {
+            return Gdx.graphics.getDisplayMode().width;
+        }
+
+        @Override
+        public int getScreenHeight() {
+            return Gdx.graphics.getDisplayMode().height;
+        }
+
         private final Runnable mRedrawCb = new Runnable() {
             @Override
             public void run() {
@@ -160,6 +182,11 @@ public abstract class GdxMap implements ApplicationListener {
                 Gdx.graphics.requestRendering();
             }
         };
+
+        @Override
+        public void updateMap() {
+            updateMap(true);
+        }
 
         @Override
         public void updateMap(boolean forceRender) {

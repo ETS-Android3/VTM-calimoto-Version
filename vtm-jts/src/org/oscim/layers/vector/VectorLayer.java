@@ -1,6 +1,6 @@
 /*
  * Copyright 2014 Hannes Janetzek
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2018 devemux86
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -17,13 +17,12 @@
  */
 package org.oscim.layers.vector;
 
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.simplify.DouglasPeuckerSimplifier;
-
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 import org.oscim.backend.canvas.Color;
 import org.oscim.core.Box;
 import org.oscim.core.GeoPoint;
@@ -46,8 +45,7 @@ import org.oscim.utils.FastMath;
 import org.oscim.utils.QuadTree;
 import org.oscim.utils.SpatialIndex;
 import org.oscim.utils.geom.GeomBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,8 +61,10 @@ import static org.oscim.core.MercatorProjection.longitudeToX;
  * JTS geometries together with a GeometryStyle
  */
 public class VectorLayer extends AbstractVectorLayer<Drawable> implements GestureListener {
+    
+    public static final Logger log = new Logger(VectorLayer.class);
 
-    public static final Logger log = LoggerFactory.getLogger(VectorLayer.class);
+    private static final int STROKE_MIN_ZOOM = 12;
 
     //private final SpatialIndex<Drawable> mDrawables = new RTree<Drawable>();
     protected final SpatialIndex<Drawable> mDrawables = new QuadTree<Drawable>(1 << 30, 18);
@@ -264,6 +264,7 @@ public class VectorLayer extends AbstractVectorLayer<Drawable> implements Gestur
         if (ll.line == null) {
             ll.line = LineStyle.builder()
                     .reset()
+                    .blur(style.blur)
                     .cap(style.cap)
                     .color(style.strokeColor)
                     .fixed(style.fixed)
@@ -277,6 +278,9 @@ public class VectorLayer extends AbstractVectorLayer<Drawable> implements Gestur
                     .texture(style.texture)
                     .build();
         }
+
+        if (!style.fixed && style.strokeIncrease > 1)
+            ll.scale = (float) Math.pow(style.strokeIncrease, Math.max(t.position.getZoom() - STROKE_MIN_ZOOM, 0));
 
         if (style.generalization != Style.GENERALIZATION_NONE) {
             line = DouglasPeuckerSimplifier.simplify(line, mMinX * style.generalization);

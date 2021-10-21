@@ -1,8 +1,10 @@
 /*
  * Copyright 2012 Hannes Janetzek
- * Copyright 2016 devemux86
+ * Copyright 2016-2018 devemux86
  * Copyright 2016 Erik Duisters
  * Copyright 2017 Luca Osten
+ * Copyright 2018 Izumi Kawashima
+ * Copyright 2019 Gustl22
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -19,13 +21,7 @@
  */
 package org.oscim.map;
 
-import org.oscim.core.BoundingBox;
-import org.oscim.core.Box;
-import org.oscim.core.GeoPoint;
-import org.oscim.core.MapPosition;
-import org.oscim.core.MercatorProjection;
-import org.oscim.core.Point;
-import org.oscim.core.Tile;
+import org.oscim.core.*;
 import org.oscim.renderer.GLMatrix;
 import org.oscim.utils.FastMath;
 
@@ -38,19 +34,30 @@ import org.oscim.utils.FastMath;
  */
 public class Viewport {
 
-    public final static int MAX_ZOOMLEVEL = 20;
-    public final static int MIN_ZOOMLEVEL = 2;
-    public final static float MIN_TILT = 0;
-    public final static float MAX_TILT = 65;
+    public static final int MAX_ZOOM_LEVEL = 20;
+    public static final int MIN_ZOOM_LEVEL = 2;
+    public static final float MIN_TILT = 0;
 
-    protected double mMaxScale = (1 << MAX_ZOOMLEVEL);
-    protected double mMinScale = (1 << MIN_ZOOMLEVEL);
+    /**
+     * Limited by:
+     * <p>
+     * - numTiles in {@link org.oscim.layers.tile.TileManager#init() TileManager}
+     * <p>
+     * - tilt of map when cutting map on near and far plane.
+     */
+    public static final float MAX_TILT = 65;
+
+    protected double mMaxScale = (1 << MAX_ZOOM_LEVEL);
+    protected double mMinScale = (1 << MIN_ZOOM_LEVEL);
 
     protected float mMinTilt = MIN_TILT;
     protected float mMaxTilt = MAX_TILT;
 
     protected float mMinBearing = -180;
     protected float mMaxBearing = 180;
+
+    protected float mMinRoll = -180;
+    protected float mMaxRoll = 180;
 
     protected double mMinX = 0;
     protected double mMaxX = 1;
@@ -74,22 +81,27 @@ public class Viewport {
     protected final float[] mu = new float[4];
     protected final float[] mViewCoords = new float[8];
 
+    /**
+     * Height and width in pixels
+     */
     protected float mHeight, mWidth;
 
-    public final static float VIEW_DISTANCE = 3.0f;
-    public final static float VIEW_NEAR = 1;
-    public final static float VIEW_FAR = 8;
+    public static final float VIEW_DISTANCE = 3.0f;
+    public static final float VIEW_NEAR = 1;
+    public static final float VIEW_FAR = 8;
     /**
      * scale map plane at VIEW_DISTANCE to near plane
      */
-    public final static float VIEW_SCALE = (VIEW_NEAR / VIEW_DISTANCE) * 0.5f;
+    public static final float VIEW_SCALE = (VIEW_NEAR / VIEW_DISTANCE) * 0.5f;
 
     public Viewport() {
         mPos.scale = mMinScale;
         mPos.x = 0.5;
         mPos.y = 0.5;
+        mPos.zoomLevel = MIN_ZOOM_LEVEL;
         mPos.bearing = 0;
         mPos.tilt = 0;
+        mPos.roll = 0;
     }
 
     public double limitScale(double scale) {
@@ -136,6 +148,14 @@ public class Viewport {
             changed = true;
         }
 
+        if (pos.roll > mMaxRoll) {
+            pos.roll = mMaxRoll;
+            changed = true;
+        } else if (pos.roll < mMinRoll) {
+            pos.roll = mMinRoll;
+            changed = true;
+        }
+
         if (pos.x > mMaxX) {
             pos.x = mMaxX;
             changed = true;
@@ -168,10 +188,12 @@ public class Viewport {
                 || pos.x != mPos.x
                 || pos.y != mPos.y
                 || pos.bearing != mPos.bearing
-                || pos.tilt != mPos.tilt);
+                || pos.tilt != mPos.tilt
+                || pos.roll != mPos.roll);
 
         pos.bearing = mPos.bearing;
         pos.tilt = mPos.tilt;
+        pos.roll = mPos.roll;
 
         pos.x = mPos.x;
         pos.y = mPos.y;
@@ -185,18 +207,25 @@ public class Viewport {
      * Get the inverse projection of the viewport, i.e. the
      * coordinates with z==0 that will be projected exactly
      * to screen corners by current view-projection-matrix.
+     * <p>
+     * Except when screen corners don't hit the map (e.g. on large tilt),
+     * then it will return the intersection with near and far plane.
      *
-     * @param box float[8] will be set.
+     * @param box float[8] will be set to
+     *            0,1 -> x,y bottom-right,
+     *            2,3 -> x,y bottom-left,
+     *            4,5 -> x,y top-left,
+     *            6,7 -> x,y top-right.
      * @param add increase extents of box
      */
     public void getMapExtents(float[] box, float add) {
-        /* top-right */
-        unproject(1, -1, box, 0);
-        /* top-left */
-        unproject(-1, -1, box, 2);
-        /* bottom-left */
-        unproject(-1, 1, box, 4);
         /* bottom-right */
+        unproject(1, -1, box, 0);
+        /* bottom-left */
+        unproject(-1, -1, box, 2);
+        /* top-left */
+        unproject(-1, 1, box, 4);
+        /* top-right */
         unproject(1, 1, box, 6);
 
         if (add == 0)
@@ -212,6 +241,7 @@ public class Viewport {
     }
 
     protected synchronized void unproject(float x, float y, float[] coords, int position) {
+        // Get point for near / opposite plane
         mv[0] = x;
         mv[1] = y;
         mv[2] = -1;
@@ -220,6 +250,7 @@ public class Viewport {
         double ny = mv[1];
         double nz = mv[2];
 
+        // Get point for far plane
         mv[0] = x;
         mv[1] = y;
         mv[2] = 1;
@@ -228,12 +259,34 @@ public class Viewport {
         double fy = mv[1];
         double fz = mv[2];
 
+        // Calc diffs
         double dx = fx - nx;
         double dy = fy - ny;
         double dz = fz - nz;
 
-        double dist = -nz / dz;
+        double dist;
+        if (y > 0 && nz < dz && fz > dz) {
+            /* Keep far distance (y > 0), while world flips between the screen coordinates.
+             * Screen coordinates can't be correctly converted to map coordinates
+             * as map plane doesn't intersect with top screen corners.
+             */
+            dist = 1; // Far plane
+        } else if (y < 0 && fz < dz && nz > dz) {
+            /* Keep near distance (y < 0), while world flips between the screen coordinates.
+             * Screen coordinates can't be correctly converted to map coordinates
+             * as map plane doesn't intersect with bottom screen corners.
+             */
+            dist = 0; // Near plane
+        } else {
+            // Calc factor to get map coordinates on current distance
+            dist = Math.abs(-nz / dz);
+            if (Double.isNaN(dist) || dist > 1) {
+                // Limit distance as it may exceeds to infinity
+                dist = 1; // Far plane
+            }
+        }
 
+        // near + dist * (far - near)
         coords[position + 0] = (float) (nx + dist * dx);
         coords[position + 1] = (float) (ny + dist * dy);
     }
@@ -275,7 +328,7 @@ public class Viewport {
     }
 
     /**
-     * Get the GeoPoint for x,y in screen coordinates.
+     * Get the GeoPoint for x,y from screen coordinates.
      *
      * @param x screen coordinate
      * @param y screen coordinate
@@ -297,10 +350,11 @@ public class Viewport {
     }
 
     /**
-     * Get the map position for x,y in screen coordinates.
+     * Get the map position x,y from screen coordinates.
      *
-     * @param x screen coordinate
-     * @param y screen coordinate
+     * @param x   screen coordinate
+     * @param y   screen coordinate
+     * @param out map position as Point {@link MapPosition#getX() x} and {@link MapPosition#getY() y}
      */
     public synchronized void fromScreenPoint(double x, double y, Point out) {
         unprojectScreen(x, y, mu);
@@ -469,6 +523,22 @@ public class Viewport {
 
     public void setMinBearing(float minBearing) {
         this.mMinBearing = minBearing;
+    }
+
+    public float getMaxRoll() {
+        return mMaxRoll;
+    }
+
+    public void setMaxRoll(float maxRoll) {
+        this.mMaxRoll = maxRoll;
+    }
+
+    public float getMinRoll() {
+        return mMinRoll;
+    }
+
+    public void setMinRoll(float minRoll) {
+        this.mMinRoll = minRoll;
     }
 
     public double getMaxX() {

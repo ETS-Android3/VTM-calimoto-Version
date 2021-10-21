@@ -1,11 +1,10 @@
 package java.io;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 public class FileInputStream extends InputStream {
-
-    static final Logger log = LoggerFactory.getLogger(FileInputStream.class);
+    
+    static final Logger log = new Logger(FileInputStream.class);
 
     public FileInputStream(File f) {
 

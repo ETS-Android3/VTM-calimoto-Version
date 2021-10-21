@@ -17,7 +17,6 @@
 package org.oscim.stuff;
 
 import org.oscim.gdx.GdxMapApp;
-import org.oscim.gdx.GdxMapImpl;
 import org.oscim.layers.tile.buildings.BuildingLayer;
 import org.oscim.layers.tile.vector.VectorTileLayer;
 import org.oscim.layers.tile.vector.labeling.LabelLayer;
@@ -26,14 +25,14 @@ import org.oscim.tiling.source.OkHttpEngine;
 import org.oscim.tiling.source.UrlTileSource;
 import org.oscim.tiling.source.oscimap4.OSciMap4TileSource;
 
-public class MapzenTest extends GdxMapImpl {
+public class MapzenTest extends GdxMapApp {
 
     @Override
     public void createLayers() {
         UrlTileSource tileSource = OSciMap4TileSource.builder()
                 .httpFactory(new OkHttpEngine.OkHttpFactory())
                 .url("https://vector.mapzen.com/osm/v0.8/all")
-                .apiKey("vector-tiles-xxxxxxx") // Put a proper API key
+                .apiKey("xxxxxxx") // Put a proper API key
                 .build();
 
         VectorTileLayer l = mMap.setBaseMap(tileSource);

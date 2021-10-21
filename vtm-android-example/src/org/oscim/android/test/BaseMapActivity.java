@@ -1,6 +1,6 @@
 /*
  * Copyright 2013 Hannes Janetzek
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2018 devemux86
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -23,19 +23,18 @@ import android.view.MenuItem;
 
 import org.oscim.android.cache.TileCache;
 import org.oscim.core.MapPosition;
+import org.oscim.debug.Logger;
 import org.oscim.layers.TileGridLayer;
 import org.oscim.layers.tile.vector.VectorTileLayer;
 import org.oscim.theme.VtmThemes;
 import org.oscim.tiling.TileSource;
 import org.oscim.tiling.source.OkHttpEngine;
 import org.oscim.tiling.source.oscimap4.OSciMap4TileSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BaseMapActivity extends MapActivity {
-    static final Logger log = LoggerFactory.getLogger(BaseMapActivity.class);
+    static final Logger log = new Logger(BaseMapActivity.class);
 
-    final static boolean USE_CACHE = true;
+    static final boolean USE_CACHE = false;
 
     VectorTileLayer mBaseLayer;
     TileSource mTileSource;
@@ -116,7 +115,7 @@ public class BaseMapActivity extends MapActivity {
                 } else {
                     item.setChecked(true);
                     if (mGridLayer == null)
-                        mGridLayer = new TileGridLayer(mMap, getResources().getDisplayMetrics().density);
+                        mGridLayer = new TileGridLayer(mMap);
 
                     mMap.layers().add(mGridLayer);
                 }

@@ -20,8 +20,7 @@ import org.oscim.renderer.bucket.VertexData.Chunk;
 import org.oscim.utils.FastMath;
 import org.oscim.utils.pool.Inlist;
 import org.oscim.utils.pool.SyncPool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.nio.ShortBuffer;
 
@@ -31,7 +30,7 @@ import java.nio.ShortBuffer;
  * TODO override append() etc to update internal (cur) state.
  */
 public class VertexData extends Inlist.List<Chunk> {
-    static final Logger log = LoggerFactory.getLogger(VertexData.class);
+    static final Logger log = new Logger(VertexData.class);
 
     /**
      * Size of array chunks. Must be multiple of:
@@ -50,8 +49,6 @@ public class VertexData extends Inlist.List<Chunk> {
         public final short[] vertices = new short[SIZE];
         public int used;
     }
-
-    ;
 
     private static class Pool extends SyncPool<Chunk> {
         public Pool() {
@@ -96,7 +93,7 @@ public class VertexData extends Inlist.List<Chunk> {
         return super.clear();
     }
 
-    private final static Pool pool = new Pool();
+    private static final Pool pool = new Pool();
 
     public void dispose() {
         pool.releaseAll(super.clear());
@@ -146,15 +143,15 @@ public class VertexData extends Inlist.List<Chunk> {
         used = 0;
     }
 
+    public void add(float a) {
+        add(toShort(a));
+    }
+
     public void add(short a) {
         if (used == SIZE)
             getNext();
 
         vertices[used++] = a;
-    }
-
-    static final short toShort(float v) {
-        return (short) FastMath.clamp(v, Short.MIN_VALUE, Short.MAX_VALUE);
     }
 
     public void add(float a, float b) {
@@ -216,6 +213,10 @@ public class VertexData extends Inlist.List<Chunk> {
         used += 6;
     }
 
+    public boolean empty() {
+        return cur == null;
+    }
+
     /**
      * Direct access to the current chunk of VertexData. Use with care!
      * <p/>
@@ -250,7 +251,7 @@ public class VertexData extends Inlist.List<Chunk> {
             throw new IllegalStateException("seeked too far: " + offset + "/" + used);
     }
 
-    public boolean empty() {
-        return cur == null;
+    static final short toShort(float v) {
+        return (short) FastMath.clamp(v, Short.MIN_VALUE, Short.MAX_VALUE);
     }
 }

@@ -2,6 +2,7 @@
  * Copyright 2013 Hannes Janetzek
  * Copyright 2016 Stephan Leuschner
  * Copyright 2016 devemux86
+ * Copyright 2021 calimoto GmbH (Luca Osten)
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -30,7 +31,7 @@ import android.os.ParcelFileDescriptor;
 
 import org.oscim.core.Tile;
 import org.oscim.tiling.ITileCache;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -41,9 +42,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 
 public class TileCache implements ITileCache {
-
-    final static org.slf4j.Logger log = LoggerFactory.getLogger(TileCache.class);
-    final static boolean dbg = false;
+    
+    final static Logger log = new Logger(TileCache.class);
+    static final boolean dbg = false;
 
     class CacheTileReader implements TileReader {
         final InputStream mInputStream;
@@ -98,6 +99,7 @@ public class TileCache implements ITileCache {
 
     //private final SQLiteStatement mStmtUpdateTile;
 
+    @Override
     public void dispose() {
         if (mDatabase.isOpen())
             mDatabase.close();
@@ -123,7 +125,7 @@ public class TileCache implements ITileCache {
                 " WHERE x=? AND y=? AND z = ?");
 
         mStmtPutTile = mDatabase.compileStatement("" +
-                "INSERT INTO " + TABLE_NAME +
+                "INSERT OR REPLACE INTO " + TABLE_NAME +
                 " (x, y, z, time, last_access, data)" +
                 " VALUES(?,?,?,?,?,?)");
 

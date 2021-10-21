@@ -1,9 +1,11 @@
 /*
  * Copyright 2013 Hannes Janetzek
  * Copyright 2016 Stephan Leuschner
- * Copyright 2016 devemux86
+ * Copyright 2016-2018 devemux86
  * Copyright 2016 Izumi Kawashima
  * Copyright 2017 Wolfgang Schramm
+ * Copyright 2018 Gustl22
+ * Copyright 2021 calimoto GmbH (Luca Osten)
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -27,46 +29,50 @@ import org.oscim.core.MapPosition;
 import org.oscim.core.Point;
 import org.oscim.core.Tile;
 import org.oscim.renderer.MapRenderer;
-import org.oscim.utils.Easing;
 import org.oscim.utils.ThreadUtils;
+import org.oscim.utils.animation.Easing;
 import org.oscim.utils.async.Task;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import static org.oscim.core.MercatorProjection.latitudeToY;
 import static org.oscim.core.MercatorProjection.longitudeToX;
 import static org.oscim.utils.FastMath.clamp;
 
 public class Animator {
-    static final Logger log = LoggerFactory.getLogger(Animator.class);
+    static final Logger log = new Logger(Animator.class);
 
-    public final static int ANIM_NONE = 0;
-    public final static int ANIM_MOVE = 1 << 0;
-    public final static int ANIM_SCALE = 1 << 1;
-    public final static int ANIM_ROTATE = 1 << 2;
-    public final static int ANIM_TILT = 1 << 3;
-    public final static int ANIM_FLING = 1 << 4;
+    public static final int ANIM_NONE = 0;
+    public static final int ANIM_MOVE = 1 << 0;
+    public static final int ANIM_SCALE = 1 << 1;
+    public static final int ANIM_ROTATE = 1 << 2;
+    public static final int ANIM_TILT = 1 << 3;
+    public static final int ANIM_FLING = 1 << 4;
 
-    private final Map mMap;
+    final Map mMap;
 
-    private final MapPosition mCurPos = new MapPosition();
-    private final MapPosition mStartPos = new MapPosition();
-    private final MapPosition mDeltaPos = new MapPosition();
+    final MapPosition mCurPos = new MapPosition();
+    final MapPosition mStartPos = new MapPosition();
+    final MapPosition mDeltaPos = new MapPosition();
 
     private final Point mScroll = new Point();
-    private final Point mPivot = new Point();
+    final Point mPivot = new Point();
     private final Point mVelocity = new Point();
 
-    private float mDuration = 500;
-    private long mAnimEnd = -1;
-    private Easing.Type mEasingType = Easing.Type.LINEAR;
+    float mDuration = 500;
+    long mAnimEnd = -1;
+    Easing.Type mEasingType = Easing.Type.LINEAR;
 
-    private int mState = ANIM_NONE;
-
+    int mState = ANIM_NONE;
+    private long mBlockTouchStartTime = 0;
+    
     private Runnable mActionAnimEnd = null;
-
+    
     public Animator(Map map) {
         mMap = map;
+    }
+
+    public synchronized void animateTo(BoundingBox bbox) {
+        animateTo(1000, bbox);
     }
 
     public synchronized void animateTo(long duration, BoundingBox bbox) {
@@ -107,8 +113,12 @@ public class Animator {
         animStart(duration, state, easingType);
     }
 
-    public void animateTo(BoundingBox bbox) {
-        animateTo(1000, bbox, Easing.Type.LINEAR);
+    public void animateTo(GeoPoint p) {
+        animateTo(500, p);
+    }
+
+    public void animateTo(long duration, GeoPoint p) {
+        animateTo(duration, p, 1, true);
     }
 
     /**
@@ -167,8 +177,8 @@ public class Animator {
         animStart(duration, state, easingType);
     }
 
-    public void animateTo(GeoPoint p) {
-        animateTo(500, p, 1, true, Easing.Type.LINEAR);
+    public void animateTo(MapPosition pos) {
+        animateTo(500, pos);
     }
 
     public void animateTo(long duration, MapPosition pos) {
@@ -249,10 +259,10 @@ public class Animator {
             return;
         }
 
-        animStart(duration, ANIM_FLING, Easing.Type.LINEAR);
+        animStart(duration, ANIM_FLING, Easing.Type.SINE_OUT);
     }
 
-    private void animStart(float duration, int state, Easing.Type easingType) {
+    void animStart(float duration, int state, Easing.Type easingType) {
         if (!isActive())
             mMap.events.fire(Map.ANIM_START, mMap.mMapPosition);
         mCurPos.copy(mStartPos);
@@ -333,7 +343,7 @@ public class Animator {
         }
     }
 
-    private Task updateTask = new Task() {
+    Task updateTask = new Task() {
         @Override
         public int go(boolean canceled) {
             if (!canceled)
@@ -342,7 +352,7 @@ public class Animator {
         }
     };
 
-    private double doScale(ViewController v, float adv) {
+    double doScale(ViewController v, float adv) {
         double newScale = mStartPos.scale + mDeltaPos.scale * Math.sqrt(adv);
 
         v.scaleMap((float) (newScale / mCurPos.scale),
@@ -354,9 +364,11 @@ public class Animator {
     public void cancel() {
         //ThreadUtils.assertMainThread();
         mState = ANIM_NONE;
+        mBlockTouchStartTime = 0;
         mPivot.x = 0;
         mPivot.y = 0;
         mMap.events.fire(Map.ANIM_END, mMap.mMapPosition);
+    
         if (mActionAnimEnd != null) {
             mActionAnimEnd.run();
         }
@@ -366,6 +378,15 @@ public class Animator {
         return mState != ANIM_NONE;
     }
 
+    public boolean shouldBlockTouch() {
+        // block for a maximum of 5 seconds just in case start time does not get reset
+        return System.currentTimeMillis() - mBlockTouchStartTime < 5000;
+    }
+
+    public void blockTouchForNextAnimation() {
+        mBlockTouchStartTime = System.currentTimeMillis();
+    }
+
     /**
      * Get the map position at animation end.<br>
      * Note: valid only with animateTo methods.
@@ -373,7 +394,7 @@ public class Animator {
     public MapPosition getEndPosition() {
         return mDeltaPos;
     }
-
+    
     public void setAnimEnd(Runnable actionAnimEnd) {
         mActionAnimEnd = actionAnimEnd;
     }

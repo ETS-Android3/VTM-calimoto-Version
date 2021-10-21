@@ -1,6 +1,6 @@
 /*
  * Copyright 2013 Hannes Janetzek
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2018 devemux86
  * Copyright 2016 Izumi Kawashima
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
@@ -19,6 +19,8 @@
 package org.oscim.tiling.source;
 
 import org.oscim.core.Tile;
+import org.oscim.map.Viewport;
+import org.oscim.server.ServerDnsTiles;
 import org.oscim.tiling.TileSource;
 import org.oscim.tiling.source.LwHttp.LwHttpFactory;
 
@@ -32,6 +34,7 @@ public abstract class UrlTileSource extends TileSource {
     public abstract static class Builder<T extends Builder<T>> extends TileSource.Builder<T> {
         protected String tilePath;
         protected String url;
+        protected String fallbackUrl;
         private HttpEngine.Factory engineFactory;
         private String keyName = "key";
         private String apiKey;
@@ -39,11 +42,18 @@ public abstract class UrlTileSource extends TileSource {
         protected Builder() {
         }
 
-        protected Builder(String url, String tilePath, int zoomMin, int zoomMax) {
+        protected Builder(String url, String tilePath) {
+           this(url, null, tilePath);
+        }
+
+        protected Builder(String url, String fallbackUrl, String tilePath) {
             this.url = url;
+            this.fallbackUrl = fallbackUrl;
             this.tilePath = tilePath;
-            this.zoomMin = zoomMin;
-            this.zoomMax = zoomMax;
+        }
+
+        protected Builder(ServerDnsTiles server, String tilePath) {
+            this(server.getTilesUrl(), server.getTilesUrlFallback(), tilePath);
         }
 
         public T keyName(String keyName) {
@@ -75,6 +85,8 @@ public abstract class UrlTileSource extends TileSource {
 
     public static final TileUrlFormatter URL_FORMATTER = new DefaultTileUrlFormatter();
     private final URL mUrl;
+    private final URL mFallbackUrl;
+    private boolean useFallbackUrl = false;
     private final String[] mTilePath;
 
     private HttpEngine.Factory mHttpFactory;
@@ -92,17 +104,27 @@ public abstract class UrlTileSource extends TileSource {
         mKeyName = builder.keyName;
         mApiKey = builder.apiKey;
         mUrl = makeUrl(builder.url);
+        mFallbackUrl = makeUrl(builder.fallbackUrl);
         mTilePath = builder.tilePath.split("\\{|\\}");
         mHttpFactory = builder.engineFactory;
     }
 
     protected UrlTileSource(String urlString, String tilePath) {
-        this(urlString, tilePath, 0, 17);
+        this(urlString, null, tilePath, Viewport.MIN_ZOOM_LEVEL, Viewport.MAX_ZOOM_LEVEL);
+    }
+    
+    protected UrlTileSource(String urlString, String fallbackUrlString, String tilePath) {
+        this(urlString, fallbackUrlString, tilePath, Viewport.MIN_ZOOM_LEVEL, Viewport.MAX_ZOOM_LEVEL);
     }
 
     protected UrlTileSource(String urlString, String tilePath, int zoomMin, int zoomMax) {
+        this(urlString, null, tilePath, zoomMin, zoomMax);
+    }
+
+    protected UrlTileSource(String urlString, String fallbackUrlString, String tilePath, int zoomMin, int zoomMax) {
         super(zoomMin, zoomMax);
         mUrl = makeUrl(urlString);
+        mFallbackUrl = makeUrl(fallbackUrlString);
         mTilePath = makeTilePath(tilePath);
     }
 
@@ -114,6 +136,11 @@ public abstract class UrlTileSource extends TileSource {
     }
 
     private URL makeUrl(String urlString) {
+        if (urlString == null)
+        {
+            return null;
+        }
+        
         URL url;
         try {
             url = new URL(urlString);
@@ -141,9 +168,25 @@ public abstract class UrlTileSource extends TileSource {
         return mUrl;
     }
 
+    public URL getFallbackUrl() {
+        return mFallbackUrl != null ? mFallbackUrl : mUrl;
+    }
+
+    public boolean getUseFallbackUrl() {
+        return useFallbackUrl;
+    }
+
+    public void setUseFallbackUrl(boolean activateFallbackUrl) {
+        useFallbackUrl = activateFallbackUrl;
+    }
+
     public String getTileUrl(Tile tile) {
+       return this.getTileUrl(tile, false);
+    }
+
+    public String getTileUrl(Tile tile, boolean useFallbackServer) {
         StringBuilder sb = new StringBuilder();
-        sb.append(mUrl).append(mTileUrlFormatter.formatTilePath(this, tile));
+        sb.append(useFallbackServer ? getFallbackUrl() : getUrl()).append(mTileUrlFormatter.formatTilePath(this, tile));
         if (mApiKey != null) {
             sb.append("?").append(mKeyName).append("=").append(mApiKey);
         }

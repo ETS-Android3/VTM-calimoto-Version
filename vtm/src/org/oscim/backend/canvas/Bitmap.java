@@ -1,6 +1,7 @@
 /*
  * Copyright 2013 Hannes Janetzek
  * Copyright 2016 Longri
+ * Copyright 2018 devemux86
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -17,10 +18,12 @@
  */
 package org.oscim.backend.canvas;
 
+import com.calimoto.logic.CaloBitmap;
+
 /**
  * The Interface Bitmap.
  */
-public interface Bitmap {
+public interface Bitmap extends CaloBitmap {
 
     /**
      * Gets the width.
@@ -29,12 +32,22 @@ public interface Bitmap {
      */
     int getWidth();
 
+    @Override
+    public default int getWidthInPixel() {
+        return getWidth();
+    }
+
     /**
      * Gets the height.
      *
      * @return the height
      */
     int getHeight();
+
+    @Override
+    public default int getHeightInPixel() {
+        return getHeight();
+    }
 
     /**
      * Recycle.
@@ -65,4 +78,6 @@ public interface Bitmap {
     boolean isValid();
 
     byte[] getPngEncodedData();
+
+    void scaleTo(int width, int height);
 }

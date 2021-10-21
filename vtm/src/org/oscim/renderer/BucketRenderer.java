@@ -30,8 +30,7 @@ import org.oscim.renderer.bucket.RenderBucket;
 import org.oscim.renderer.bucket.RenderBuckets;
 import org.oscim.renderer.bucket.TextureBucket;
 import org.oscim.utils.FastMath;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import static org.oscim.renderer.MapRenderer.COORD_SCALE;
 import static org.oscim.renderer.bucket.RenderBucket.BITMAP;
@@ -49,8 +48,8 @@ import static org.oscim.renderer.bucket.RenderBucket.TEXLINE;
  * All methods that modify 'buckets' MUST be synchronized!
  */
 public class BucketRenderer extends LayerRenderer {
-
-    public static final Logger log = LoggerFactory.getLogger(BucketRenderer.class);
+    
+    public static final Logger log = new Logger(BucketRenderer.class);
 
     /**
      * Use mMapPosition.copy(position) to keep the position for which
@@ -74,7 +73,7 @@ public class BucketRenderer extends LayerRenderer {
         mMapPosition = new MapPosition();
     }
 
-    protected boolean mInititialzed;
+    protected boolean mInitialized;
 
     /**
      * Default implementation:
@@ -82,9 +81,9 @@ public class BucketRenderer extends LayerRenderer {
      */
     @Override
     public void update(GLViewport v) {
-        if (!mInititialzed) {
+        if (!mInitialized) {
             mMapPosition.copy(v.pos);
-            mInititialzed = true;
+            mInitialized = true;
             compile();
         }
     }
@@ -122,8 +121,7 @@ public class BucketRenderer extends LayerRenderer {
                     b = LineBucket.Renderer.draw(b, v, div, buckets);
                     break;
                 case TEXLINE:
-                    b = LineTexBucket.Renderer.draw(b,
-                            v,
+                    b = LineTexBucket.Renderer.draw(b, v,
                             FastMath.pow(layerPos.zoomLevel - v.pos.zoomLevel) * (float) layerPos.getZoomScale(),
                             buckets);
                     break;

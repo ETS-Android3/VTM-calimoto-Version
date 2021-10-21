@@ -7,8 +7,7 @@ import org.osmdroid.routing.RouteNode;
 import org.osmdroid.routing.RouteProvider;
 import org.osmdroid.utils.HttpConnection;
 import org.osmdroid.utils.PolylineEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -31,8 +30,8 @@ import javax.xml.parsers.SAXParserFactory;
  * @author M.Kergall
  */
 public class MapQuestRouteProvider extends RouteProvider {
-
-    final static Logger log = LoggerFactory.getLogger(MapQuestRouteProvider.class);
+    
+    final static Logger log = new Logger(MapQuestRouteProvider.class);
 
     static final String MAPQUEST_GUIDANCE_SERVICE = "http://open.mapquestapi.com/guidance/v0/route?";
 

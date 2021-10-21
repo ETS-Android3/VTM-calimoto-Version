@@ -24,13 +24,12 @@ import org.oscim.layers.tile.MapTile.TileData;
 import org.oscim.renderer.BufferObject;
 import org.oscim.renderer.MapRenderer;
 import org.oscim.utils.pool.Inlist;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.nio.ShortBuffer;
 
 public class ExtrusionBuckets extends TileData {
-    static final Logger log = LoggerFactory.getLogger(ExtrusionBuckets.class);
+    static final Logger log = new Logger(ExtrusionBuckets.class);
 
     public ExtrusionBucket buckets;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 devemux86
+ * Copyright 2017-2018 devemux86
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -14,6 +14,9 @@
  */
 package org.oscim.test;
 
+import okhttp3.Cache;
+import okhttp3.OkHttpClient;
+import org.oscim.core.MapPosition;
 import org.oscim.gdx.GdxMapApp;
 import org.oscim.layers.tile.buildings.BuildingLayer;
 import org.oscim.layers.tile.vector.VectorTileLayer;
@@ -25,9 +28,6 @@ import org.oscim.tiling.source.geojson.MapzenGeojsonTileSource;
 
 import java.io.File;
 import java.util.UUID;
-
-import okhttp3.Cache;
-import okhttp3.OkHttpClient;
 
 public class MapzenGeojsonTest extends GdxMapApp {
 
@@ -46,7 +46,7 @@ public class MapzenGeojsonTest extends GdxMapApp {
         OkHttpEngine.OkHttpFactory factory = new OkHttpEngine.OkHttpFactory(builder);
 
         UrlTileSource tileSource = MapzenGeojsonTileSource.builder()
-                .apiKey("mapzen-xxxxxxx") // Put a proper API key
+                .apiKey("xxxxxxx") // Put a proper API key
                 .httpFactory(factory)
                 //.locale("en")
                 .build();
@@ -56,6 +56,16 @@ public class MapzenGeojsonTest extends GdxMapApp {
 
         mMap.layers().add(new BuildingLayer(mMap, l));
         mMap.layers().add(new LabelLayer(mMap, l));
+
+        MapPosition pos = MapPreferences.getMapPosition();
+        if (pos != null)
+            mMap.setMapPosition(pos);
+    }
+
+    @Override
+    public void dispose() {
+        MapPreferences.saveMapPosition(mMap.getMapPosition());
+        super.dispose();
     }
 
     public static void main(String[] args) {

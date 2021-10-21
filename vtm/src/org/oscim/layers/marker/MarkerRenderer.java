@@ -2,7 +2,7 @@
  * Copyright 2013 Hannes Janetzek
  * Copyright 2016 Izumi Kawashima
  * Copyright 2017 Longri
- * Copyright 2017 devemux86
+ * Copyright 2017-2018 devemux86
  * Copyright 2017 nebular
  * Copyright 2017 Luca Osten
  *
@@ -43,11 +43,6 @@ public class MarkerRenderer extends BucketRenderer {
     protected final Point mMapPoint = new Point();
 
     /**
-     * increase view to show items that are partially visible
-     */
-    protected int mExtents = 100;
-
-    /**
      * flag to force update of markers
      */
     protected boolean mUpdate;
@@ -75,7 +70,8 @@ public class MarkerRenderer extends BucketRenderer {
         //int changedVisible = 0;
         int numVisible = 0;
 
-        mMarkerLayer.map().viewport().getMapExtents(mBox, mExtents);
+        // Increase view to show items that are partially visible
+        mMarkerLayer.map().viewport().getMapExtents(mBox, Tile.SIZE / 2);
 
         long flip = (long) (Tile.SIZE * v.pos.scale) >> 1;
 
@@ -107,6 +103,11 @@ public class MarkerRenderer extends BucketRenderer {
                     it.changes = true;
                     //changesInvisible++;
                 }
+                continue;
+            }
+    
+            if (it.item.getZoomLevelDrawn() > v.pos.zoomLevel) {
+                it.visible = false;
                 continue;
             }
 
@@ -142,11 +143,6 @@ public class MarkerRenderer extends BucketRenderer {
                 continue;
 
             if (it.changes) {
-                it.visible = false;
-                continue;
-            }
-
-            if (it.item.getZoomLevelDrawn() > v.pos.zoomLevel) {
                 it.visible = false;
                 continue;
             }
@@ -206,7 +202,7 @@ public class MarkerRenderer extends BucketRenderer {
         ZSORT.doSort(a, zComparator, lo, hi);
     }
 
-    final static Comparator<InternalItem> zComparator = new Comparator<InternalItem>() {
+    static final Comparator<InternalItem> zComparator = new Comparator<InternalItem>() {
         @Override
         public int compare(InternalItem a, InternalItem b) {
             if (a.visible && b.visible) {

@@ -20,8 +20,7 @@ package org.oscim.renderer;
 import org.oscim.backend.GL;
 import org.oscim.backend.GLAdapter;
 import org.oscim.utils.pool.Inlist;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.nio.Buffer;
 
@@ -30,7 +29,7 @@ import javax.annotation.CheckReturnValue;
 import static org.oscim.backend.GLAdapter.gl;
 
 public final class BufferObject extends Inlist<BufferObject> {
-    static final Logger log = LoggerFactory.getLogger(BufferObject.class);
+    static final Logger log = new Logger(BufferObject.class);
     private static final int MB = 1024 * 1024;
     private static final int LIMIT_BUFFERS = 16 * MB;
 
@@ -85,7 +84,7 @@ public final class BufferObject extends Inlist<BufferObject> {
     }
 
     public void unbind() {
-        GLState.bindBuffer(target, 0);
+        GLState.bindBuffer(target, GLState.UNBIND);
     }
 
     // ---------------------------- pool ----------------------------
@@ -102,8 +101,8 @@ public final class BufferObject extends Inlist<BufferObject> {
         log.debug("now: " + mBufferMemoryUsage / MB + "MB");
     }
 
-    private final static BufferObject pool[] = new BufferObject[2];
-    private final static int counter[] = new int[2];
+    private static final BufferObject pool[] = new BufferObject[2];
+    private static final int counter[] = new int[2];
 
     /**
      * @param target can be GL20.ARRAY_BUFFER or GL20.ELEMENT_ARRAY_BUFFER

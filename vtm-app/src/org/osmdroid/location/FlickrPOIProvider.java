@@ -6,8 +6,7 @@ import org.json.JSONObject;
 import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
 import org.osmdroid.utils.BonusPackHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,11 +18,11 @@ import java.util.HashMap;
  * @see "http://www.flickr.com/services/api/flickr.photos.search.html"
  */
 public class FlickrPOIProvider implements POIProvider {
-
-    final static Logger log = LoggerFactory.getLogger(FlickrPOIProvider.class);
+    
+    final static Logger log = new Logger(FlickrPOIProvider.class);
 
     protected String mApiKey;
-    private final static String PHOTO_URL = "http://www.flickr.com/photos/%s/%s/sizes/o/in/photostream/";
+    private static final String PHOTO_URL = "http://www.flickr.com/photos/%s/%s/sizes/o/in/photostream/";
 
     /**
      * @param apiKey the registered API key to give to Flickr service.
@@ -149,6 +148,7 @@ public class FlickrPOIProvider implements POIProvider {
      * Null if
      * technical issue.
      */
+    @Override
     public ArrayList<POI> getPOIInside(BoundingBox boundingBox, String query, int maxResults) {
         String url = getUrlInside(boundingBox, maxResults);
         return getThem(url);

@@ -1,5 +1,6 @@
 /*
  * Copyright 2014 Hannes Janetzek
+ * Copyright 2019 Izumi Kawashima
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -17,38 +18,37 @@
 package org.oscim.utils;
 
 import org.oscim.core.Box;
+import org.oscim.core.Point;
 import org.oscim.utils.RTree.Branch;
 import org.oscim.utils.RTree.Node;
 import org.oscim.utils.RTree.Rect;
 import org.oscim.utils.pool.Inlist;
 import org.oscim.utils.pool.SyncPool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.PriorityQueue;
 
 /**
  * Implementation of RTree, a multidimensional bounding rectangle tree.
  *
- * @author 1983 Original algorithm and test code by Antonin Guttman and Michael
- *         Stonebraker, UC Berkely
- * @author 1994 ANCI C ported from original test code by Melinda Green -
- *         melinda@superliminal.com
+ * @author 1983 Original algorithm and test code by Antonin Guttman and Michael Stonebraker, UC Berkely
+ * @author 1994 ANCI C ported from original test code by Melinda Green - melinda@superliminal.com
  * @author 1995 Sphere volume fix for degeneracy problem submitted by Paul Brook
  * @author 2004 Templated C++ port by Greg Douglas
  * @author 2008 Portability issues fixed by Maxence Laurent
  * @author 2014 Ported to Java by Hannes Janetzek
  */
 public class RTree<T> implements SpatialIndex<T>, Iterable<T> {
+    
+    static final Logger log = new Logger(RTree.class);
 
-    static final Logger log = LoggerFactory.getLogger(RTree.class);
+    static final int MAXNODES = 8;
+    static final int MINNODES = 4;
 
-    final static int MAXNODES = 8;
-    final static int MINNODES = 4;
-
-    final static int NUMDIMS = 2;
+    static final int NUMDIMS = 2;
 
     static final boolean DEBUG = true;
 
@@ -57,7 +57,7 @@ public class RTree<T> implements SpatialIndex<T>, Iterable<T> {
      * The parents level determines this.
      * If the parents level is 0, then this is data
      */
-    final static class Branch<E> extends Rect {
+    static final class Branch<E> extends Rect {
         /**
          * Child node or data item
          */
@@ -69,10 +69,21 @@ public class RTree<T> implements SpatialIndex<T>, Iterable<T> {
         }
     }
 
+    class KnnItem implements Comparable<KnnItem> {
+        Branch<?> branch;
+        boolean isLeaf;
+        double squareDistance;
+
+        @Override
+        public int compareTo(KnnItem o) {
+            return Double.compare(squareDistance, o.squareDistance);
+        }
+    }
+
     /**
      * Node for each branch level
      */
-    final static class Node {
+    static final class Node {
 
         /**
          * Leaf is zero, others positive
@@ -173,6 +184,10 @@ public class RTree<T> implements SpatialIndex<T>, Iterable<T> {
             ymax = max[1];
         }
 
+        double axisDistance(double k, double min, double max) {
+            return k < min ? min - k : k <= max ? 0 : k - max;
+        }
+
         /**
          * Calculate the n-dimensional volume of a rectangle
          */
@@ -247,6 +262,12 @@ public class RTree<T> implements SpatialIndex<T>, Iterable<T> {
                 add(node.branch[idx]);
             }
         }
+
+        double squareDistance(Point xy) {
+            double dx = axisDistance(xy.x, xmin, xmax);
+            double dy = axisDistance(xy.y, ymin, ymax);
+            return dx * dx + dy * dy;
+        }
     }
 
     /**
@@ -290,6 +311,7 @@ public class RTree<T> implements SpatialIndex<T>, Iterable<T> {
         releaseRect(r);
     }
 
+    @Override
     public void insert(Box box, T item) {
         Rect r = getRect();
         r.set(box);
@@ -312,6 +334,7 @@ public class RTree<T> implements SpatialIndex<T>, Iterable<T> {
         return removed;
     }
 
+    @Override
     public boolean remove(Box box, T item) {
         Rect r = getRect();
         r.set(box);
@@ -342,6 +365,7 @@ public class RTree<T> implements SpatialIndex<T>, Iterable<T> {
         return true;
     }
 
+    @Override
     public boolean search(Box bbox, SearchCb<T> cb, Object context) {
         Rect r = getRect();
         r.set(bbox);
@@ -352,6 +376,7 @@ public class RTree<T> implements SpatialIndex<T>, Iterable<T> {
         return true;
     }
 
+    @Override
     public List<T> search(Box bbox, List<T> results) {
         if (results == null)
             results = new ArrayList<T>(16);
@@ -367,9 +392,59 @@ public class RTree<T> implements SpatialIndex<T>, Iterable<T> {
     }
 
     /**
+     * See https://github.com/mourner/rbush-knn/blob/master/index.js
+     */
+    @Override
+    public List<T> searchKNearestNeighbors(Point center, int k, double maxDistance, List<T> results) {
+        if (results == null)
+            results = new ArrayList<>(16);
+
+        PriorityQueue<KnnItem> queue = new PriorityQueue<>();
+        double maxSquareDistance = maxDistance * maxDistance;
+
+        Node node = mRoot;
+        while (node != null) {
+            for (int idx = 0; idx < node.count; idx++) {
+                Branch[] branch = node.branch;
+                double squareDistance = branch[idx].squareDistance(center);
+                if (squareDistance <= maxSquareDistance) {
+                    KnnItem knnItem = new KnnItem();
+                    knnItem.branch = branch[idx];
+                    knnItem.isLeaf = node.level == 0;
+                    knnItem.squareDistance = squareDistance;
+                    queue.add(knnItem);
+                }
+            }
+
+            while (!queue.isEmpty() && queue.peek().isLeaf) {
+                KnnItem knnItem = queue.poll();
+                results.add((T) knnItem.branch.node);
+                if (results.size() == k)
+                    return results;
+            }
+
+            KnnItem knnItem = queue.poll();
+            if (knnItem != null)
+                node = (Node) knnItem.branch.node;
+            else
+                node = null;
+        }
+
+        return results;
+    }
+
+    @Override
+    public void searchKNearestNeighbors(Point center, int k, double maxDistance, SearchCb<T> cb, Object context) {
+        List<T> results = searchKNearestNeighbors(center, k, maxDistance, null);
+        for (T result : results)
+            cb.call(result, context);
+    }
+
+    /**
      * Count the data elements in this container. This is slow as no internal
      * counter is maintained.
      */
+    @Override
     public int size() {
         int[] count = {0};
         countRec(mRoot, count);
@@ -393,6 +468,7 @@ public class RTree<T> implements SpatialIndex<T>, Iterable<T> {
     /**
      * Remove all entries from tree.
      */
+    @Override
     public void clear() {
         /* Delete all existing nodes */
         reset();
@@ -492,7 +568,7 @@ public class RTree<T> implements SpatialIndex<T>, Iterable<T> {
         return null;
     }
 
-    final static double mergedArea(Rect a, Rect b) {
+    static final double mergedArea(Rect a, Rect b) {
         return ((a.xmax > b.xmax ? a.xmax : b.xmax) - (a.xmin < b.xmin ? a.xmin : b.xmin)
                 * ((a.ymax > b.ymax ? a.ymax : b.ymax) - (a.ymin < b.ymin ? a.ymin : b.ymin)));
     }
@@ -898,7 +974,7 @@ public class RTree<T> implements SpatialIndex<T>, Iterable<T> {
 
     /* Max stack size. Allows almost n^32 where n is number of branches in
      * node */
-    final static int MAX_STACK = 32;
+    static final int MAX_STACK = 32;
 
     static class StackElement {
         Node node;
@@ -913,6 +989,7 @@ public class RTree<T> implements SpatialIndex<T>, Iterable<T> {
             return new Stack();
         }
 
+        @Override
         protected boolean clearItem(Stack item) {
             if (item.tos != 0) {
                 item.tos = 0;
@@ -1007,6 +1084,7 @@ public class RTree<T> implements SpatialIndex<T>, Iterable<T> {
 
         /* Find the next data element */
         @SuppressWarnings("unchecked")
+        @Override
         public T next() {
             assert (isNotNull());
             StackElement curTos = stack[tos - 1];

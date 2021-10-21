@@ -30,14 +30,13 @@ import org.oscim.renderer.bucket.VertexData.Chunk;
 import org.oscim.theme.styles.AreaStyle;
 import org.oscim.utils.ColorUtil;
 import org.oscim.utils.TessJNI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import static org.oscim.backend.GLAdapter.gl;
 import static org.oscim.renderer.MapRenderer.COORD_SCALE;
 
 public class MeshBucket extends RenderBucket {
-    static final Logger log = LoggerFactory.getLogger(MeshBucket.class);
+    static final Logger log = new Logger(MeshBucket.class);
     static final boolean dbgRender = false;
 
     public AreaStyle area;
@@ -91,6 +90,7 @@ public class MeshBucket extends RenderBucket {
         //tess.addContour2D(geom.index, geom.points);
     }
 
+    @Override
     protected void prepare() {
         if (tess == null)
             return;
@@ -101,7 +101,7 @@ public class MeshBucket extends RenderBucket {
         }
         if (!tess.tesselate()) {
             tess.dispose();
-            log.error("error in tessellation {}", numPoints);
+            log.debug("error in tessellation {}", numPoints);
             return;
         }
 
@@ -174,7 +174,7 @@ public class MeshBucket extends RenderBucket {
             Shader s = shader;
 
             s.useProgram();
-            GLState.enableVertexArrays(s.aPos, -1);
+            GLState.enableVertexArrays(s.aPos, GLState.DISABLED);
 
             v.mvp.setAsUniform(s.uMVP);
 
@@ -211,7 +211,7 @@ public class MeshBucket extends RenderBucket {
                     int c = (ml.area == null) ? Color.BLUE : ml.area.color;
                     gl.lineWidth(1);
                     //c = ColorUtil.shiftHue(c, 0.5);
-                    c = ColorUtil.modHsv(c, 1.1, 1.0, 0.8, true);
+                    c = ColorUtil.modHsv(c, 0.1, 1.0, 0.8, true);
                     GLUtils.setColor(s.uColor, c, 1);
                     gl.drawElements(GL.LINES,
                             ml.numIndices,

@@ -4,14 +4,12 @@ apply plugin: 'maven'
 dependencies {
     api project(':vtm')
     api 'com.fasterxml.jackson.core:jackson-core:2.8.4'
-    api 'com.google.protobuf:protobuf-java:2.6.1'
-    api 'com.vividsolutions:jts:1.13'
-    api 'org.openstreetmap.osmosis:osmosis-osm-binary:0.45'
+    api 'org.locationtech.jts:jts-core:1.15.0'
+    api 'org.openstreetmap.osmosis:osmosis-osm-binary:0.46'
 }
 
 sourceSets {
     main.java.srcDirs = ['src']
-    main.resources.srcDirs = ['src']
 }
 
 if (project.hasProperty("SONATYPE_USERNAME")) {

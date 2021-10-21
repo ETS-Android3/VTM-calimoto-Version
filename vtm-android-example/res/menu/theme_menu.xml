@@ -12,6 +12,18 @@
             android:checked="true"
             android:title="@string/theme_calimoto" />
         <item
+            android:id="@+id/calimoto_navigation"
+            android:title="@string/theme_calimoto_navigation" />
+        <item
+            android:id="@+id/calimoto_roadtrip"
+            android:title="@string/theme_calimoto_roadtrip" />
+        <item
+            android:id="@+id/calimoto_roadtrip_navigation"
+            android:title="@string/theme_calimoto_roadtrip_navigation" />
+        <item
+            android:id="@+id/calimoto_myspin"
+            android:title="@string/theme_calimoto_myspin" />
+        <item
             android:id="@+id/theme_osmarender"
             android:title="@string/theme_osmarender" />
         <item

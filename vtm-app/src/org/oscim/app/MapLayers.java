@@ -1,5 +1,6 @@
 /*
- * Copyright 2016 devemux86
+ * Copyright 2013 Hannes Janetzek
+ * Copyright 2016-2019 devemux86
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -19,7 +20,6 @@ package org.oscim.app;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-
 import org.oscim.android.cache.TileCache;
 import org.oscim.layers.GenericLayer;
 import org.oscim.layers.Layer;
@@ -37,12 +37,13 @@ import org.oscim.tiling.source.bitmap.DefaultSources;
 import org.oscim.tiling.source.mapfile.MapFileTileSource;
 import org.oscim.tiling.source.mapnik.MapnikVectorTileSource;
 import org.oscim.tiling.source.oscimap4.OSciMap4TileSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
+
+import java.io.File;
 
 public class MapLayers {
-
-    final static Logger log = LoggerFactory.getLogger(MapLayers.class);
+    
+    final static Logger log = new Logger(MapLayers.class);
 
     abstract static class Config {
         final String name;
@@ -55,15 +56,18 @@ public class MapLayers {
     }
 
     static Config[] configs = new Config[]{new Config("OPENSCIENCEMAP4") {
+        @Override
         TileSource init() {
             return new OSciMap4TileSource();
         }
     }, new Config("MAPSFORGE") {
+        @Override
         TileSource init() {
             return new MapFileTileSource().setOption("file",
-                    "/storage/sdcard0/germany.map");
+                    new File("/sdcard/berlin.map").getAbsolutePath());
         }
     }, new Config("MAPNIK_VECTOR") {
+        @Override
         TileSource init() {
             return new MapnikVectorTileSource();
         }
@@ -154,7 +158,7 @@ public class MapLayers {
 
         if (enable) {
             if (mGridOverlay == null)
-                mGridOverlay = new TileGridLayer(App.map, context.getResources().getDisplayMetrics().density);
+                mGridOverlay = new TileGridLayer(App.map);
 
             App.map.layers().add(mGridOverlay);
         } else {

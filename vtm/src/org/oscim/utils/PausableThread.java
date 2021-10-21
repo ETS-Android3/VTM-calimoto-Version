@@ -16,16 +16,14 @@
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.oscim.utils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 /**
  * An abstract base class for threads which support pausing and resuming.
  */
 public abstract class PausableThread extends Thread {
-    private final static Logger log = LoggerFactory.getLogger(PausableThread.class);
-    private final static boolean dbg = false;
+    private final static Logger log = new Logger(PausableThread.class);
+    private static final boolean dbg = false;
 
     private boolean mPausing = true;
     private boolean mRunning = true;

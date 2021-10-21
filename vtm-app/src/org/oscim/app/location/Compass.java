@@ -32,13 +32,14 @@ import org.oscim.event.Event;
 import org.oscim.layers.Layer;
 import org.oscim.map.Map;
 import org.oscim.renderer.LocationRenderer;
+import org.oscim.utils.FastMath;
 
 @SuppressWarnings("deprecation")
 public class Compass extends Layer implements SensorEventListener, Map.UpdateListener,
         LocationRenderer.Callback {
-
-    // final static Logger log = LoggerFactory.getLogger(Compass.class);
-
+    
+    // final static Logger log = new Logger(Compass.class);
+    
     public enum Mode {
         OFF, C2D, C3D,
     }
@@ -230,20 +231,13 @@ public class Compass extends Layer implements SensorEventListener, Map.UpdateLis
         // float rotation = (float) Math.toDegrees(mAzimuthRadians);
 
         float change = rotation - mCurRotation;
-        if (change > 180)
-            change -= 360;
-        else if (change < -180)
-            change += 360;
+        change = (float) FastMath.clampDegree(change);
 
         // low-pass
         change *= 0.05;
 
         rotation = mCurRotation + change;
-
-        if (rotation > 180)
-            rotation -= 360;
-        else if (rotation < -180)
-            rotation += 360;
+        rotation = (float) FastMath.clampDegree(rotation);
 
         // float tilt = (float) Math.toDegrees(mRotationV[1]);
         // float tilt = (float) Math.toDegrees(mPitchAxisRadians);

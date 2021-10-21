@@ -8,8 +8,7 @@ import org.osmdroid.routing.RouteNode;
 import org.osmdroid.routing.RouteProvider;
 import org.osmdroid.utils.HttpConnection;
 import org.osmdroid.utils.PolylineEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -34,8 +33,8 @@ import javax.xml.parsers.SAXParserFactory;
  * @author M.Kergall
  */
 public class GoogleRouteProvider extends RouteProvider {
-
-    final static Logger log = LoggerFactory.getLogger(GoogleRouteProvider.class);
+    
+    final static Logger log = new Logger(GoogleRouteProvider.class);
 
     static final String GOOGLE_DIRECTIONS_SERVICE = "http://maps.googleapis.com/maps/api/directions/xml?";
 

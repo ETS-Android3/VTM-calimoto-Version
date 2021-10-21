@@ -28,56 +28,72 @@ import java.util.List;
  * This class draws a path line in given color or texture.
  */
 public class PathLayerExtended extends PathLayer {
-
-    private String uniqueId;
-
-    public PathLayerExtended(Map map, LineStyle style) {
-        super(map, style);
-    }
-
-    public void setPoint(int index, GeoPoint pt) {
-        synchronized (mPoints) {
-            mPoints.set(index, pt);
-        }
-        updatePoints();
-    }
-
-    public void addPoint(int index, GeoPoint pt) {
-        synchronized (mPoints) {
-            mPoints.add(index, pt);
-        }
-        updatePoints();
-    }
-
-    public void removePoint(int index) {
-        synchronized (mPoints) {
-            mPoints.remove(index);
-        }
-        updatePoints();
-    }
-
-    public GeoPoint getPoint(int index) {
-        return mPoints.get(index);
-    }
-
-    public List<GeoPoint> getPointsCopy() {
-        return new ArrayList<GeoPoint>(mPoints);
-    }
-
-    public int size() {
-        return mPoints.size();
-    }
-
-    public BoundingBox getBounds() {
-        return new BoundingBox(mPoints);
-    }
-
-    public void setUniqueId(String uniqueId) {
-        this.uniqueId = uniqueId;
-    }
-
-    public String getUniqueId() {
-        return uniqueId;
-    }
-
+	
+	private String uniqueId;
+	private BoundingBox mBounds;
+	
+	public PathLayerExtended(Map map, LineStyle style) {
+		super(map, style);
+	}
+	
+	public void redraw() {
+		mWorker.submit(10);
+	}
+	
+	public void setPoint(int index, GeoPoint pt) {
+		synchronized (mPoints) {
+			mPoints.set(index, pt);
+		}
+		updatePoints();
+	}
+	
+	public void addPoint(int index, GeoPoint pt) {
+		synchronized (mPoints) {
+			mPoints.add(index, pt);
+		}
+		updatePoints();
+	}
+	
+	public void removePoint(int index) {
+		synchronized (mPoints) {
+			mPoints.remove(index);
+		}
+		updatePoints();
+	}
+	
+	public GeoPoint getPoint(int index) {
+		return mPoints.get(index);
+	}
+	
+	public List<GeoPoint> getPointsCopy() {
+		return new ArrayList<GeoPoint>(mPoints);
+	}
+	
+	@Override
+	protected void updatePoints() {
+		mBounds = null;
+		super.updatePoints();
+	}
+	
+	public int size() {
+		return mPoints.size();
+	}
+	
+	public BoundingBox getBounds() {
+		synchronized (mPoints) {
+			if (mBounds == null) {
+				mBounds = new BoundingBox(mPoints);
+			}
+		}
+		return mBounds;
+	}
+	
+	public void setUniqueId(String uniqueId) {
+		this.uniqueId = uniqueId;
+	}
+	
+	public String getUniqueId() {
+		return uniqueId;
+	}
+	
 }

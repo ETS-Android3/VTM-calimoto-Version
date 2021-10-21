@@ -1,6 +1,7 @@
 /*
+ * Copyright 2013 Hannes Janetzek
  * Copyright 2016 Andrey Novikov
- * Copyright 2016 devemux86
+ * Copyright 2016-2019 devemux86
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -18,6 +19,7 @@
 package org.oscim.tiling.source.bitmap;
 
 import org.oscim.layers.tile.bitmap.BitmapTileLayer.FadeStep;
+import org.oscim.map.Viewport;
 import org.oscim.tiling.source.bitmap.BitmapTileSource.Builder;
 
 /**
@@ -28,32 +30,23 @@ public class DefaultSources {
 
     private static final FadeStep[] FADE_STEPS = new FadeStep[]{
             new FadeStep(0, 8 - 1, 1, 0.7f),
-            // dont fade between zoom-min/max
+            // don't fade between zoom-min/max
             // fade above zoom max + 2, interpolate 1 to 0
             new FadeStep(8 - 1, 8 + 1, 0.7f, 0)
     };
 
     public static Builder<?> OPENSTREETMAP = BitmapTileSource.builder()
-            .url("http://tile.openstreetmap.org")
-            .zoomMax(18);
-
-    public static Builder<?> OSM_TRANSPORT = BitmapTileSource.builder()
-            .url("http://a.tile.thunderforest.com/transport")
+            .url("https://tile.openstreetmap.org")
             .zoomMax(18);
 
     public static Builder<?> STAMEN_TONER = BitmapTileSource.builder()
-            .url("http://a.tile.stamen.com/toner")
+            .url("https://stamen-tiles.a.ssl.fastly.net/toner")
             .zoomMax(18);
 
     public static Builder<?> STAMEN_WATERCOLOR = BitmapTileSource.builder()
-            .url("http://a.tile.stamen.com/watercolor")
+            .url("https://stamen-tiles.a.ssl.fastly.net/watercolor")
             .tilePath("/{Z}/{X}/{Y}.jpg")
             .zoomMax(18);
-
-    public static Builder<?> IMAGICO_LANDCOVER = BitmapTileSource.builder()
-            .url("http://www.imagico.de/map/tiles/landcover")
-            .tilePath("/{Z}/{X}/{Y}.jpg")
-            .zoomMax(6);
 
     public static Builder<?> NE_LANDCOVER = BitmapTileSource.builder()
             .url("http://opensciencemap.org/tiles/ne")
@@ -61,12 +54,28 @@ public class DefaultSources {
             .zoomMax(8);
 
     public static Builder<?> HIKEBIKE = BitmapTileSource.builder()
-            .url("http://tiles.wmflabs.org/hikebike")
+            .url("https://tiles.wmflabs.org/hikebike")
             .tilePath("/{Z}/{X}/{Y}.png")
             .zoomMax(17);
 
     public static Builder<?> HIKEBIKE_HILLSHADE = BitmapTileSource.builder()
-            .url("http://tiles.wmflabs.org/hillshading")
+            .url("https://tiles.wmflabs.org/hillshading")
             .tilePath("/{Z}/{X}/{Y}.png")
             .zoomMax(14);
+
+    // Needs an API key
+    public static Builder<?> MAPILION_HILLSHADE_1 = BitmapTileSource.builder()
+            .url("https://tiles.mapilion.com/hillshades/v1")
+            .tilePath("/{Z}/{X}/{Y}.png")
+            .zoomMin(1)
+            .zoomMax(12);
+
+    // Needs an API key
+    public static Builder<?> MAPILION_HILLSHADE_2 = BitmapTileSource.builder()
+            .url("https://tiles.mapilion.com/hillshades/v2")
+            .tilePath("/{Z}/{X}/{Y}.png")
+            .fadeSteps(new FadeStep[]{
+                    new FadeStep(0, Viewport.MAX_ZOOM_LEVEL, 1, 0.2f)
+            })
+            .zoomMax(12);
 }

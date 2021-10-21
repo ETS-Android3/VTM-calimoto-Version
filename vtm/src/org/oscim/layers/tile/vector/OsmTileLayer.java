@@ -1,6 +1,6 @@
 /*
  * Copyright 2013 Hannes Janetzek
- * Copyright 2016 devemux86
+ * Copyright 2016-2018 devemux86
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -25,12 +25,10 @@ import org.oscim.utils.Utils;
 
 public class OsmTileLayer extends VectorTileLayer {
 
-    private static final int MAX_ZOOMLEVEL = 17;
-    private static final int MIN_ZOOMLEVEL = 2;
     private static final int CACHE_LIMIT = 150;
 
     public OsmTileLayer(Map map) {
-        this(map, MIN_ZOOMLEVEL, MAX_ZOOMLEVEL);
+        this(map, map.viewport().getMinZoomLevel(), map.viewport().getMaxZoomLevel());
     }
 
     public OsmTileLayer(Map map, int zoomMin, int zoomMax) {
@@ -64,6 +62,7 @@ public class OsmTileLayer extends VectorTileLayer {
                 new TagReplacement(Tag.KEY_MIN_HEIGHT)
         };
 
+        @Override
         protected TagSet filterTags(TagSet tagSet) {
             Tag[] tags = tagSet.getTags();
 

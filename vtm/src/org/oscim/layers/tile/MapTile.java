@@ -1,6 +1,6 @@
 /*
  * Copyright 2012, 2013 Hannes Janetzek
- * Copyright 2017 devemux86
+ * Copyright 2017-2018 devemux86
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -25,8 +25,7 @@ import org.oscim.renderer.bucket.RenderBuckets;
 import org.oscim.utils.pool.Inlist;
 import org.oscim.utils.quadtree.TileIndex;
 import org.oscim.utils.quadtree.TreeNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import static org.oscim.layers.tile.MapTile.State.CANCEL;
 import static org.oscim.layers.tile.MapTile.State.DEADBEEF;
@@ -42,52 +41,52 @@ import static org.oscim.layers.tile.MapTile.State.READY;
  * and TileRenderer (GL Thread).
  */
 public class MapTile extends Tile {
-
-    static final Logger log = LoggerFactory.getLogger(MapTile.class);
+    
+    static final Logger log = new Logger(MapTile.class);
 
     public static class TileNode extends TreeNode<TileNode, MapTile> {
     }
 
     public static final class State {
-        public final static byte NONE = (1 << 0);
+        public static final byte NONE = (1 << 0);
 
         /**
          * STATE_LOADING means the tile is about to be loaded / loading.
          * Tile belongs to TileLoader thread.
          */
-        public final static byte LOADING = (1 << 1);
+        public static final byte LOADING = (1 << 1);
 
         /**
          * STATE_NEW_DATA: tile data is prepared for rendering.
          * While 'locked' it belongs to GL Thread.
          */
-        public final static byte NEW_DATA = (1 << 2);
+        public static final byte NEW_DATA = (1 << 2);
 
         /**
          * STATE_READY: tile data is uploaded to GL.
          * While 'locked' it belongs to GL Thread.
          */
-        public final static byte READY = (1 << 3);
+        public static final byte READY = (1 << 3);
 
         /**
          * STATE_CANCEL: tile is removed from TileManager,
          * but may still be processed by TileLoader.
          */
-        public final static byte CANCEL = (1 << 4);
+        public static final byte CANCEL = (1 << 4);
 
         /**
          * Dont touch if you find some.
          */
-        public final static byte DEADBEEF = (1 << 6);
+        public static final byte DEADBEEF = (1 << 6);
     }
 
-    public final static int PROXY_CHILD00 = (1 << 0);
-    public final static int PROXY_CHILD01 = (1 << 1);
-    public final static int PROXY_CHILD10 = (1 << 2);
-    public final static int PROXY_CHILD11 = (1 << 3);
-    public final static int PROXY_PARENT = (1 << 4);
-    public final static int PROXY_GRAMPA = (1 << 5);
-    public final static int PROXY_HOLDER = (1 << 6);
+    public static final int PROXY_CHILD00 = (1 << 0);
+    public static final int PROXY_CHILD01 = (1 << 1);
+    public static final int PROXY_CHILD10 = (1 << 2);
+    public static final int PROXY_CHILD11 = (1 << 3);
+    public static final int PROXY_PARENT = (1 << 4);
+    public static final int PROXY_GRAMPA = (1 << 5);
+    public static final int PROXY_HOLDER = (1 << 6);
 
     /**
      * Tile state
@@ -150,11 +149,12 @@ public class MapTile extends Tile {
      */
     MapTile holder;
 
-    public static abstract class TileData extends Inlist<TileData> {
+    public abstract static class TileData extends Inlist<TileData> {
         Object id;
 
         protected abstract void dispose();
 
+        @Override
         public TileData next() {
             return (TileData) next;
         }
@@ -239,18 +239,25 @@ public class MapTile extends Tile {
     void unlock() {
         if (--locked > 0)
             return;
-
-        TileNode parent = node.parent;
-        if ((proxy & PROXY_PARENT) != 0)
-            parent.item.refs--;
+    
+        if ((proxy & PROXY_PARENT) != 0) {
+            MapTile p = node.parent();
+            if (p != null)
+                p.refs--;
+        }
 
         if ((proxy & PROXY_GRAMPA) != 0) {
-            parent = parent.parent;
-            parent.item.refs--;
+            MapTile p = node.parent.parent();
+            if (p != null)
+                p.refs--;
         }
+
         for (int i = 0; i < 4; i++) {
-            if ((proxy & (1 << i)) != 0)
-                node.child(i).refs--;
+            if ((proxy & (1 << i)) != 0) {
+                MapTile c = node.child(i);
+                if (c != null)
+                    c.refs--;
+            }
         }
 
         /* removed all proxy references for this tile */

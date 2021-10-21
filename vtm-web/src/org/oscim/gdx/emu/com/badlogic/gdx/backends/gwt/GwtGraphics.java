@@ -35,11 +35,10 @@ import com.google.gwt.webgl.client.WebGLContextAttributes;
 import com.google.gwt.webgl.client.WebGLRenderingContext;
 
 import org.oscim.gdx.client.GdxGL;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 public class GwtGraphics implements Graphics {
-    static final Logger log = LoggerFactory.getLogger(GwtGraphics.class);
+    static final Logger log = new Logger(GwtGraphics.class);
 
     /* Enum values from http://www.w3.org/TR/screen-orientation. Filtered based on what the browsers actually support. */
     public enum OrientationLockType {

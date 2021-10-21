@@ -15,7 +15,6 @@
 package org.oscim.test;
 
 import com.badlogic.gdx.Input;
-
 import org.oscim.gdx.GdxMapApp;
 import org.oscim.theme.StreamRenderTheme;
 import org.oscim.theme.XmlRenderThemeMenuCallback;

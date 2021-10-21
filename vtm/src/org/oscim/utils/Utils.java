@@ -20,13 +20,11 @@ import org.oscim.backend.canvas.Bitmap;
 import org.oscim.backend.canvas.Canvas;
 import org.oscim.renderer.bucket.TextureItem;
 import org.oscim.utils.math.MathUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 public final class Utils {
-
-    private static final Logger log = LoggerFactory.getLogger(Utils.class);
-
+    
+    private static final Logger log = new Logger(Utils.class);
     /**
      * Null safe equals.
      */
@@ -48,7 +46,7 @@ public final class Utils {
                 return new TextureItem(potBitmap(bitmap), true);
             }
         } catch (Exception e) {
-            log.error("{}: missing file / {}", src, e.getMessage());
+            log.error("{}: missing file / {}", src, e);
         }
         return null;
     }

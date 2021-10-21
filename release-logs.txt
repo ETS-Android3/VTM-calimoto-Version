@@ -1,0 +1,27 @@
+1.3.4
+- created GlobalConfig class
+
+1.3.3
+- building jar files directly into dependencies repo
+- implemented CaloBitmap
+
+1.3.2
+- fixed single DNS error as fallback URL is null
+
+1.3.1
+- added new single DNS for tiles server
+
+1.3
+- fixed double tap to zoom placing search pin
+- added option for Animator to block touch events
+- added WeatherTileLayer.disposeTileCache()
+
+1.2
+- integrated calimoto logic
+
+1.1
+- added satellite and hillshade themes
+- added weather layer for overlay
+
+1.0
+- initial release of the VTM-mvt repo

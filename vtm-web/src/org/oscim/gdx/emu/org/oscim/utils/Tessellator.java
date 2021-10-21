@@ -10,11 +10,10 @@ import com.google.gwt.typedarrays.shared.Int32Array;
 
 import org.oscim.core.GeometryBuffer;
 import org.oscim.renderer.bucket.VertexData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 public class Tessellator {
-    static final Logger log = LoggerFactory.getLogger(Tessellator.class);
+    static final Logger log = new Logger(Tessellator.class);
 
     public static int tessellate(GeometryBuffer geom, float scale,
                                  VertexData outPoints, VertexData outTris, int vertexOffset) {

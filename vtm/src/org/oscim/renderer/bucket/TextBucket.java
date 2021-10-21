@@ -18,15 +18,14 @@ package org.oscim.renderer.bucket;
 
 import org.oscim.backend.CanvasAdapter;
 import org.oscim.backend.canvas.Canvas;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import static org.oscim.renderer.MapRenderer.COORD_SCALE;
 
 public class TextBucket extends TextureBucket {
-    static final Logger log = LoggerFactory.getLogger(TextBucket.class);
+    static final Logger log = new Logger(TextBucket.class);
 
-    protected final static int LBIT_MASK = 0xfffffffe;
+    protected static final int LBIT_MASK = 0xfffffffe;
 
     protected static int mFontPadX = 1;
     //private static int mFontPadY = 1;

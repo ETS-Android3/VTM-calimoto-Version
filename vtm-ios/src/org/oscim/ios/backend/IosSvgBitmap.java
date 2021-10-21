@@ -1,6 +1,6 @@
 /*
  * Copyright 2016 Longri
- * Copyright 2016-2017 devemux86
+ * Copyright 2016-2018 devemux86
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -16,12 +16,12 @@
 package org.oscim.ios.backend;
 
 import org.oscim.backend.CanvasAdapter;
+import org.oscim.utils.GraphicUtils;
 import org.oscim.utils.IOUtils;
 import org.robovm.apple.coregraphics.CGRect;
 import org.robovm.apple.coregraphics.CGSize;
 import org.robovm.apple.uikit.UIImage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.io.InputStreamReader;
 import svg.SVGRenderer;
 
 public class IosSvgBitmap extends IosBitmap {
-    private static final Logger log = LoggerFactory.getLogger(IosSvgBitmap.class);
+    private static final Logger log = new Logger(IosSvgBitmap.class);
 
     /**
      * Default size is 20x20px (400px) at 160dpi.
@@ -62,31 +62,9 @@ public class IosSvgBitmap extends IosBitmap {
 
         double scale = scaleFactor / Math.sqrt((viewRect.getHeight() * viewRect.getWidth()) / defaultSize);
 
-        float bitmapWidth = (float) (viewRect.getWidth() * scale);
-        float bitmapHeight = (float) (viewRect.getHeight() * scale);
+        float[] bmpSize = GraphicUtils.imageSize((float) viewRect.getWidth(), (float) viewRect.getHeight(), (float) scale, width, height, percent);
 
-        float aspectRatio = (float) (viewRect.getWidth() / viewRect.getHeight());
-
-        if (width != 0 && height != 0) {
-            // both width and height set, override any other setting
-            bitmapWidth = width;
-            bitmapHeight = height;
-        } else if (width == 0 && height != 0) {
-            // only width set, calculate from aspect ratio
-            bitmapWidth = height * aspectRatio;
-            bitmapHeight = height;
-        } else if (width != 0 && height == 0) {
-            // only height set, calculate from aspect ratio
-            bitmapHeight = width / aspectRatio;
-            bitmapWidth = width;
-        }
-
-        if (percent != 100) {
-            bitmapWidth *= percent / 100f;
-            bitmapHeight *= percent / 100f;
-        }
-
-        return renderer.asImageWithSize(new CGSize(bitmapWidth, bitmapHeight), 1);
+        return renderer.asImageWithSize(new CGSize(bmpSize[0], bmpSize[1]), 1);
     }
 
     private static UIImage getResourceBitmapImpl(InputStream inputStream, int width, int height, int percent) {

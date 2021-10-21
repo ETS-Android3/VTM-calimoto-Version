@@ -25,8 +25,7 @@ import org.json.JSONObject;
 import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
 import org.osmdroid.utils.BonusPackHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -36,8 +35,8 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class FourSquareProvider implements POIProvider {
-
-    final static Logger log = LoggerFactory.getLogger(FourSquareProvider.class);
+    
+    final static Logger log = new Logger(FourSquareProvider.class);
 
     //    https://developer.foursquare.com/docs/venues/search
     //    https://developer.foursquare.com/docs/responses/venue
@@ -137,6 +136,7 @@ public class FourSquareProvider implements POIProvider {
      * Null if
      * technical issue.
      */
+    @Override
     public ArrayList<POI> getPOIInside(BoundingBox boundingBox, String query, int maxResults) {
         String url = getUrlInside(boundingBox, query, maxResults);
         return getThem(url);

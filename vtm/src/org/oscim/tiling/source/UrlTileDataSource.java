@@ -1,6 +1,7 @@
 /*
  * Copyright 2012 Hannes Janetzek
  * Copyright 2017 devemux86
+ * Copyright 2021 calimoto GmbH (Robert Schierz)
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -17,6 +18,7 @@
  */
 package org.oscim.tiling.source;
 
+import org.oscim.core.MercatorProjection;
 import org.oscim.layers.tile.MapTile;
 import org.oscim.tiling.ITileCache;
 import org.oscim.tiling.ITileCache.TileReader;
@@ -25,8 +27,7 @@ import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.ITileDataSource;
 import org.oscim.tiling.QueryResult;
 import org.oscim.utils.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,12 +40,21 @@ import static org.oscim.tiling.QueryResult.FAILED;
 import static org.oscim.tiling.QueryResult.SUCCESS;
 
 public class UrlTileDataSource implements ITileDataSource {
-    static final Logger log = LoggerFactory.getLogger(UrlTileDataSource.class);
+    static final Logger log = new Logger(UrlTileDataSource.class);
 
     protected final HttpEngine mConn;
     protected final ITileDecoder mTileDecoder;
     protected final UrlTileSource mTileSource;
     protected final boolean mUseCache;
+    protected boolean mUseTmsAnnotation = false;
+
+    public UrlTileDataSource(UrlTileSource tileSource, ITileDecoder tileDecoder, HttpEngine conn, boolean mUseTmsAnnotation) {
+        mTileDecoder = tileDecoder;
+        mTileSource = tileSource;
+        mUseCache = (tileSource.tileCache != null);
+        mConn = conn;
+        this.mUseTmsAnnotation = mUseTmsAnnotation;
+    }
 
     public UrlTileDataSource(UrlTileSource tileSource, ITileDecoder tileDecoder, HttpEngine conn) {
         mTileDecoder = tileDecoder;
@@ -55,19 +65,25 @@ public class UrlTileDataSource implements ITileDataSource {
 
     @Override
     public void query(MapTile tile, ITileDataSink sink) {
+
+        MapTile loadedTile = tile;
+        if (mUseTmsAnnotation) {
+            loadedTile = new MapTile(tile.tileX, (int) MercatorProjection.tileYToTMS(tile.tileY, tile.zoomLevel), tile.zoomLevel);
+        }
+
         ITileCache cache = mTileSource.tileCache;
 
         if (mUseCache) {
-            TileReader c = cache.getTile(tile);
+            TileReader c = cache.getTile(loadedTile);
             if (c != null) {
                 InputStream is = c.getInputStream();
                 try {
-                    if (mTileDecoder.decode(tile, sink, is)) {
+                    if (mTileDecoder.decode(loadedTile, sink, is)) {
                         sink.completed(SUCCESS);
                         return;
                     }
                 } catch (IOException e) {
-                    log.debug("{} Cache read: {}", tile, e);
+                    log.debug("{} Cache read: {}", loadedTile, e);
                 } finally {
                     IOUtils.closeQuietly(is);
                 }
@@ -78,25 +94,25 @@ public class UrlTileDataSource implements ITileDataSource {
 
         TileWriter cacheWriter = null;
         try {
-            mConn.sendRequest(tile);
+            mConn.sendRequest(loadedTile);
             InputStream is = mConn.read();
             if (mUseCache) {
-                cacheWriter = cache.writeTile(tile);
+                cacheWriter = cache.writeTile(loadedTile);
                 mConn.setCache(cacheWriter.getOutputStream());
             }
-            if (mTileDecoder.decode(tile, sink, is))
+            if (mTileDecoder.decode(loadedTile, sink, is))
                 res = SUCCESS;
         } catch (SocketException e) {
-            log.debug("{} Socket Error: {}", tile, e.getMessage());
+            log.debug("{} Socket Error: {}", loadedTile, e);
         } catch (SocketTimeoutException e) {
-            log.debug("{} Socket Timeout", tile);
+            log.debug("{} Socket Timeout", loadedTile);
             res = DELAYED;
         } catch (UnknownHostException e) {
-            log.debug("{} Unknown host: {}", tile, e.getMessage());
+            log.debug("{} Unknown host: {}", loadedTile, e);
         } catch (IOException e) {
-            log.debug("{} Network Error: {}", tile, e.getMessage());
+            log.debug("{} Network Error: {}", loadedTile, e);
         } catch (Exception e) {
-            log.debug("{} Error: {}", tile, e.getMessage());
+            log.debug("{} Error: {}", loadedTile, e);
         } finally {
             boolean ok = (res == SUCCESS);
 

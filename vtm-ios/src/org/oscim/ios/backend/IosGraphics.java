@@ -1,6 +1,6 @@
 /*
  * Copyright 2016 Longri
- * Copyright 2016 devemux86
+ * Copyright 2016-2018 devemux86
  * Copyright 2017 Longri
  *
  * This program is free software: you can redistribute it and/or modify it under the
@@ -21,8 +21,7 @@ import org.oscim.backend.Platform;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.backend.canvas.Canvas;
 import org.oscim.backend.canvas.Paint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,8 +30,8 @@ import java.io.InputStream;
  * iOS specific implementation of {@link CanvasAdapter}.
  */
 public class IosGraphics extends CanvasAdapter {
-
-    private static final Logger log = LoggerFactory.getLogger(IosGraphics.class);
+    
+    private static final Logger log = new Logger(IosGraphics.class);
 
     public static void init() {
         CanvasAdapter.init(new IosGraphics());
@@ -57,6 +56,11 @@ public class IosGraphics extends CanvasAdapter {
     @Override
     protected Bitmap decodeBitmapImpl(InputStream inputStream) throws IOException {
         return new IosBitmap(inputStream);
+    }
+
+    @Override
+    protected Bitmap decodeBitmapImpl(InputStream inputStream, int width, int height, int percent) throws IOException {
+        return new IosBitmap(inputStream, width, height, percent);
     }
 
     @Override

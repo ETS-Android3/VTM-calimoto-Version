@@ -3,6 +3,7 @@
  * Copyright 2014 Hannes Janetzek
  * Copyright 2017 devemux86
  * Copyright 2017 Mathieu De Brito
+ * Copyright 2019 calimoto GmbH (Mareike Wendtland)
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -21,8 +22,7 @@ package org.oscim.tiling.source;
 
 import org.oscim.core.Tile;
 import org.oscim.utils.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -30,26 +30,33 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
 public class OkHttpEngine implements HttpEngine {
+    
+    private static final Logger log = new Logger(OkHttpEngine.class);
 
-    private static final Logger log = LoggerFactory.getLogger(OkHttpEngine.class);
+    private static final int TIMEOUT_CONNECT_IN_SEC = 3;
 
     private final OkHttpClient mClient;
     private final UrlTileSource mTileSource;
 
     private InputStream mInputStream;
     private byte[] mCachedData;
+    private int rerequestIntervalInSec = 0;
 
     public static class OkHttpFactory implements HttpEngine.Factory {
         private final OkHttpClient.Builder mClientBuilder;
 
         public OkHttpFactory() {
-            mClientBuilder = new OkHttpClient.Builder();
+            // decrease connect timeout manually (default 10 sec.) that map tiles can initially 
+            // be loaded as fast as possible (otherwise problems with wifi connection)
+            mClientBuilder = new OkHttpClient.Builder()
+                    .connectTimeout(TIMEOUT_CONNECT_IN_SEC, TimeUnit.SECONDS);
         }
 
         public OkHttpFactory(OkHttpClient.Builder clientBuilder) {
@@ -77,22 +84,89 @@ public class OkHttpEngine implements HttpEngine {
         if (tile == null) {
             throw new IllegalArgumentException("Tile cannot be null.");
         }
-        try {
-            URL url = new URL(mTileSource.getTileUrl(tile));
-            Request.Builder builder = new Request.Builder()
-                    .url(url);
-            for (Entry<String, String> opt : mTileSource.getRequestHeader().entrySet())
-                builder.addHeader(opt.getKey(), opt.getValue());
-            Request request = builder.build();
-            Response response = mClient.newCall(request).execute();
-            if (mTileSource.tileCache != null) {
-                mCachedData = response.body().bytes();
-                mInputStream = new ByteArrayInputStream(mCachedData);
-            } else
-                mInputStream = response.body().byteStream();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
+        URL url = new URL(mTileSource.getTileUrl(tile, mTileSource.getUseFallbackUrl()));
+        Request.Builder builder = new Request.Builder().url(url);
+        for (Entry<String, String> opt : mTileSource.getRequestHeader().entrySet())
+        {
+            builder.addHeader(opt.getKey(), opt.getValue());
         }
+        Request request = builder.build();
+        Response response;
+        try
+        {
+            response = mClient.newCall(request).execute();
+        }
+        catch (IOException e)
+        {
+            // increment interval before starting a new request
+            if (rerequestIntervalInSec < 5)
+            {
+                rerequestIntervalInSec++;
+            }
+            else
+            {
+                // cancel further fallback requests
+                // (this is necessary to avoid endless loop of retrying)
+                return;
+            }
+            try
+            {
+                // wait
+                Thread.sleep(1000L * rerequestIntervalInSec);
+            }
+            catch (InterruptedException ie)
+            {
+                /*
+                 * interrupt exception most likely occurs because thread is being shut down
+                 * e.g. user switches from online map to offline map and thread pool is shut down
+                 * since the interrupt exception was thrown the thread is no longer interrupted
+                 * we now need to interrupt the thread again, so it can shut down as desired
+                 */
+                try
+                {
+                    // interrupt thread again so it can shut down
+                    if (!Thread.currentThread().isInterrupted())
+                    {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                catch (Throwable error)
+                {
+                    log.error(error);
+                }
+                // cancel further code as thread is being shut down
+                return;
+            }
+
+            // log the problem
+            log.warn("Error on loading tiles - " + Thread.currentThread().getName());
+
+            // switch to fallback url for all further requests in this session
+            if (!mTileSource.getUseFallbackUrl())
+            {
+                // only once
+                mTileSource.setUseFallbackUrl(true);
+                log.warn("Fallback server " + mTileSource.getFallbackUrl() +
+                        " will be used for requesting tiles instead of " + mTileSource.getUrl());
+            }
+
+            // load current tile again with new fallback url
+            sendRequest(tile);
+
+            // forward exception to be handled later
+            throw e;
+        }
+
+        if (mTileSource.tileCache != null)
+        {
+            mCachedData = response.body().bytes();
+            mInputStream = new ByteArrayInputStream(mCachedData);
+        }
+        else
+        {
+            mInputStream = response.body().byteStream();
+        }
+        rerequestIntervalInSec = 0;
     }
 
     @Override

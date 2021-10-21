@@ -3,8 +3,7 @@ package org.osmdroid.location;
 import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
 import org.osmdroid.utils.HttpConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -26,8 +25,8 @@ import javax.xml.parsers.SAXParserFactory;
  * @see "https://developers.google.com/picasa-web/docs/2.0/reference"
  */
 public class PicasaPOIProvider implements POIProvider {
-
-    final static Logger log = LoggerFactory.getLogger(PicasaPOIProvider.class);
+    
+    final static Logger log = new Logger(PicasaPOIProvider.class);
 
     String mAccessToken;
 
@@ -95,6 +94,7 @@ public class PicasaPOIProvider implements POIProvider {
      * @return list of POI, Picasa photos inside the bounding box. Null if
      * technical issue.
      */
+    @Override
     public List<POI> getPOIInside(BoundingBox boundingBox, String query, int maxResults) {
         String url = getUrlInside(boundingBox, maxResults, query);
         return getThem(url);

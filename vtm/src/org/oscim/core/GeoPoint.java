@@ -20,6 +20,10 @@
  */
 package org.oscim.core;
 
+import androidx.annotation.NonNull;
+
+import com.calimoto.logic.CaloCoordinate;
+
 import org.oscim.utils.FastMath;
 
 import java.io.Serializable;
@@ -28,7 +32,7 @@ import java.io.Serializable;
  * A GeoPoint represents an immutable pair of latitude and longitude
  * coordinates.
  */
-public class GeoPoint implements Comparable<GeoPoint>, Serializable {
+public class GeoPoint implements Comparable<GeoPoint>, Serializable, CaloCoordinate {
     /**
      * Generated serial version UID
      */
@@ -189,9 +193,16 @@ public class GeoPoint implements Comparable<GeoPoint>, Serializable {
         return true;
     }
 
+    @NonNull
+    @Override
+    public CaloCoordinate getCoordinate() {
+        return this;
+    }
+
     /**
      * @return the latitude value of this GeoPoint in degrees.
      */
+    @Override
     public double getLatitude() {
         return this.latitudeE6 / CONVERSION_FACTOR;
     }
@@ -199,6 +210,7 @@ public class GeoPoint implements Comparable<GeoPoint>, Serializable {
     /**
      * @return the longitude value of this GeoPoint in degrees.
      */
+    @Override
     public double getLongitude() {
         return this.longitudeE6 / CONVERSION_FACTOR;
     }

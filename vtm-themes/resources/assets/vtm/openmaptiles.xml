@@ -31,7 +31,7 @@
     <!-- src="assets:textures/wood.png" -->
     <!-- <style-area id="wood" fill="#d1dbc7" fade="8" blend="11" blend-fill="#9ac56e" /> -->
 
-    <style-area id="tex1" src="assets:textures/rough.png" />
+    <style-area id="tex1" src="assets:calimoto/rough.png" />
 
     <!-- meadow|garden -->
     <style-area fade="10" fill="#c9dc91" id="greens" use="tex1" />
@@ -1032,7 +1032,7 @@
             <m k="area" v="~|false|no">
                 <m k="highway">
                     <m k="oneway" v="yes|true" zoom-min="16">
-                        <lineSymbol src="assets:symbols/oneway.svg" />
+                        <lineSymbol src="assets:calimoto/oneway.svg" />
                     </m>
                 </m>
             </m>
@@ -1105,11 +1105,11 @@
             <m v="city">
                 <m zoom-min="7">
                     <caption style="bold" dy="14" fill="#000000" k="name" priority="1" size="19"
-                        stroke="#ffffff" stroke-width="2.0" symbol="assets:symbols/dot_black.svg" />
+                        stroke="#ffffff" stroke-width="2.0" symbol="assets:calimoto/dot_black.svg" />
                 </m>
                 <m zoom-max="6">
                     <caption dy="14" fill="#000000" k="name" priority="1" size="19" stroke="#ffffff"
-                        stroke-width="2.0" symbol="assets:symbols/dot_black.svg" />
+                        stroke-width="2.0" symbol="assets:calimoto/dot_black.svg" />
                 </m>
             </m>
             <m v="country">

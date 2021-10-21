@@ -16,8 +16,7 @@
 package org.oscim.theme;
 
 import org.oscim.backend.XMLReaderAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -28,9 +27,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * A utility class with theme specific helper methods.
  */
 public final class ThemeUtils {
-
-    private static final Logger log = LoggerFactory.getLogger(ThemeUtils.class);
-
+    
+    private static final Logger log = new Logger(ThemeUtils.class);
+    
     /**
      * Check if the given theme is a Mapsforge one.
      */
@@ -39,6 +38,7 @@ public final class ThemeUtils {
             final AtomicBoolean isMapsforgeTheme = new AtomicBoolean(false);
             try {
                 new XMLReaderAdapter().parse(new DefaultHandler() {
+                    @Override
                     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
                         if (localName.equals("rendertheme")) {
                             isMapsforgeTheme.set(uri.equals("http://mapsforge.org/renderTheme"));

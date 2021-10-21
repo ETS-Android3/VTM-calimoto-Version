@@ -8,8 +8,7 @@ import org.json.JSONObject;
 import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
 import org.osmdroid.utils.BonusPackHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -22,8 +21,8 @@ import java.util.ArrayList;
  * @author M.Kergall
  */
 public class NominatimPOIProvider implements POIProvider {
-
-    final static Logger log = LoggerFactory.getLogger(NominatimPOIProvider.class);
+    
+    final static Logger log = new Logger(NominatimPOIProvider.class);
 
     /* As the doc lacks a lot of features, source code may help:
      * https://trac.openstreetmap
@@ -150,6 +149,7 @@ public class NominatimPOIProvider implements POIProvider {
      * @param maxResults  ...
      * @return list of POIs, null if technical issue.
      */
+    @Override
     public ArrayList<POI> getPOIInside(BoundingBox boundingBox, String type, int maxResults) {
         String url = getUrlInside(boundingBox, type, maxResults);
         return getThem(url);

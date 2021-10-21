@@ -65,15 +65,14 @@ package org.oscim.renderer.atlas;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.renderer.bucket.TextureItem;
 import org.oscim.utils.pool.Inlist;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class TextureAtlas extends Inlist<TextureAtlas> {
-    static final Logger log = LoggerFactory.getLogger(TextureAtlas.class);
-
+    static final Logger log = new Logger(TextureAtlas.class);
+    
     /**
      * Allocated slots
      */

@@ -20,8 +20,7 @@ package org.oscim.tiling.source;
 import org.oscim.core.Tile;
 import org.oscim.utils.ArrayUtils;
 import org.oscim.utils.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -39,21 +38,21 @@ import java.util.zip.GZIPInputStream;
  * https, full header parsing or other stuff.
  */
 public class LwHttp implements HttpEngine {
-    static final Logger log = LoggerFactory.getLogger(LwHttp.class);
+    static final Logger log = new Logger(LwHttp.class);
     static final boolean dbg = false;
 
-    private final static byte[] HEADER_HTTP_OK = "200 OK".getBytes();
-    private final static byte[] HEADER_CONTENT_LENGTH = "Content-Length".getBytes();
-    private final static byte[] HEADER_CONNECTION_CLOSE = "Connection: close".getBytes();
-    private final static byte[] HEADER_ENCODING_GZIP = "Content-Encoding: gzip".getBytes();
+    private static final byte[] HEADER_HTTP_OK = "200 OK".getBytes();
+    private static final byte[] HEADER_CONTENT_LENGTH = "Content-Length".getBytes();
+    private static final byte[] HEADER_CONNECTION_CLOSE = "Connection: close".getBytes();
+    private static final byte[] HEADER_ENCODING_GZIP = "Content-Encoding: gzip".getBytes();
 
-    private final static int RESPONSE_EXPECTED_LIVES = 100;
-    private final static long RESPONSE_TIMEOUT = (long) 10E9; // 10 second in nanosecond
+    private static final int RESPONSE_EXPECTED_LIVES = 100;
+    private static final long RESPONSE_TIMEOUT = (long) 10E9; // 10 second in nanosecond
 
-    private final static int CONNECT_TIMEOUT = 15000; // 15 seconds
-    private final static int SOCKET_TIMEOUT = 8000; // 8 seconds
+    private static final int CONNECT_TIMEOUT = 15000; // 15 seconds
+    private static final int SOCKET_TIMEOUT = 8000; // 8 seconds
 
-    private final static int BUFFER_SIZE = 8192;
+    private static final int BUFFER_SIZE = 8192;
     private final byte[] buffer = new byte[BUFFER_SIZE];
 
     private final String mHost;
@@ -145,7 +144,7 @@ public class LwHttp implements HttpEngine {
             try {
                 while (bytesRead < contentLength && read() >= 0) ;
             } catch (IOException e) {
-                log.debug(e.getMessage());
+                log.debug(e);
             }
 
             return bytesRead == contentLength;
@@ -255,6 +254,7 @@ public class LwHttp implements HttpEngine {
             throw new IOException("No Socket");
     }
 
+    @Override
     public synchronized InputStream read() throws IOException {
         checkSocket();
 
@@ -349,7 +349,7 @@ public class LwHttp implements HttpEngine {
                         close();
                     }
                 } catch (IOException e) {
-                    log.debug(e.getMessage());
+                    log.debug(e);
                     close();
                 }
             }
@@ -456,7 +456,7 @@ public class LwHttp implements HttpEngine {
         for (int n = val; n > 0; n = n / 10, i++)
             buf[pos + i] = (byte) ('0' + n % 10);
 
-        ArrayUtils.reverse(buf, pos, pos + i);
+        ArrayUtils.reverse(buf, pos, pos + i, 1);
 
         return pos + i;
     }

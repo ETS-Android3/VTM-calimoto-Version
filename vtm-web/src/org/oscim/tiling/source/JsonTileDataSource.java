@@ -27,8 +27,7 @@ import org.oscim.tiling.ITileDataSink;
 import org.oscim.tiling.ITileDataSource;
 import org.oscim.tiling.source.geojson.GeoJsonTileDecoder;
 import org.oscim.tiling.source.geojson.GeoJsonTileSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.io.InputStream;
 
@@ -36,7 +35,7 @@ import static org.oscim.tiling.QueryResult.FAILED;
 import static org.oscim.tiling.QueryResult.SUCCESS;
 
 public class JsonTileDataSource implements ITileDataSource {
-    static final Logger log = LoggerFactory.getLogger(JsonTileDataSource.class);
+    static final Logger log = new Logger(JsonTileDataSource.class);
 
     protected final GeoJsonTileDecoder mTileDecoder;
     protected final UrlTileSource mTileSource;
@@ -88,6 +87,7 @@ public class JsonTileDataSource implements ITileDataSource {
         //builder.setCallbackParam("json_callback");
 
         mRequestHandle = builder.requestObject(url, new AsyncCallback<JavaScriptObject>() {
+            @Override
             public void onFailure(Throwable caught) {
 
                 mSink.completed(FAILED);
@@ -95,6 +95,7 @@ public class JsonTileDataSource implements ITileDataSource {
                 //mRequestHandle.cancel();
             }
 
+            @Override
             public void onSuccess(JavaScriptObject jso) {
                 if (mTile.state(State.NONE)) {
                     log.debug("tile cleared {}", url);

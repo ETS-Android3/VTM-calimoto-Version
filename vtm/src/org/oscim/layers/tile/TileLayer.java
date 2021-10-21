@@ -1,7 +1,7 @@
 /*
  * Copyright 2013 Hannes Janetzek
  * Copyright 2016 Andrey Novikov
- * Copyright 2017 Luca Osten
+ * Copyright 2021 calimoto GmbH (Robert Schierz)
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -23,15 +23,14 @@ import org.oscim.event.Event;
 import org.oscim.layers.Layer;
 import org.oscim.map.Map;
 import org.oscim.map.Map.UpdateListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 /**
  * TODO - add a TileLayer.Builder
  */
 public abstract class TileLayer extends Layer implements UpdateListener {
-
-    static final Logger log = LoggerFactory.getLogger(TileLayer.class);
+    
+    static final Logger log = new Logger(TileLayer.class);
 
     private int mNumLoaders = 4;
 
@@ -62,7 +61,7 @@ public abstract class TileLayer extends Layer implements UpdateListener {
         mRenderer = renderer;
     }
 
-    abstract protected TileLoader createLoader();
+    protected abstract TileLoader createLoader();
 
     public TileRenderer tileRenderer() {
         return (TileRenderer) mRenderer;
@@ -119,7 +118,7 @@ public abstract class TileLayer extends Layer implements UpdateListener {
         }
     }
 
-    void notifyLoaders() {
+    public void notifyLoaders() {
         for (TileLoader loader : mTileLoader)
             loader.go();
     }
@@ -149,7 +148,7 @@ public abstract class TileLayer extends Layer implements UpdateListener {
     public TileManager getManager() {
         return mTileManager;
     }
-
+    
     public boolean hasWork() {
         for (TileLoader tileLoader : mTileLoader) {
             if (tileLoader.hasWork()) {
@@ -159,4 +158,8 @@ public abstract class TileLayer extends Layer implements UpdateListener {
         return false;
     }
 
+    public void updateLayer(){
+        if (mTileManager.update(mMap.getMapPosition()))
+            notifyLoaders();
+    }
 }

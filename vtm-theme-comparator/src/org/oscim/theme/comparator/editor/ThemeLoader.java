@@ -20,8 +20,7 @@ import org.oscim.theme.comparator.MainMenu;
 import org.oscim.theme.comparator.Utils;
 import org.oscim.theme.comparator.mapsforge.MapsforgeMapPanel;
 import org.oscim.theme.comparator.vtm.VtmPanel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -34,14 +33,14 @@ import java.io.Writer;
 import java.util.prefs.BackingStoreException;
 
 public class ThemeLoader {
+    
+    final private Logger vtmLog = new Logger("org.oscim.ThemeLoader");
+    final private Logger mapsforgeLog = new Logger("org.mapsforge.ThemeLoader");
 
-    final private Logger vtmLog = LoggerFactory.getLogger("org.oscim.ThemeLoader");
-    final private Logger mapsforgeLog = LoggerFactory.getLogger("org.mapsforge.ThemeLoader");
 
-
-    final private VtmPanel vtmPanel;
-    final private MapsforgeMapPanel mapsforgeMapPanel;
-    final private RSyntaxTextArea syntaxTextArea;
+    private final VtmPanel vtmPanel;
+    private final MapsforgeMapPanel mapsforgeMapPanel;
+    private final RSyntaxTextArea syntaxTextArea;
 
     private String themePath;
     private String editorText;

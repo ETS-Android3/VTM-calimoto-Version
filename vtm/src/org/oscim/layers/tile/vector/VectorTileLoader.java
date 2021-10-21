@@ -1,7 +1,8 @@
 /*
  * Copyright 2012-2014 Hannes Janetzek
- * Copyright 2016-2017 devemux86
- * Copyright 2017 Luca Osten
+ * Copyright 2016-2019 devemux86
+ * Copyright 2017-2019 calimoto GmbH (Luca Osten)
+ * Copyright 2019 calimoto GmbH (Mareike Wendtland)
  *
  * This file is part of the OpenScienceMap project (http://www.opensciencemap.org).
  *
@@ -43,21 +44,21 @@ import org.oscim.theme.styles.SymbolStyle;
 import org.oscim.theme.styles.TextStyle;
 import org.oscim.tiling.ITileDataSource;
 import org.oscim.tiling.QueryResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oscim.debug.Logger;
 
 import static org.oscim.layers.tile.MapTile.State.LOADING;
 
 public class VectorTileLoader extends TileLoader implements RenderStyle.Callback {
-
-    static final Logger log = LoggerFactory.getLogger(VectorTileLoader.class);
-
-    protected static final double STROKE_INCREASE = Math.sqrt(2.5);
+    
+    static final Logger log = new Logger(VectorTileLoader.class);
+    
+    protected static final double STROKE_INCREASE = Math.sqrt(2.5); 
     protected static final byte LAYERS = 11;
 
     public static final byte STROKE_MIN_ZOOM = 12;
-    public static final byte STROKE_MAX_ZOOM = 17;
 
+    protected IRenderTheme renderTheme;
+    
     private static float getLineScaleInternal(double y, double zoomLevel) {
         // account for area changes with latitude
         double lat = MercatorProjection.toLatitude(y);
@@ -74,8 +75,6 @@ public class VectorTileLoader extends TileLoader implements RenderStyle.Callback
     public static float getLineScale(double y, int zoomLevel) {
         return getLineScaleInternal(y, zoomLevel);
     }
-
-    protected IRenderTheme renderTheme;
 
     /**
      * current TileDataSource used by this MapTileLoader
@@ -132,7 +131,7 @@ public class VectorTileLoader extends TileLoader implements RenderStyle.Callback
         }
         renderTheme = mTileLayer.getTheme();
         if (renderTheme == null) {
-            log.error("no theme is set");
+            log.warn("no theme is set");
             return false;
         }
 
@@ -153,10 +152,10 @@ public class VectorTileLoader extends TileLoader implements RenderStyle.Callback
             /* query data source, which calls process() callback */
             mTileDataSource.query(tile, this);
         } catch (NullPointerException e) {
-            log.debug("NPE {} {}", tile, e.getMessage());
+            log.debug("NPE {} {}", tile, e);
             e.printStackTrace();
-        } catch (Exception e) {
-            log.debug("{} {}", tile, e.getMessage());
+        } catch (Exception e) { 
+            log.debug("{} {}", tile, e);
             e.printStackTrace();
             return false;
         }

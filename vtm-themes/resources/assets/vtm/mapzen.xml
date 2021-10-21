@@ -3,6 +3,17 @@
     version="1" xmlns="http://opensciencemap.org/rendertheme"
     xsi:schemaLocation="http://opensciencemap.org/rendertheme https://raw.githubusercontent.com/mapsforge/vtm/master/resources/rendertheme.xsd">
 
+    <!--<tag-transform k="kind" v="building" k-lib="building" v-lib="yes" />-->
+    <!--<tag-transform k="kind" v="building_part" k-lib="building:part" v-lib="yes" />-->
+    <tag-transform k="root_id" k-lib="ref" />
+
+    <tag-transform k="roof_color" k-lib="roof:colour" />
+    <tag-transform k="roof_direction" k-lib="roof:direction" />
+    <tag-transform k="roof_height" k-lib="roof:height" />
+    <tag-transform k="roof_material" k-lib="roof:material" />
+    <tag-transform k="roof_orientation" k-lib="roof:orientation" />
+    <tag-transform k="roof_shape" k-lib="roof:shape" />
+
     <!-- base style for fixed width lines -->
     <style-line cap="butt" fix="true" id="fix" width="1.0" />
 
@@ -31,7 +42,7 @@
     <!-- src="assets:textures/wood.png" -->
     <!-- <style-area id="wood" fill="#d1dbc7" fade="8" blend="11" blend-fill="#9ac56e" /> -->
 
-    <style-area id="tex1" src="assets:textures/rough.png" />
+    <style-area id="tex1" src="assets:calimoto/rough.png" />
 
     <!-- meadow|garden -->
     <style-area fade="10" fill="#c9dc91" id="greens" use="tex1" />
@@ -600,12 +611,12 @@
             </m>
             <m zoom-min="17">
                 <extrusion line-color="#ffd9d8d6" side-color="#eaecebe9" top-color="#eaf9f8f6" />
+                <caption style="bold" fill="#2d51bc" k="name" priority="9" size="14"
+                    stroke="#ffffff" stroke-width="2.0" />
             </m>
-            <m zoom-min="17">
-                <caption style="bold" fill="#4040ff" k="name" priority="9" size="14"
-                    stroke="#ffffff" stroke-width="2.0" />
-                <caption style="bold" fill="#606060" k="addr_housenumber" priority="10" size="12"
-                    stroke="#ffffff" stroke-width="2.0" />
+            <m zoom-min="18">
+                <caption style="bold" fill="#606060" font-family="condensed" k="addr_housenumber"
+                    priority="10" size="12" stroke="#ffffff" stroke-width="2.0" />
             </m>
         </m>
 
@@ -1004,7 +1015,7 @@
 
         <!-- historic -->
         <!-- <m k="historic" v="ruins" zoom-min="17">
-          <caption k="name" style="bold" size="10" fill="#4040ff" stroke="#ffffff" stroke-width="2.0"
+          <caption k="name" style="bold" size="10" fill="#2d51bc" stroke="#ffffff" stroke-width="2.0"
           />
           </m> -->
 
@@ -1033,7 +1044,7 @@
             <m k="area" v="~|false|no">
                 <m k="kind_detail">
                     <m k="oneway" v="yes|true" zoom-min="16">
-                        <lineSymbol src="assets:symbols/oneway.svg" />
+                        <lineSymbol src="assets:calimoto/oneway.svg" />
                     </m>
                 </m>
             </m>
@@ -1075,19 +1086,19 @@
         <!-- historic -->
         <m k="historic">
             <m v="memorial">
-                <symbol src="assets:symbols/tourist/memorial.svg" />
+                <symbol src="assets:symbols/custom/tourist/memorial.svg" />
             </m>
             <m v="monument">
-                <symbol src="assets:symbols/tourist/monument.svg" />
+                <symbol src="assets:symbols/custom/tourist/monument.svg" />
             </m>
             <m v="information">
-                <symbol src="assets:symbols/tourist/information.svg" />
+                <symbol src="assets:symbols/custom/tourist/information.svg" />
             </m>
             <m v="viewpoint">
-                <symbol src="assets:symbols/tourist/view_point.svg" />
+                <symbol src="assets:symbols/custom/tourist/view_point.svg" />
             </m>
             <m v="museum">
-                <symbol src="assets:symbols/tourist/museum.svg" />
+                <symbol src="assets:symbols/custom/tourist/museum.svg" />
             </m>
             <m zoom-min="17">
                 <text use="poi" />
@@ -1119,17 +1130,17 @@
             <m v="city">
                 <m zoom-min="7">
                     <caption style="bold" dy="14" fill="#000000" k="name" priority="1" size="19"
-                        stroke="#ffffff" stroke-width="2.0" symbol="assets:symbols/dot_black.svg" />
+                        stroke="#ffffff" stroke-width="2.0" symbol="assets:calimoto/dot_black.svg" />
                 </m>
                 <m zoom-max="6">
                     <caption dy="14" fill="#000000" k="name" priority="1" size="19" stroke="#ffffff"
-                        stroke-width="2.0" symbol="assets:symbols/dot_black.svg" />
+                        stroke-width="2.0" symbol="assets:calimoto/dot_black.svg" />
                 </m>
             </m>
             <m v="locality">
                 <m zoom-max="7">
                     <caption dy="14" fill="#000000" k="name" priority="1" size="19" stroke="#ffffff"
-                        stroke-width="2.0" symbol="assets:symbols/dot_black.svg" />
+                        stroke-width="2.0" symbol="assets:calimoto/dot_black.svg" />
                 </m>
             </m>
             <m v="region">
@@ -1148,13 +1159,13 @@
         <m k="kind">
             <m v="station" zoom-min="14">
                 <symbol src="assets:symbols/transport/train_station2.svg" />
-                <caption style="bold" dy="20" fill="#ec2d2d" k="name" size="14" stroke="#ffffff"
+                <caption style="bold" dy="20" fill="#af3a3a" k="name" size="14" stroke="#ffffff"
                     stroke-width="2.0" />
             </m>
 
             <m v="halt|tram_stop">
                 <symbol src="assets:symbols/transport/tram_stop.svg" />
-                <caption style="bold" dy="20" fill="#ec2d2d" k="name" size="14" stroke="#ffffff"
+                <caption style="bold" dy="20" fill="#af3a3a" k="name" size="12" stroke="#ffffff"
                     stroke-width="2.0" />
             </m>
             <m v="level_crossing">
@@ -1185,10 +1196,10 @@
                     <symbol src="assets:symbols/education/university.svg" />
                 </m>
                 <m v="library">
-                    <symbol src="assets:symbols/amenity/library.svg" />
+                    <symbol src="assets:symbols/custom/amenity/library.svg" />
                 </m>
                 <m v="cinema">
-                    <symbol src="assets:symbols/tourist/cinema2.svg" />
+                    <symbol src="assets:symbols/custom/tourist/cinema2.svg" />
                 </m>
 
                 <m select="when-matched">
@@ -1198,7 +1209,7 @@
 
             <m select="first" zoom-min="16">
                 <m v="atm" zoom-min="17">
-                    <symbol src="assets:symbols/money/atm2.svg" />
+                    <symbol src="assets:symbols/custom/money/atm2.svg" />
                 </m>
                 <m v="cafe">
                     <symbol src="assets:symbols/food/cafe.svg" />
@@ -1240,7 +1251,7 @@
                     <symbol src="assets:symbols/amenity/firestation3.svg" />
                 </m>
                 <m v="fountain">
-                    <symbol src="assets:symbols/amenity/fountain2.svg" />
+                    <symbol src="assets:symbols/custom/amenity/fountain2.svg" />
                 </m>
                 <m v="fuel">
                     <symbol src="assets:symbols/transport/fuel.svg" />
@@ -1293,7 +1304,7 @@
                     <symbol src="assets:symbols/amenity/telephone.svg" />
                 </m>
                 <m v="theatre">
-                    <symbol src="assets:symbols/tourist/theatre.svg" />
+                    <symbol src="assets:symbols/custom/tourist/theatre.svg" />
                 </m>
                 <m select="when-matched">
                     <text use="poi" />
@@ -1302,7 +1313,7 @@
 
             <m zoom-min="17">
                 <m v="toilets">
-                    <symbol src="assets:symbols/amenity/toilets.svg" />
+                    <symbol src="assets:symbols/custom/amenity/toilets.svg" />
                 </m>
             </m>
         </m>
@@ -1356,7 +1367,7 @@
             <!-- <m zoom-min="16" select="first">
               <m v="information" select="first">
               <m k="name">
-              <symbol src="assets:symbols/tourist/information.svg" />
+              <symbol src="assets:symbols/custom/tourist/information.svg" />
               <text use="poi" />
               </m>
               <m>
@@ -1366,10 +1377,10 @@
               </m>
             -->
             <m v="viewpoint">
-                <symbol src="assets:symbols/tourist/view_point.svg" />
+                <symbol src="assets:symbols/custom/tourist/view_point.svg" />
             </m>
             <m v="museum">
-                <symbol src="assets:symbols/tourist/museum.svg" />
+                <symbol src="assets:symbols/custom/tourist/museum.svg" />
             </m>
 
         </m>
@@ -1383,9 +1394,9 @@
         </m>
 
         <!-- house numbers -->
-        <m k="addr_housenumber" zoom-min="17">
-            <caption style="bold" fill="#606060" k="addr:housenumber" size="12" stroke="#ffffff"
-                stroke-width="2.0" />
+        <m k="addr_housenumber" zoom-min="18">
+            <caption style="bold" fill="#606060" font-family="condensed" k="addr:housenumber"
+                size="12" stroke="#ffffff" stroke-width="2.0" />
         </m>
     </m>
 
